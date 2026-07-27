@@ -1,0 +1,1 @@
+{"nodes": [{"id": "agents_skills_shadcn_agents_openai", "label": "OpenAI Agent Config", "file_type": "code", "source_file": ".agents/skills/shadcn/agents/openai.yml", "verification": "unverified"}], "edges": [], "hyperedges": []}

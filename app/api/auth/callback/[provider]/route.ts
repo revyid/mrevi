@@ -112,13 +112,13 @@ export async function GET(
         break;
       default:
         return NextResponse.redirect(
-          new URL("/login?error=unsupported_provider", request.url)
+          new URL(`/login?error=${encodeURIComponent("Unsupported provider: " + provider)}`, request.url)
         );
     }
 
     if (!userData.email) {
       return NextResponse.redirect(
-        new URL("/login?error=no_email", request.url)
+        new URL(`/login?error=${encodeURIComponent("No email returned from " + provider + ". Make sure your email is public.")}`, request.url)
       );
     }
 
@@ -142,9 +142,10 @@ export async function GET(
 
     return NextResponse.redirect(new URL(redirectUrl, request.url));
   } catch (error) {
+    const msg = error instanceof Error ? error.message : String(error);
     console.error("[OAuth Callback]", error);
     return NextResponse.redirect(
-      new URL("/login?error=auth_failed", request.url)
+      new URL(`/login?error=${encodeURIComponent(msg)}`, request.url)
     );
   }
 }

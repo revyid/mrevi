@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { useRouter, Link } from "@/i18n/navigation";
+import { useSearchParams } from "next/navigation";
 import { registerAction, loginAction } from "@/app/actions/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,6 +23,7 @@ export function AuthForm({ mode }: AuthFormProps) {
   const router = useRouter();
   const locale = useLocale();
   const t = useTranslations("auth");
+  const searchParams = useSearchParams();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -29,6 +31,16 @@ export function AuthForm({ mode }: AuthFormProps) {
   const [loading, setLoading] = useState(false);
   const [passkeyLoading, setPasskeyLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Show error from URL query param (e.g. OAuth callback errors)
+  useEffect(() => {
+    const urlError = searchParams.get("error");
+    if (urlError) {
+      const msg = decodeURIComponent(urlError).replace(/_/g, " ");
+      setError(msg);
+      toast.error(msg, { duration: 6000 });
+    }
+  }, [searchParams]);
 
   const isLogin = mode === "login";
 

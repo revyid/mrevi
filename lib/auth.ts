@@ -49,41 +49,50 @@ interface SessionMeta {
 }
 
 export async function createSession(userId: string, meta?: SessionMeta): Promise<string> {
-  const db = getDb();
-
-  // Generate random token
-  const token = crypto.randomUUID() + "-" + Date.now().toString(36);
-
-  // Also create JWT for the cookie
-  const jwtToken = await createToken({ userId, token });
-
-  // Set expiry
-  const expiresAt = new Date(Date.now() + SESSION_DURATION).toISOString();
-
-  // Save session to database (best effort — don't block login if table is missing)
   try {
-    await db.from("sessions").insert({
-      user_id: userId,
-      token: token,
-      expires_at: expiresAt,
-      user_agent: meta?.userAgent || "",
-      ip_address: meta?.ipAddress || "",
+    if (!process.env.JWT_SECRET) {
+      throw new Error("JWT_SECRET not configured in environment");
+    }
+
+    const db = getDb();
+
+    // Generate random token
+    const token = crypto.randomUUID() + "-" + Date.now().toString(36);
+
+    // Also create JWT for the cookie
+    const jwtToken = await createToken({ userId, token });
+
+    // Set expiry
+    const expiresAt = new Date(Date.now() + SESSION_DURATION).toISOString();
+
+    // Save session to database (best effort — don't block login if table is missing)
+    try {
+      await db.from("sessions").insert({
+        user_id: userId,
+        token: token,
+        expires_at: expiresAt,
+        user_agent: meta?.userAgent || "",
+        ip_address: meta?.ipAddress || "",
+      });
+    } catch (e) {
+      console.warn("[Auth] Could not save session to DB:", e);
+    }
+
+    // Set cookie
+    const cookieStore = await cookies();
+    cookieStore.set("session", jwtToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: SESSION_DURATION / 1000,
+      path: "/",
     });
+
+    return jwtToken;
   } catch (e) {
-    console.warn("[Auth] Could not save session to DB:", e);
+    const msg = e instanceof Error ? e.message : String(e);
+    throw new Error(`Failed to create session: ${msg}`);
   }
-
-  // Set cookie
-  const cookieStore = await cookies();
-  cookieStore.set("session", jwtToken, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    maxAge: SESSION_DURATION / 1000,
-    path: "/",
-  });
-
-  return jwtToken;
 }
 
 export async function getSession(): Promise<User | null> {
@@ -225,73 +234,95 @@ export async function deleteAccount(userId: string, password: string): Promise<{
 // ============================================================
 
 export async function register(name: string, email: string, password: string) {
-  const db = getDb();
+  try {
+    const db = getDb();
 
-  // Check if user exists
-  const { data: existingUser } = await db
-    .from("users")
-    .select("id")
-    .eq("email", email)
-    .single();
+    // Check if user exists
+    const { data: existingUser, error: checkError } = await db
+      .from("users")
+      .select("id")
+      .eq("email", email)
+      .single();
 
-  if (existingUser) {
-    return { error: "Email already registered" };
+    if (checkError && checkError.code !== "PGRST116") {
+      // PGRST116 = no rows, which is what we want
+      return { error: `Database error: ${checkError.message}` };
+    }
+
+    if (existingUser) {
+      return { error: "Email already registered" };
+    }
+
+    // Hash password
+    const passwordHash = await hashPassword(password);
+
+    // Create user
+    const { data: user, error } = await db
+      .from("users")
+      .insert({
+        name,
+        email,
+        password_hash: passwordHash,
+        provider: "credentials",
+      })
+      .select()
+      .single();
+
+    if (error) {
+      return { error: `Failed to create user: ${error.message}` };
+    }
+
+    // Create session
+    await createSession(user.id);
+
+    return { user };
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e);
+    return { error: `Registration failed: ${msg}` };
   }
-
-  // Hash password
-  const passwordHash = await hashPassword(password);
-
-  // Create user
-  const { data: user, error } = await db
-    .from("users")
-    .insert({
-      name,
-      email,
-      password_hash: passwordHash,
-      provider: "credentials",
-    })
-    .select()
-    .single();
-
-  if (error) {
-    return { error: error.message };
-  }
-
-  // Create session
-  await createSession(user.id);
-
-  return { user };
 }
 
 export async function login(email: string, password: string, meta?: SessionMeta) {
-  const db = getDb();
+  try {
+    const db = getDb();
 
-  // Get user
-  const { data: user, error: userError } = await db
-    .from("users")
-    .select("*")
-    .eq("email", email)
-    .single();
+    // Get user
+    const { data: user, error: userError } = await db
+      .from("users")
+      .select("*")
+      .eq("email", email)
+      .single();
 
-  if (userError || !user) {
-    console.warn("[Auth] Login failed: user not found", email, userError?.message);
-    return { error: "Invalid email or password" };
+    if (userError) {
+      console.warn("[Auth] Login failed: DB error", email, userError.message);
+      if (userError.code === "PGRST116") {
+        return { error: "Invalid email or password" };
+      }
+      return { error: `Database error: ${userError.message}` };
+    }
+
+    if (!user) {
+      return { error: "Invalid email or password" };
+    }
+
+    // Check password
+    if (!user.password_hash) {
+      return { error: "Please login with OAuth provider" };
+    }
+
+    const isValid = await comparePassword(password, user.password_hash);
+    if (!isValid) {
+      return { error: "Invalid email or password" };
+    }
+
+    // Create session with device info
+    await createSession(user.id, meta);
+
+    return { user };
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e);
+    return { error: `Login failed: ${msg}` };
   }
-
-  // Check password
-  if (!user.password_hash) {
-    return { error: "Please login with OAuth provider" };
-  }
-
-  const isValid = await comparePassword(password, user.password_hash);
-  if (!isValid) {
-    return { error: "Invalid email or password" };
-  }
-
-  // Create session with device info
-  await createSession(user.id, meta);
-
-  return { user };
 }
 
 export async function loginWithOAuth(
@@ -301,62 +332,71 @@ export async function loginWithOAuth(
   avatarUrl: string,
   meta?: SessionMeta
 ) {
-  const db = getDb();
+  try {
+    const db = getDb();
 
-  // Check if user exists with this provider
-  const { data: existingUser } = await db
-    .from("users")
-    .select("*")
-    .eq("email", email)
-    .eq("provider", provider)
-    .single();
+    // Check if user exists with this provider
+    const { data: existingUser, error: existError } = await db
+      .from("users")
+      .select("*")
+      .eq("email", email)
+      .eq("provider", provider)
+      .single();
 
-  if (existingUser) {
-    // Update avatar if changed
-    if (avatarUrl && existingUser.avatar_url !== avatarUrl) {
-      await db
-        .from("users")
-        .update({ avatar_url: avatarUrl })
-        .eq("id", existingUser.id);
+    if (existError && existError.code !== "PGRST116") {
+      return { error: `Database error: ${existError.message}` };
+    }
+
+    if (existingUser) {
+      // Update avatar if changed
+      if (avatarUrl && existingUser.avatar_url !== avatarUrl) {
+        await db
+          .from("users")
+          .update({ avatar_url: avatarUrl })
+          .eq("id", existingUser.id);
+      }
+
+      // Create session
+      await createSession(existingUser.id, meta);
+      return { user: existingUser };
+    }
+
+    // Check if email exists with different provider
+    const { data: userWithEmail } = await db
+      .from("users")
+      .select("*")
+      .eq("email", email)
+      .single();
+
+    if (userWithEmail) {
+      // User exists with different provider, create session for existing user
+      await createSession(userWithEmail.id, meta);
+      return { user: userWithEmail };
+    }
+
+    // Create new user
+    const { data: newUser, error } = await db
+      .from("users")
+      .insert({
+        name,
+        email,
+        password_hash: null,
+        provider,
+        avatar_url: avatarUrl,
+      })
+      .select()
+      .single();
+
+    if (error) {
+      return { error: `Failed to create user: ${error.message}` };
     }
 
     // Create session
-    await createSession(existingUser.id, meta);
-    return { user: existingUser };
+    await createSession(newUser.id, meta);
+
+    return { user: newUser };
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e);
+    return { error: `OAuth login failed: ${msg}` };
   }
-
-  // Check if email exists with different provider
-  const { data: userWithEmail } = await db
-    .from("users")
-    .select("*")
-    .eq("email", email)
-    .single();
-
-  if (userWithEmail) {
-    // User exists with different provider, create session for existing user
-    await createSession(userWithEmail.id, meta);
-    return { user: userWithEmail };
-  }
-
-  // Create new user
-  const { data: newUser, error } = await db
-    .from("users")
-    .insert({
-      name,
-      email,
-      password_hash: null,
-      provider,
-      avatar_url: avatarUrl,
-    })
-    .select()
-    .single();
-
-  if (error) {
-    return { error: error.message };
-  }
-
-  // Create session
-  await createSession(newUser.id, meta);
-
-  return { user: newUser };
 }

@@ -1,5 +1,21 @@
+import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { getDb } from "@/lib/db";
+
+const BASE_URL = "https://revy.my.id";
+
+export const metadata: Metadata = {
+  title: "Projects — M. Revi Ramadhan",
+  description: "Projects by M. Revi Ramadhan — Framer templates, web apps, and design work.",
+  openGraph: {
+    type: "website",
+    url: `${BASE_URL}/en/projects`,
+    title: "Projects — M. Revi Ramadhan",
+    description: "Framer templates, web apps, and design work by M. Revi Ramadhan.",
+  },
+  twitter: { card: "summary", title: "Projects — M. Revi Ramadhan", description: "Selected projects by M. Revi Ramadhan." },
+  alternates: { canonical: `${BASE_URL}/en/projects` },
+};
 
 async function getProjects() {
   const db = getDb();

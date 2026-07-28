@@ -1,5 +1,21 @@
+import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { ContactForm } from "@/components/contact-form";
+
+const BASE_URL = "https://revy.my.id";
+
+export const metadata: Metadata = {
+  title: "Contact — M. Revi Ramadhan",
+  description: "Get in touch with M. Revi Ramadhan for project inquiries, collaborations, or just to say hello.",
+  openGraph: {
+    type: "website",
+    url: `${BASE_URL}/en/contact`,
+    title: "Contact — M. Revi Ramadhan",
+    description: "Get in touch with M. Revi Ramadhan.",
+  },
+  twitter: { card: "summary", title: "Contact — M. Revi Ramadhan", description: "Get in touch with M. Revi Ramadhan." },
+  alternates: { canonical: `${BASE_URL}/en/contact` },
+};
 
 export default async function ContactPage() {
   const t = await getTranslations("contact");

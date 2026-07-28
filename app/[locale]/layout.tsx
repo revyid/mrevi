@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Poppins } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
-import { getMessages, getTranslations, setRequestLocale } from "next-intl/server";
+import { getMessages, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
 import { Navigation } from "@/components/navigation";
@@ -31,16 +31,27 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   setRequestLocale(locale);
-  const t = await getTranslations({ locale, namespace: "nav" });
 
   return {
-    title: locale === "id" ? "Sawad - Software Engineer" : "Sawad - Software Engineer",
-    description:
-      locale === "id"
-        ? "Seorang Software Engineer yang telah mengembangkan banyak solusi inovatif."
-        : "A Software Engineer who has developed countless innovative solutions.",
+    title: {
+      default: "M. Revi Ramadhan — Software Engineer",
+      template: "%s — M. Revi Ramadhan",
+    },
+    description: "Software Engineer with 4 years of experience. Student at SMAN 1 Bungo, Indonesia. Building web apps, Framer templates, and more.",
+    metadataBase: new URL("https://revy.my.id"),
     alternates: {
-      languages: { en: "/en", id: "/id" },
+      canonical: "https://revy.my.id",
+      languages: { "x-default": "https://revy.my.id" },
+    },
+    openGraph: {
+      type: "website",
+      siteName: "M. Revi Ramadhan",
+      locale: "en_US",
+    },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: { index: true, follow: true, "max-image-preview": "large" },
     },
   };
 }

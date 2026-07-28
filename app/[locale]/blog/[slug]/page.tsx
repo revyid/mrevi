@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
@@ -5,6 +6,8 @@ import { getDb } from "@/lib/db";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+
+const BASE_URL = "https://revy.my.id";
 
 interface BlogPost {
   id: string; title: string; excerpt: string;
@@ -15,6 +18,37 @@ async function getBlogPost(slug: string): Promise<BlogPost | null> {
   const db = getDb();
   const { data } = await db.from("blog_posts").select("*").eq("slug", slug).single();
   return data as BlogPost | null;
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string; slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const post = await getBlogPost(slug);
+  if (!post) return { title: "Post Not Found" };
+
+  const url = `${BASE_URL}/en/blog/${slug}`;
+  return {
+    title: `${post.title} — M. Revi Ramadhan`,
+    description: post.excerpt,
+    authors: [{ name: "M. Revi Ramadhan", url: BASE_URL }],
+    openGraph: {
+      type: "article",
+      url,
+      title: post.title,
+      description: post.excerpt,
+      publishedTime: post.date,
+      authors: ["M. Revi Ramadhan"],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: post.title,
+      description: post.excerpt,
+    },
+    alternates: { canonical: url },
+  };
 }
 
 export default async function BlogPostPage({

@@ -1,8 +1,48 @@
+import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { ContactForm } from "@/components/contact-form";
 import { getDb } from "@/lib/db";
 import { getSettings } from "@/app/actions/content";
+
+const BASE_URL = "https://revy.my.id";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getSettings();
+  const name = settings.profile_name || "M. Revi Ramadhan";
+  const title = settings.profile_title || "Software Engineer";
+  const bio = settings.profile_bio || "Software Engineer with 4 years of experience. Student at SMAN 1 Bungo, Indonesia.";
+  const avatar = settings.profile_avatar || "";
+
+  return {
+    title: `${name} — ${title}`,
+    description: bio,
+    authors: [{ name, url: BASE_URL }],
+    keywords: [
+      "M. Revi Ramadhan", "Revi", "Muhammad Revi Ramadhan",
+      "software engineer", "web developer", "portfolio",
+      "SMAN 1 Bungo", "Indonesia", "Framer", "Next.js",
+    ],
+    openGraph: {
+      type: "website",
+      url: BASE_URL,
+      title: `${name} — ${title}`,
+      description: bio,
+      siteName: name,
+      images: avatar ? [{ url: avatar, width: 400, height: 400, alt: name }] : [],
+    },
+    twitter: {
+      card: "summary",
+      title: `${name} — ${title}`,
+      description: bio,
+      images: avatar ? [avatar] : [],
+    },
+    alternates: {
+      canonical: BASE_URL,
+      languages: { "x-default": BASE_URL },
+    },
+  };
+}
 
 async function getData() {
   const db = getDb();
@@ -44,7 +84,41 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
   const t = await getTranslations("home");
   const { projects, experiences, tools, blogPosts, settings } = await getData();
 
+  const name    = settings.profile_name   || "M. Revi Ramadhan";
+  const title   = settings.profile_title  || "Software Engineer";
+  const bio     = settings.profile_bio    || "Software Engineer with 4 years of experience. Student at SMAN 1 Bungo, Indonesia.";
+  const avatar  = settings.profile_avatar || "";
+
+  // JSON-LD: Person schema for rich search results
+  const personSchema = {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    name,
+    alternateName: "Revi",
+    description: bio,
+    url: "https://revy.my.id",
+    image: avatar,
+    jobTitle: title,
+    alumniOf: {
+      "@type": "EducationalOrganization",
+      name: "SMAN 1 Bungo",
+      address: { "@type": "PostalAddress", addressCountry: "ID" },
+    },
+    address: { "@type": "PostalAddress", addressCountry: "ID" },
+    sameAs: [
+      settings.social_github    || "",
+      settings.social_twitter   || "",
+      settings.social_linkedin  || "",
+      settings.social_instagram || "",
+    ].filter((s) => s && s !== "#"),
+  };
+
   return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(personSchema) }}
+      />
     <div className="space-y-24 w-full">
       {/* Hero */}
       <section className="pt-8 pb-4 flex flex-col justify-center">
@@ -213,5 +287,6 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
         </p>
       </footer>
     </div>
+    </>
   );
 }

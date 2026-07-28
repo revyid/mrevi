@@ -196,3 +196,9 @@
 @utility animate-shimmer {
   animation: shimmer 2s linear infinite;
 }
+
+/* Dotmatrix loader */
+@keyframes dmx-pulse {
+  0%, 100% { opacity: 0.08; }
+  50%       { opacity: 0.88; }
+}

@@ -419,3 +419,43 @@ export async function deleteBlogPost(id: string) {
   }
   return { success: !error, error: error?.message };
 }
+
+
+// ============================================================
+// PAGE SETTINGS
+// ============================================================
+
+export interface PageSetting {
+  id: string;
+  path: string;
+  label: string;
+  status: "live" | "maintenance" | "coming_soon" | "hidden";
+  access_role: "public" | "user" | "admin";
+}
+
+export async function getPageSettings(): Promise<PageSetting[]> {
+  const db = getDb();
+  const { data } = await db.from("page_settings").select("*").order("path");
+  return (data || []) as PageSetting[];
+}
+
+export async function upsertPageSetting(
+  path: string,
+  label: string,
+  status: PageSetting["status"],
+  access_role: PageSetting["access_role"]
+) {
+  await requireAdmin();
+  const db = getDb();
+  const { error } = await db
+    .from("page_settings")
+    .upsert({ path, label, status, access_role }, { onConflict: "path" });
+  return { success: !error, error: error?.message };
+}
+
+export async function deletePageSetting(id: string) {
+  await requireAdmin();
+  const db = getDb();
+  const { error } = await db.from("page_settings").delete().eq("id", id);
+  return { success: !error, error: error?.message };
+}

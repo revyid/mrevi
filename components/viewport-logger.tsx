@@ -4,6 +4,9 @@ import { useEffect } from "react";
 
 export function ViewportLogger() {
   useEffect(() => {
+    // Only log viewport in development
+    if (process.env.NODE_ENV !== "development") return;
+
     const log = () => {
       const vw = window.innerWidth;
       const vh = window.innerHeight;

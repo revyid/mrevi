@@ -10,8 +10,12 @@ export default async function AdminPage() {
   if (user.role !== "admin") redirect("/?error=unauthorized");
 
   const db = getDb();
-  const { data: users } = await db.from("users").select("*").order("created_at", { ascending: false });
-  const stats = await getAdminStats();
+
+  // Fetch users and stats in parallel
+  const [{ data: users }, stats] = await Promise.all([
+    db.from("users").select("id,name,email,role,avatar_url,provider,created_at").order("created_at", { ascending: false }),
+    getAdminStats(),
+  ]);
 
   return <AdminDashboard users={users || []} currentUserId={user.id} stats={stats} />;
 }

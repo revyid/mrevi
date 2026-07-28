@@ -89,17 +89,29 @@ export async function deleteUser(userId: string): Promise<{ success: boolean; er
   }
 }
 
-// Get stats
+// Get stats — all counts run in parallel (no N+1)
 export async function getAdminStats() {
   try {
     const db = getDb();
-    const { count: totalUsers } = await db.from("users").select("*", { count: "exact", head: true });
-    const { count: adminCount } = await db.from("users").select("*", { count: "exact", head: true }).eq("role", "admin");
-    const today = new Date(); today.setHours(0, 0, 0, 0);
-    const { count: todayCount } = await db.from("users").select("*", { count: "exact", head: true }).gte("created_at", today.toISOString());
-    const { count: googleUsers } = await db.from("users").select("*", { count: "exact", head: true }).eq("provider", "google");
-    const { count: githubUsers } = await db.from("users").select("*", { count: "exact", head: true }).eq("provider", "github");
-    const { count: credentialUsers } = await db.from("users").select("*", { count: "exact", head: true }).eq("provider", "credentials");
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const [
+      { count: totalUsers },
+      { count: adminCount },
+      { count: todayCount },
+      { count: googleUsers },
+      { count: githubUsers },
+      { count: credentialUsers },
+    ] = await Promise.all([
+      db.from("users").select("*", { count: "exact", head: true }),
+      db.from("users").select("*", { count: "exact", head: true }).eq("role", "admin"),
+      db.from("users").select("*", { count: "exact", head: true }).gte("created_at", today.toISOString()),
+      db.from("users").select("*", { count: "exact", head: true }).eq("provider", "google"),
+      db.from("users").select("*", { count: "exact", head: true }).eq("provider", "github"),
+      db.from("users").select("*", { count: "exact", head: true }).eq("provider", "credentials"),
+    ]);
+
     return {
       totalUsers: totalUsers || 0,
       adminCount: adminCount || 0,
@@ -109,7 +121,7 @@ export async function getAdminStats() {
       githubUsers: githubUsers || 0,
       credentialUsers: credentialUsers || 0,
     };
-  } catch (err) {
+  } catch {
     return { totalUsers: 0, adminCount: 0, regularUsers: 0, todayCount: 0 };
   }
 }

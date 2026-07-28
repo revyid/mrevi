@@ -38,7 +38,8 @@ export default function NotFound() {
             line-height: 0.95;
             letter-spacing: -0.03em;
           }
-          h1 .faded { color: rgba(250,250,250,0.12); display: block; }
+          h1 span { display: block; text-align: center; }
+          h1 .faded { color: rgba(250,250,250,0.12); }
           .desc {
             margin-top: 1.5rem;
             color: #666;
@@ -67,13 +68,49 @@ export default function NotFound() {
           .btn-secondary { background: transparent; color: #666; border: 1px solid #282828; }
           .btn-secondary:hover { border-color: #444; color: #fafafa; background: rgba(255,255,255,0.03); }
           .btn svg { width: 13px; height: 13px; }
+
+          /* Dotmatrix loader */
+          .dmx { display: inline-grid; grid-template-columns: repeat(5,6px); gap: 3px; margin-bottom: 2rem; }
+          .dmx span { width: 6px; height: 6px; border-radius: 50%; background: #fafafa; animation: dmx-pulse 1.1s ease-in-out infinite; }
+          .dmx span:nth-child(1)  { animation-delay: 0s; }
+          .dmx span:nth-child(2)  { animation-delay: 0.07s; }
+          .dmx span:nth-child(3)  { animation-delay: 0.14s; }
+          .dmx span:nth-child(4)  { animation-delay: 0.21s; }
+          .dmx span:nth-child(5)  { animation-delay: 0.28s; }
+          .dmx span:nth-child(6)  { animation-delay: 0.56s; }
+          .dmx span:nth-child(7)  { animation-delay: 0.49s; }
+          .dmx span:nth-child(8)  { animation-delay: 0.42s; }
+          .dmx span:nth-child(9)  { animation-delay: 0.35s; }
+          .dmx span:nth-child(10) { animation-delay: 0.28s; }
+          .dmx span:nth-child(11) { animation-delay: 0.56s; }
+          .dmx span:nth-child(12) { animation-delay: 0.63s; }
+          .dmx span:nth-child(13) { animation-delay: 0.70s; }
+          .dmx span:nth-child(14) { animation-delay: 0.77s; }
+          .dmx span:nth-child(15) { animation-delay: 0.84s; }
+          .dmx span:nth-child(16) { animation-delay: 1.12s; }
+          .dmx span:nth-child(17) { animation-delay: 1.05s; }
+          .dmx span:nth-child(18) { animation-delay: 0.98s; }
+          .dmx span:nth-child(19) { animation-delay: 0.91s; }
+          .dmx span:nth-child(20) { animation-delay: 0.84s; }
+          .dmx span:nth-child(21) { animation-delay: 1.12s; }
+          .dmx span:nth-child(22) { animation-delay: 1.19s; }
+          .dmx span:nth-child(23) { animation-delay: 1.26s; }
+          .dmx span:nth-child(24) { animation-delay: 1.33s; }
+          .dmx span:nth-child(25) { animation-delay: 1.40s; }
+          @keyframes dmx-pulse {
+            0%, 100% { opacity: 0.08; }
+            50% { opacity: 0.88; }
+          }
         `}</style>
       </head>
       <body>
         <div className="wrap">
+          <div className="dmx" aria-hidden="true">
+            {Array.from({ length: 25 }).map((_, i) => <span key={i} />)}
+          </div>
           <p className="label">Error 404</p>
           <h1>
-            NOT
+            <span>NOT</span>
             <span className="faded">FOUND</span>
           </h1>
           <p className="desc">

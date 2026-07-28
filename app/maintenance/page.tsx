@@ -44,7 +44,8 @@ export default function MaintenancePage() {
             line-height: 0.95;
             letter-spacing: -0.03em;
           }
-          h1 .faded { color: rgba(250,250,250,0.12); display: block; }
+          h1 span { display: block; text-align: center; }
+          h1 .faded { color: rgba(250,250,250,0.12); }
           .desc {
             margin-top: 1.5rem;
             color: #666;
@@ -79,7 +80,7 @@ export default function MaintenancePage() {
             Under Maintenance
           </div>
           <h1>
-            MAIN
+            <span>MAIN</span>
             <span className="faded">TENANCE</span>
           </h1>
           <p className="desc">

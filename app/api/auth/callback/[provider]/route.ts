@@ -138,8 +138,7 @@ export async function GET(
   }
 
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || new URL(request.url).origin;
-    const redirectUri = `${baseUrl}/api/auth/callback/${provider}`;
+    const redirectUri = `${new URL(request.url).origin}/api/auth/callback/${provider}`;
 
     let userData;
     switch (provider) {

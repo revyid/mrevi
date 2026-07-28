@@ -351,7 +351,7 @@ export function SidebarTab() {
             <Input
               value={settings.skill_card_1_href || ""}
               onChange={(e) => update("skill_card_1_href", e.target.value)}
-              placeholder="/experience"
+              placeholder="/journey"
             />
           </Field>
           <Field label="Card Style">

@@ -5,16 +5,16 @@ import { getDb } from "@/lib/db";
 const BASE_URL = "https://revy.my.id";
 
 export const metadata: Metadata = {
-  title: "Experience — M. Revi Ramadhan",
-  description: "4 years of software engineering experience by M. Revi Ramadhan — student at SMAN 1 Bungo, Indonesia.",
+  title: "Journey — M. Revi Ramadhan",
+  description: "My learning journey as a student and self-taught developer — M. Revi Ramadhan, SMAN 1 Bungo, Indonesia.",
   openGraph: {
     type: "website",
-    url: `${BASE_URL}/en/experience`,
-    title: "Experience — M. Revi Ramadhan",
-    description: "4 years of software engineering experience by M. Revi Ramadhan.",
+    url: `${BASE_URL}/en/journey`,
+    title: "Journey — M. Revi Ramadhan",
+    description: "My learning journey as a student and self-taught developer.",
   },
-  twitter: { card: "summary", title: "Experience — M. Revi Ramadhan", description: "4 years of software engineering experience." },
-  alternates: { canonical: `${BASE_URL}/en/experience` },
+  twitter: { card: "summary", title: "Journey — M. Revi Ramadhan", description: "My learning journey as a student and self-taught developer." },
+  alternates: { canonical: `${BASE_URL}/en/journey` },
 };
 
 async function getExperiences() {
@@ -23,8 +23,8 @@ async function getExperiences() {
   return data || [];
 }
 
-export default async function ExperiencePage() {
-  const t = await getTranslations("experience");
+export default async function JourneyPage() {
+  const t = await getTranslations("journey");
   const experiences = await getExperiences();
 
   return (

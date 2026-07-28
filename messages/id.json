@@ -19,9 +19,7 @@
   "nav": {
     "home": "Beranda",
     "projects": "Proyek",
-    "experience": "Pengalaman",
-    "tools": "Alat",
-    "thoughts": "Tulisan",
+    "experience": "Perjalanan",
     "profile": "Profil",
     "admin": "Panel Admin",
     "login": "Masuk",
@@ -103,7 +101,7 @@
     "sidebar": "Sidebar",
     "navigation": "Navigasi",
     "projects": "Proyek",
-    "experience": "Pengalaman",
+    "experience": "Perjalanan",
     "tools": "Alat",
     "blog": "Blog",
     "assets": "Aset",
@@ -111,12 +109,12 @@
     "siteSettingsSubtitle": "Kelola pengaturan situs Anda",
     "saveAll": "Simpan Semua",
     "addProject": "Tambah Proyek",
-    "addExperience": "Tambah Pengalaman",
+    "addExperience": "Tambah Entri Perjalanan",
     "addTool": "Tambah Alat",
     "addPost": "Tambah Postingan",
     "deleteConfirm": "Yakin ingin menghapus",
     "deleteProject": "Hapus proyek ini?",
-    "deleteExperience": "Hapus pengalaman ini?",
+    "deleteExperience": "Hapus entri ini?",
     "deleteTool": "Hapus alat ini?",
     "deletePost": "Hapus Postingan Blog"
   },
@@ -124,8 +122,8 @@
     "heroDescription": "Bersemangat dalam menciptakan pengalaman pengguna yang intuitif dan menarik. Spesialis dalam mengubah ide menjadi produk yang indah.",
     "recentProjects": "PROYEK",
     "recentProjectsSub": "TERBARU",
-    "experienceTitle": "RIWAYAT",
-    "experienceSub": "PENGALAMAN",
+    "experienceTitle": "PERJALANAN",
+    "experienceSub": "SAYA",
     "premiumTools": "ALAT",
     "premiumToolsSub": "UNGGULAN",
     "designThoughts": "DESAIN",
@@ -142,9 +140,9 @@
     "noPosts": "Belum ada postingan blog.",
     "readMore": "Baca selengkapnya"
   },
-  "experience": {
-    "title": "12 TAHUN",
-    "titleSub": "PENGALAMAN"
+  "journey": {
+    "title": "PERJALANAN",
+    "titleSub": "SAYA"
   },
   "projects": {
     "title": "PROYEK",

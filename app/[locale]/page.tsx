@@ -86,7 +86,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
 
   const name    = settings.profile_name   || "M. Revi Ramadhan";
   const title   = settings.profile_title  || "Software Engineer";
-  const bio     = settings.profile_bio    || "Software Engineer with 4 years of experience. Student at SMAN 1 Bungo, Indonesia.";
+  const bio     = settings.profile_bio    || "Self-taught developer and student at SMAN 1 Bungo, Indonesia.";
   const avatar  = settings.profile_avatar || "";
 
   // JSON-LD: Person schema for rich search results
@@ -150,7 +150,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
         {[
           {
             text: settings.skill_card_1_text || "DYNAMIC ANIMATION, MOTION DESIGN",
-            href: settings.skill_card_1_href || "/experience",
+            href: settings.skill_card_1_href || "/journey",
             type: (settings.skill_card_1_type as "accent" | "primary") || "accent",
           },
           {

@@ -19,7 +19,7 @@
   "nav": {
     "home": "Home",
     "projects": "Projects",
-    "experience": "Experience",
+    "experience": "Journey",
     "tools": "Tools",
     "thoughts": "Thoughts",
     "profile": "Profile",
@@ -103,7 +103,7 @@
     "sidebar": "Sidebar",
     "navigation": "Navigation",
     "projects": "Projects",
-    "experience": "Experience",
+    "experience": "Journey",
     "tools": "Tools",
     "blog": "Blog",
     "assets": "Assets",
@@ -111,12 +111,12 @@
     "siteSettingsSubtitle": "Manage your site settings",
     "saveAll": "Save All",
     "addProject": "Add Project",
-    "addExperience": "Add Experience",
+    "addExperience": "Add Journey Entry",
     "addTool": "Add Tool",
     "addPost": "Add Post",
     "deleteConfirm": "Are you sure you want to delete",
     "deleteProject": "Delete this project?",
-    "deleteExperience": "Delete this experience?",
+    "deleteExperience": "Delete this entry?",
     "deleteTool": "Delete this tool?",
     "deletePost": "Delete Blog Post"
   },
@@ -124,8 +124,8 @@
     "heroDescription": "Passionate about creating intuitive and engaging user experiences. Specialize in transforming ideas into beautifully crafted products.",
     "recentProjects": "RECENT",
     "recentProjectsSub": "PROJECTS",
-    "experienceTitle": "EXPERIENCE",
-    "experienceSub": "HISTORY",
+    "experienceTitle": "MY",
+    "experienceSub": "JOURNEY",
     "premiumTools": "PREMIUM",
     "premiumToolsSub": "TOOLS",
     "designThoughts": "DESIGN",
@@ -142,9 +142,9 @@
     "noPosts": "No blog posts yet.",
     "readMore": "Read more"
   },
-  "experience": {
-    "title": "12 YEARS OF",
-    "titleSub": "EXPERIENCE"
+  "journey": {
+    "title": "MY",
+    "titleSub": "JOURNEY"
   },
   "projects": {
     "title": "RECENT",

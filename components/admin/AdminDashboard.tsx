@@ -89,7 +89,7 @@ export function AdminDashboard({ users, currentUserId, stats }: AdminDashboardPr
           <TabsTrigger value="sidebar">Sidebar</TabsTrigger>
           <TabsTrigger value="navigation">Navigation</TabsTrigger>
           <TabsTrigger value="projects">Projects</TabsTrigger>
-          <TabsTrigger value="experiences">Experience</TabsTrigger>
+          <TabsTrigger value="experiences">Journey</TabsTrigger>
           <TabsTrigger value="tools">Tools</TabsTrigger>
           <TabsTrigger value="blog">Blog</TabsTrigger>
           <TabsTrigger value="assets">Assets</TabsTrigger>

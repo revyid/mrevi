@@ -64,7 +64,7 @@ export async function getSkillCards(): Promise<Array<{
   return [
     {
       text: s.skill_card_1_text || "DYNAMIC ANIMATION, MOTION DESIGN",
-      href: s.skill_card_1_href || "/experience",
+      href: s.skill_card_1_href || "/journey",
       type: (s.skill_card_1_type as "accent" | "primary") || "accent",
     },
     {

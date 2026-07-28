@@ -52,7 +52,7 @@ export function ExperiencesTab() {
       }
     }
     setExperiences(prev => prev.map(e => e.id === editModal.id ? { ...e, ...form } : e));
-    toast.success("Experience updated");
+    toast.success("Journey entry updated");
     setEditModal(null);
     setSaving(false);
   }
@@ -61,7 +61,7 @@ export function ExperiencesTab() {
     if (!deleteModal) return;
     await deleteExperience(deleteModal.id);
     setExperiences(prev => prev.filter(e => e.id !== deleteModal.id));
-    toast.success("Experience deleted");
+    toast.success("Journey entry deleted");
     setDeleteModal(null);
   }
 
@@ -76,9 +76,9 @@ export function ExperiencesTab() {
   return (
     <div className="p-6 space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-bold font-heading">Experience ({experiences.length})</h3>
+        <h3 className="text-lg font-bold font-heading">Journey ({experiences.length})</h3>
         <Button onClick={() => setShowAdd(true)} size="sm">
-          <PlusIcon data-icon="inline-start" /> Add Experience
+          <PlusIcon data-icon="inline-start" /> Add Entry
         </Button>
       </div>
 
@@ -105,7 +105,7 @@ export function ExperiencesTab() {
       {/* Edit Modal */}
       <Dialog open={!!editModal} onOpenChange={() => setEditModal(null)}>
         <DialogContent>
-          <DialogHeader><DialogTitle>Edit Experience</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>Edit Journey Entry</DialogTitle></DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2"><label className="text-sm font-medium">Company</label><Input value={form.company} onChange={e => setForm(p => ({ ...p, company: e.target.value }))} /></div>
             <div className="space-y-2"><label className="text-sm font-medium">Description</label><Textarea value={form.description} onChange={e => setForm(p => ({ ...p, description: e.target.value }))} rows={4} /></div>
@@ -124,7 +124,7 @@ export function ExperiencesTab() {
       <AlertDialog open={!!deleteModal} onOpenChange={() => setDeleteModal(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Experience</AlertDialogTitle>
+            <AlertDialogTitle>Delete Journey Entry</AlertDialogTitle>
             <AlertDialogDescription>Delete <strong>{deleteModal?.company}</strong>? This cannot be undone.</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -145,15 +145,15 @@ function AddExperienceModal({ onClose, onAdd }: { onClose: () => void; onAdd: (d
   return (
     <Dialog open onOpenChange={onClose}>
       <DialogContent>
-        <DialogHeader><DialogTitle>Add Experience</DialogTitle></DialogHeader>
+        <DialogHeader><DialogTitle>Add Journey Entry</DialogTitle></DialogHeader>
         <div className="space-y-4">
-          <div className="space-y-2"><label className="text-sm font-medium">Company</label><Input value={form.company} onChange={e => setForm(p => ({ ...p, company: e.target.value }))} placeholder="Company name" /></div>
-          <div className="space-y-2"><label className="text-sm font-medium">Description</label><Textarea value={form.description} onChange={e => setForm(p => ({ ...p, description: e.target.value }))} rows={4} placeholder="Role description..." /></div>
+          <div className="space-y-2"><label className="text-sm font-medium">Company / Place</label><Input value={form.company} onChange={e => setForm(p => ({ ...p, company: e.target.value }))} placeholder="School, organization, project..." /></div>
+          <div className="space-y-2"><label className="text-sm font-medium">Description</label><Textarea value={form.description} onChange={e => setForm(p => ({ ...p, description: e.target.value }))} rows={4} placeholder="What did you do / learn?" /></div>
           <div className="space-y-2"><label className="text-sm font-medium">Period</label><Input value={form.period} onChange={e => setForm(p => ({ ...p, period: e.target.value }))} placeholder="Jan 2020 - Present" /></div>
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>Cancel</Button>
-          <Button onClick={() => onAdd(form)} disabled={!form.company}>Add Experience</Button>
+          <Button onClick={() => onAdd(form)} disabled={!form.company}>Add Entry</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

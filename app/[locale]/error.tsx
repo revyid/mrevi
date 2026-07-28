@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { MatrixLoader } from "@/components/ui/matrix-loader";
+import { DotmHex5 } from "@/components/ui/dotm-hex-5";
 
 export default function LocaleError({
   error,
@@ -20,7 +20,7 @@ export default function LocaleError({
   return (
     <div className="min-h-screen flex items-center justify-center p-8">
       <div className="max-w-md w-full text-center space-y-6">
-        <MatrixLoader className="mx-auto" color="currentColor" />
+        <DotmHex5 size={42} bloom className="mx-auto" />
         <h1 className="text-6xl font-bold font-heading">
           <span className="block">OOPS</span>
           <span className="block text-muted-foreground/20">SOMETHING BROKE</span>

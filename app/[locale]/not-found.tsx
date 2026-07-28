@@ -1,13 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { MatrixLoader } from "@/components/ui/matrix-loader";
+import { DotmHex5 } from "@/components/ui/dotm-hex-5";
 
 export default function NotFound() {
   return (
     <div className="space-y-24 w-full py-8">
       <section className="pt-8 pb-4">
-        <MatrixLoader className="mb-6" color="currentColor" />
+        <DotmHex5 size={42} bloom className="mb-6" />
         <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-[90px] font-bold uppercase leading-[0.95] tracking-tight font-heading">
           <span className="block">404</span>
           <span className="block text-muted-foreground/20">NOT FOUND</span>

@@ -59,8 +59,12 @@ export async function createSession(userId: string, meta?: SessionMeta): Promise
     // Generate random token
     const token = crypto.randomUUID() + "-" + Date.now().toString(36);
 
-    // Also create JWT for the cookie
-    const jwtToken = await createToken({ userId, token });
+    // Fetch user role to include in JWT
+    const { data: userData } = await db.from("users").select("role").eq("id", userId).single();
+    const role = userData?.role || "user";
+
+    // Create JWT with role included so proxy can check without a DB call
+    const jwtToken = await createToken({ userId, token, role });
 
     // Set expiry
     const expiresAt = new Date(Date.now() + SESSION_DURATION).toISOString();

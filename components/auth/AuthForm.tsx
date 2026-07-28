@@ -32,31 +32,58 @@ export function AuthForm({ mode }: AuthFormProps) {
 
   const isLogin = mode === "login";
 
+  const DEBUG = process.env.NODE_ENV !== "production" || process.env.NEXT_PUBLIC_AUTH_DEBUG === "true";
+
+  function authLog(label: string, ...args: unknown[]) {
+    if (DEBUG) console.group(`[Auth Debug] ${label}`);
+    if (DEBUG) args.forEach((a) => console.log(a));
+    if (DEBUG) console.groupEnd();
+  }
+
+  function authError(label: string, err: unknown) {
+    console.error(`[Auth Error] ${label}`, err);
+    if (DEBUG && err instanceof Error) {
+      console.error("  message:", err.message);
+      console.error("  stack:", err.stack);
+    }
+  }
+
   async function handlePasskeyLogin() {
     setPasskeyLoading(true);
     setError(null);
     try {
+      authLog("Passkey login — generating options...");
       const genRes = await fetch("/api/auth/passkey/login-generate", { method: "POST" });
-      const { options, challenge } = await genRes.json();
+      const genData = await genRes.json();
+      authLog("Passkey generate response", { status: genRes.status, data: genData });
+
+      const { options, challenge } = genData;
       const credential = await startAuthentication({ ...options, challenge: options.challenge });
+      authLog("Passkey credential obtained", credential);
+
       if (!credential) {
         toast("Passkey prompt cancelled", { duration: 2000 });
         setPasskeyLoading(false);
         return;
       }
+
       const verifyRes = await fetch("/api/auth/passkey/login-verify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ credential, challenge }),
       });
       const verifyData = await verifyRes.json();
+      authLog("Passkey verify response", { status: verifyRes.status, data: verifyData });
+
       if (verifyData.success) {
         toast.success(t("loginSuccess"));
         router.push(verifyData.role === "admin" ? "/admin" : "/");
         router.refresh();
       } else {
-        setError(verifyData.error || "Passkey login failed");
-        toast.error(verifyData.error || "Passkey login failed");
+        const errMsg = verifyData.error || "Passkey login failed";
+        authError("Passkey verify failed", errMsg);
+        setError(errMsg);
+        toast.error(errMsg);
       }
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : String(e);
@@ -65,9 +92,12 @@ export function AuthForm({ mode }: AuthFormProps) {
         msg.includes("timed out") || msg.includes("not allowed") ||
         msg.includes("denied") || msg.includes("user agent");
       if (isCancelled) {
+        authLog("Passkey prompt cancelled by user");
         toast("Passkey prompt cancelled", { duration: 2000 });
       } else {
+        authError("Passkey login exception", e);
         setError("Passkey login failed");
+        toast.error("Passkey login failed");
       }
     }
     setPasskeyLoading(false);
@@ -79,8 +109,11 @@ export function AuthForm({ mode }: AuthFormProps) {
     setError(null);
     try {
       if (isLogin) {
+        authLog("Login attempt", { email, userAgent: navigator.userAgent });
         const result = await loginAction(email, password, { userAgent: navigator.userAgent }, locale);
+        authLog("Login result", result);
         if (result.error) {
+          authError("Login failed", result.error);
           setError(result.error);
           toast.error(result.error);
         } else {
@@ -89,8 +122,11 @@ export function AuthForm({ mode }: AuthFormProps) {
           router.refresh();
         }
       } else {
+        authLog("Register attempt", { name: fullName, email });
         const result = await registerAction(fullName, email, password, locale);
+        authLog("Register result", result);
         if (result.error) {
+          authError("Register failed", result.error);
           setError(result.error);
           toast.error(result.error);
         } else {
@@ -100,6 +136,7 @@ export function AuthForm({ mode }: AuthFormProps) {
         }
       }
     } catch (err) {
+      authError("Unhandled exception in handleSubmit", err);
       const msg = err instanceof Error ? err.message : "An error occurred";
       setError(msg);
       toast.error(msg);

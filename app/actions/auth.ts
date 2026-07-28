@@ -16,15 +16,39 @@ interface SessionMeta {
   ipAddress?: string;
 }
 
+const DEBUG = process.env.NODE_ENV !== "production" || process.env.AUTH_DEBUG === "true";
+
+function serverAuthLog(label: string, data?: unknown) {
+  if (DEBUG) console.log(`[Auth Server] ${label}`, data !== undefined ? data : "");
+}
+
+function serverAuthError(label: string, err: unknown) {
+  console.error(`[Auth Server Error] ${label}`, err);
+  if (DEBUG && err instanceof Error) {
+    console.error("  message:", err.message);
+    console.error("  stack:", err.stack);
+  }
+}
+
 export async function registerAction(
   name: string,
   email: string,
   password: string,
   locale: string = "en"
 ): Promise<{ success: boolean; error?: string }> {
-  const result = await authRegister(name, email, password);
-  if (result.error) return { success: false, error: result.error };
-  return { success: true };
+  serverAuthLog("registerAction called", { name, email });
+  try {
+    const result = await authRegister(name, email, password);
+    if (result.error) {
+      serverAuthError("registerAction failed", result.error);
+      return { success: false, error: result.error };
+    }
+    serverAuthLog("registerAction success");
+    return { success: true };
+  } catch (e) {
+    serverAuthError("registerAction exception", e);
+    return { success: false, error: e instanceof Error ? e.message : "Registration failed" };
+  }
 }
 
 export async function loginAction(
@@ -33,9 +57,19 @@ export async function loginAction(
   meta?: SessionMeta,
   locale: string = "en"
 ): Promise<{ success: boolean; error?: string; role?: string }> {
-  const result = await authLogin(email, password, meta);
-  if (result.error) return { success: false, error: result.error };
-  return { success: true, role: result.user?.role };
+  serverAuthLog("loginAction called", { email, userAgent: meta?.userAgent?.slice(0, 60) });
+  try {
+    const result = await authLogin(email, password, meta);
+    if (result.error) {
+      serverAuthError("loginAction failed", result.error);
+      return { success: false, error: result.error };
+    }
+    serverAuthLog("loginAction success", { role: result.user?.role });
+    return { success: true, role: result.user?.role };
+  } catch (e) {
+    serverAuthError("loginAction exception", e);
+    return { success: false, error: e instanceof Error ? e.message : "Login failed" };
+  }
 }
 
 export async function logoutAction() {

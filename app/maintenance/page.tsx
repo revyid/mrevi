@@ -19,8 +19,9 @@ export default function MaintenancePage() {
             padding: 2rem;
             display: flex;
             align-items: center;
+            justify-content: center;
           }
-          .wrap { max-width: 900px; padding: 2rem 0; width: 100%; }
+          .wrap { max-width: 500px; padding: 2rem 0; width: 100%; text-align: center; }
           .label {
             font-family: 'Inter', sans-serif;
             font-size: 0.75rem;
@@ -31,6 +32,7 @@ export default function MaintenancePage() {
             align-items: center;
             gap: 0.5rem;
             margin-bottom: 1.5rem;
+            justify-content: center;
           }
           .dot { width: 6px; height: 6px; border-radius: 50%; background: #eab308; display: inline-block; animation: pulse 2s infinite; }
           @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
@@ -44,13 +46,13 @@ export default function MaintenancePage() {
           }
           h1 .faded { color: rgba(250,250,250,0.12); display: block; }
           .desc {
-            margin-top: 3rem;
+            margin-top: 1.5rem;
             color: #666;
             font-size: 1rem;
             line-height: 1.6;
-            max-width: 400px;
-            border-left: 1px solid #282828;
-            padding-left: 1.25rem;
+            max-width: 360px;
+            margin-left: auto;
+            margin-right: auto;
           }
           .back {
             display: inline-flex;

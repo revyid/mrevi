@@ -8,6 +8,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { UserTable } from "./UserTable";
 import { AddUserModal } from "./AddUserModal";
 import { SettingsTab } from "./tabs/SettingsTab";
+import { ThemeTab } from "./tabs/ThemeTab";
+import { PagesTab } from "./tabs/PagesTab";
 import { ProjectsTab } from "./tabs/ProjectsTab";
 import { ExperiencesTab } from "./tabs/ExperiencesTab";
 import { ToolsTab } from "./tabs/ToolsTab";
@@ -82,6 +84,8 @@ export function AdminDashboard({ users, currentUserId, stats }: AdminDashboardPr
         <TabsList className="flex-wrap">
           <TabsTrigger value="users">Users</TabsTrigger>
           <TabsTrigger value="settings">Settings</TabsTrigger>
+          <TabsTrigger value="theme">Theme</TabsTrigger>
+          <TabsTrigger value="pages">Pages</TabsTrigger>
           <TabsTrigger value="sidebar">Sidebar</TabsTrigger>
           <TabsTrigger value="navigation">Navigation</TabsTrigger>
           <TabsTrigger value="projects">Projects</TabsTrigger>
@@ -113,6 +117,22 @@ export function AdminDashboard({ users, currentUserId, stats }: AdminDashboardPr
           <Card>
             <CardContent className="pt-6">
               <SettingsTab />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="theme">
+          <Card>
+            <CardContent className="pt-6">
+              <ThemeTab />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="pages">
+          <Card>
+            <CardContent className="pt-6">
+              <PagesTab />
             </CardContent>
           </Card>
         </TabsContent>

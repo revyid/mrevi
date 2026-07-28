@@ -8,8 +8,9 @@ import { Navigation } from "@/components/navigation";
 import { AppShell } from "@/components/AppShell";
 import { ViewportLogger } from "@/components/viewport-logger";
 import { Providers } from "@/components/providers";
+import { ThemeProvider } from "@/components/ThemeProvider";
 import { getSession } from "@/lib/auth";
-import { getSettings, getNavigationLinks } from "@/app/actions/content";
+import { getSettings, getNavigationLinks, getTheme } from "@/app/actions/content";
 import type { ProfileCardSettings } from "@/components/profile-card";
 import "../globals.css";
 
@@ -73,11 +74,12 @@ export default async function LocaleLayout({
   // Must be called before any other next-intl server function
   setRequestLocale(locale);
 
-  const [messages, user, rawSettings, navLinks] = await Promise.all([
+  const [messages, user, rawSettings, navLinks, savedTheme] = await Promise.all([
     getMessages(),
     getSession(),
     getSettings(),
     getNavigationLinks(),
+    getTheme(),
   ]);
 
   const profileSettings: ProfileCardSettings = {
@@ -99,6 +101,7 @@ export default async function LocaleLayout({
       <body className="min-h-screen bg-background text-foreground font-sans">
         <NextIntlClientProvider messages={messages}>
           <Providers>
+            <ThemeProvider theme={savedTheme} />
             <ViewportLogger />
             <div className="fixed top-0 left-0 right-0 z-50 flex justify-center p-5">
               <Navigation

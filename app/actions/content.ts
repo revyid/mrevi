@@ -87,30 +87,132 @@ export async function getNavigationLinks(): Promise<
   return data || [];
 }
 
-export async function updateNavigationLink(
-  href: string,
-  label: string
-) {
+export async function updateNavigationLink(href: string, label: string) {
   await requireAdmin();
   const db = getDb();
-  const { error } = await db
-    .from("navigation_links")
-    .update({ label })
-    .eq("href", href);
+  const { error } = await db.from("navigation_links").update({ label }).eq("href", href);
   if (!error) revalidatePath("/");
   return { success: !error, error: error?.message };
 }
 
-export async function updateNavigationLinkVisibility(
-  href: string,
-  is_visible: boolean
+export async function updateNavigationLinkVisibility(href: string, is_visible: boolean) {
+  await requireAdmin();
+  const db = getDb();
+  const { error } = await db.from("navigation_links").update({ is_visible }).eq("href", href);
+  if (!error) revalidatePath("/");
+  return { success: !error, error: error?.message };
+}
+
+export async function createNavigationLink(data: {
+  href: string;
+  label: string;
+  icon: string;
+  sort_order: number;
+}) {
+  await requireAdmin();
+  const db = getDb();
+  const { error } = await db.from("navigation_links").insert({ ...data, is_visible: true });
+  if (!error) revalidatePath("/");
+  return { success: !error, error: error?.message };
+}
+
+export async function deleteNavigationLink(href: string) {
+  await requireAdmin();
+  const db = getDb();
+  const { error } = await db.from("navigation_links").delete().eq("href", href);
+  if (!error) revalidatePath("/");
+  return { success: !error, error: error?.message };
+}
+
+export async function reorderNavigationLinks(items: { href: string; sort_order: number }[]) {
+  await requireAdmin();
+  const db = getDb();
+  await Promise.all(
+    items.map(({ href, sort_order }) =>
+      db.from("navigation_links").update({ sort_order }).eq("href", href)
+    )
+  );
+  revalidatePath("/");
+  return { success: true };
+}
+
+// ============================================================
+// THEME
+// ============================================================
+
+const THEME_KEYS = [
+  "theme_primary",
+  "theme_background",
+  "theme_foreground",
+  "theme_card",
+  "theme_muted",
+  "theme_accent",
+  "theme_border",
+  "theme_ring",
+  "theme_destructive",
+  "theme_radius",
+] as const;
+
+export type ThemeKey = (typeof THEME_KEYS)[number];
+
+export async function getTheme(): Promise<Record<string, string>> {
+  const db = getDb();
+  const { data } = await db.from("site_settings").select("*").in("key", [...THEME_KEYS]);
+  if (!data) return {};
+  return Object.fromEntries(data.map((s: { key: string; value: string }) => [s.key, s.value]));
+}
+
+export async function updateTheme(theme: Record<string, string>) {
+  await requireAdmin();
+  const db = getDb();
+  const rows = Object.entries(theme).map(([key, value]) => ({ key, value }));
+  const { error } = await db.from("site_settings").upsert(rows, { onConflict: "key" });
+  if (!error) { revalidatePath("/"); revalidatePath("/en"); revalidatePath("/id"); }
+  return { success: !error, error: error?.message };
+}
+
+// ============================================================
+// CUSTOM PAGES
+// ============================================================
+
+export async function getCustomPages() {
+  const db = getDb();
+  const { data } = await db.from("custom_pages").select("*").order("sort_order");
+  return data || [];
+}
+
+export async function createCustomPage(data: {
+  title: string;
+  slug: string;
+  content: string;
+  is_visible: boolean;
+}) {
+  await requireAdmin();
+  const db = getDb();
+  const { data: page, error } = await db
+    .from("custom_pages")
+    .insert({ ...data, sort_order: Date.now() })
+    .select()
+    .single();
+  if (!error) revalidatePath("/");
+  return { success: !error, error: error?.message, page };
+}
+
+export async function updateCustomPage(
+  id: string,
+  data: Partial<{ title: string; slug: string; content: string; is_visible: boolean }>
 ) {
   await requireAdmin();
   const db = getDb();
-  const { error } = await db
-    .from("navigation_links")
-    .update({ is_visible })
-    .eq("href", href);
+  const { error } = await db.from("custom_pages").update(data).eq("id", id);
+  if (!error) revalidatePath("/");
+  return { success: !error, error: error?.message };
+}
+
+export async function deleteCustomPage(id: string) {
+  await requireAdmin();
+  const db = getDb();
+  const { error } = await db.from("custom_pages").delete().eq("id", id);
   if (!error) revalidatePath("/");
   return { success: !error, error: error?.message };
 }

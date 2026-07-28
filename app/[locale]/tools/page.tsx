@@ -1,24 +1,8 @@
 import type { Metadata } from "next";
-import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { getDb } from "@/lib/db";
 
-const BASE_URL = "https://revy.my.id";
-
-export const metadata: Metadata = {
-  title: "Tools — M. Revi Ramadhan",
-  description: "The tools and services M. Revi Ramadhan uses for design, development, and productivity.",
-  openGraph: {
-    type: "website",
-    url: `${BASE_URL}/en/tools`,
-    title: "Tools — M. Revi Ramadhan",
-    description: "Tools used by M. Revi Ramadhan for design and development.",
-  },
-  twitter: { card: "summary", title: "Tools — M. Revi Ramadhan", description: "Design and dev tools used by M. Revi Ramadhan." },
-  alternates: { canonical: `${BASE_URL}/en/tools` },
-};
-
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://mrevi.vercel.app";
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://revy.my.id";
 
 export const metadata: Metadata = {
   title: "Tools — M. Revi Ramadhan",

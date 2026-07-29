@@ -15,6 +15,7 @@
 -- ============================================================
 
 -- Tables (reverse dependency order — CASCADE handles triggers/indexes)
+DROP TABLE IF EXISTS contacts         CASCADE;
 DROP TABLE IF EXISTS api_key_usage    CASCADE;
 DROP TABLE IF EXISTS api_keys         CASCADE;
 DROP TABLE IF EXISTS passkeys         CASCADE;
@@ -254,6 +255,15 @@ CREATE TABLE navigation_links (
   sort_order  INTEGER DEFAULT 0,
   is_visible  BOOLEAN DEFAULT true,
   updated_at  TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE contacts (
+  id         UUID    DEFAULT gen_random_uuid() PRIMARY KEY,
+  name       TEXT    NOT NULL,
+  email      TEXT    NOT NULL,
+  budget     TEXT    DEFAULT '',
+  message    TEXT    NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- ============================================================

@@ -331,14 +331,13 @@ curl -H "x-api-key: YOUR_KEY" \\
         <div className="space-y-3">
           <div className="border border-border rounded-lg p-4">
             <code className="text-red-400 text-sm">401 Unauthorized</code>
-            <div className="bg-secondary/50 rounded p-3 font-mono text-sm mt-2">
+            <div className="bg-secondary/50 rounded p-3 font-mono text-sm mt-2 overflow-x-auto">
               <pre>{'{ "error": "API key required" }\n{ "error": "Invalid API key" }\n{ "error": "API key is inactive" }\n{ "error": "API key expired" }'}</pre>
             </div>
           </div>
           <div className="border border-border rounded-lg p-4">
             <code className="text-red-400 text-sm">403 Forbidden</code>
-            <div className="bg-secondary/50 rounded p-3 font-mono text-sm mt-2">
-              <pre>{'{ "error": "/secret-path not allowed. Use: user, users, repos, orgs, gists, search/repositories, search/users, search/code, search/issues, rate_limit" }'}</pre>
+            <div className="bg-secondary/50 rounded p-3 font-mono text-sm mt-2 overflow-x-auto">
             </div>
           </div>
           <div className="border border-border rounded-lg p-4">

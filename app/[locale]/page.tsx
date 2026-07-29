@@ -223,7 +223,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
       {/* Tools */}
       <section className="space-y-8">
         <SectionTitle lines={[settings.section_tools_line1 || t("premiumTools"), settings.section_tools_line2 || t("premiumToolsSub")]} />
-        <div className="grid grid-cols-1 xs:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {tools.map((tool: Record<string, unknown>) => (
             <a key={tool.id as string} href={tool.href as string} target="_blank" rel="noopener noreferrer" className="group flex items-center gap-4 p-4 rounded-lg hover:bg-white/[0.03] transition-all">
               <div className="w-10 h-10 rounded-lg overflow-hidden shrink-0">

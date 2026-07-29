@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { usePathname } from "next/navigation";
 import { Link } from "@/i18n/navigation";
@@ -12,9 +13,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Sheet, SheetTrigger, SheetContent, SheetClose } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import { logoutAction } from "@/app/actions/auth";
 import { useRouter } from "@/i18n/navigation";
+import { MenuIcon } from "lucide-react";
 
 const defaultNavLinks = [
   { href: "/", label: "Home", icon: "M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z M9 22V12h6v10", is_visible: true },
@@ -45,6 +48,7 @@ function getInitials(name: string) {
 }
 
 export function Navigation({ user, locale, navLinks }: { user?: User | null; locale: string; navLinks?: NavLinkItem[] }) {
+  const [sheetOpen, setSheetOpen] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
   const t = useTranslations("nav");
@@ -57,92 +61,261 @@ export function Navigation({ user, locale, navLinks }: { user?: User | null; loc
     router.refresh();
   }
 
+  function NavIcon({ icon, className }: { icon: string; className?: string }) {
+    return (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className || "size-4"}>
+        <path d={icon} />
+      </svg>
+    );
+  }
+
   return (
-    <nav className="flex items-center gap-2 p-2 rounded-2xl backdrop-blur-md bg-white/5">
-      {links.map((link) => {
-        const isActive = pathname === link.href;
-        return (
-          <Link key={link.href} href={link.href as any}>
-            <Button
-              variant="ghost"
-              size="icon"
-              className={cn(
-                "size-9 rounded-full",
-                isActive ? "bg-white/10 text-white" : "text-white/50 hover:text-white hover:bg-white/5"
+    <>
+      {/* Mobile sheet trigger */}
+      <div className="flex sm:hidden items-center gap-2 p-2 rounded-2xl backdrop-blur-md bg-white/5">
+        <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
+          <SheetTrigger render={<Button variant="ghost" size="icon" className="size-9 rounded-full text-white/50 hover:text-white hover:bg-white/5" />}>
+            <MenuIcon className="size-5" />
+          </SheetTrigger>
+          <SheetContent side="left" className="w-72 p-0" showCloseButton={false}>
+            <div className="flex flex-col h-full p-4">
+              <div className="flex items-center justify-between mb-6">
+                <span className="text-sm font-medium text-muted-foreground">Navigate</span>
+                <SheetClose render={<Button variant="ghost" size="icon-sm" />}>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="size-4">
+                    <path d="M18 6L6 18M6 6l12 12" />
+                  </svg>
+                </SheetClose>
+              </div>
+              <div className="flex flex-col gap-1 flex-1">
+                {links.map((link) => {
+                  const isActive = pathname === link.href;
+                  return (
+                    <Link key={link.href} href={link.href as any} onClick={() => setSheetOpen(false)}>
+                      <Button
+                        variant="ghost"
+                        className={cn(
+                          "w-full justify-start gap-3 h-10 rounded-lg",
+                          isActive ? "bg-white/10 text-white" : "text-muted-foreground hover:text-white hover:bg-white/5"
+                        )}
+                      >
+                        <NavIcon icon={link.icon} className="size-4 shrink-0" />
+                        <span>{link.label}</span>
+                      </Button>
+                    </Link>
+                  );
+                })}
+              </div>
+              <div className="border-t border-border pt-4 mt-auto space-y-2">
+                {user ? (
+                  <>
+                    <div className="flex items-center gap-3 px-3 py-2">
+                      <Avatar className="size-8">
+                        <AvatarImage src={user.avatar_url} alt={user.name} />
+                        <AvatarFallback className="bg-white/10 text-white text-xs font-medium">
+                          {getInitials(user.name)}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium truncate">{user.name}</p>
+                        <p className="text-xs text-muted-foreground">{user.role === "admin" ? t("administrator") : t("user")}</p>
+                      </div>
+                    </div>
+                    <Link href="/profile" onClick={() => setSheetOpen(false)}>
+                      <Button variant="ghost" className="w-full justify-start gap-3 h-10 rounded-lg text-muted-foreground hover:text-white">
+                        <svg className="size-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                          <circle cx="12" cy="7" r="4" />
+                        </svg>
+                        {t("profile")}
+                      </Button>
+                    </Link>
+                    {user.role === "admin" && (
+                      <Link href="/admin" onClick={() => setSheetOpen(false)}>
+                        <Button variant="ghost" className="w-full justify-start gap-3 h-10 rounded-lg text-muted-foreground hover:text-white">
+                          <svg className="size-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <rect x="3" y="3" width="7" height="7" />
+                            <rect x="14" y="3" width="7" height="7" />
+                            <rect x="14" y="14" width="7" height="7" />
+                            <rect x="3" y="14" width="7" height="7" />
+                          </svg>
+                          {t("admin")}
+                        </Button>
+                      </Link>
+                    )}
+                    <Button variant="ghost" className="w-full justify-start gap-3 h-10 rounded-lg text-red-400 hover:text-red-300" onClick={handleLogout}>
+                      <svg className="size-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                        <polyline points="16 17 21 12 16 7" />
+                        <line x1="21" y1="12" x2="9" y2="12" />
+                      </svg>
+                      {t("logout")}
+                    </Button>
+                  </>
+                ) : (
+                  <Link href="/login" onClick={() => setSheetOpen(false)}>
+                    <Button variant="ghost" className="w-full justify-start gap-3 h-10 rounded-lg text-muted-foreground hover:text-white">
+                      <svg className="size-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+                        <polyline points="10 17 15 12 10 7" />
+                        <line x1="15" y1="12" x2="3" y2="12" />
+                      </svg>
+                      {t("login")}
+                    </Button>
+                  </Link>
+                )}
+              </div>
+            </div>
+          </SheetContent>
+        </Sheet>
+
+        {/* Avatar or login button on mobile, always visible */}
+        {user ? (
+          <DropdownMenu>
+            <DropdownMenuTrigger className="ml-auto flex items-center gap-2 p-2 rounded-2xl hover:bg-white/5 transition-colors outline-none">
+              <Avatar className="size-8">
+                <AvatarImage src={user.avatar_url} alt={user.name} />
+                <AvatarFallback className="bg-white/10 text-white text-xs font-medium">
+                  {getInitials(user.name)}
+                </AvatarFallback>
+              </Avatar>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <div className="px-3 py-2">
+                <p className="text-sm font-medium">{user.name}</p>
+                <p className="text-xs text-muted-foreground">{user.role === "admin" ? t("administrator") : t("user")}</p>
+              </div>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => router.push("/profile")}>
+                <svg className="size-4 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                  <circle cx="12" cy="7" r="4" />
+                </svg>
+                {t("profile")}
+              </DropdownMenuItem>
+              {user.role === "admin" && (
+                <DropdownMenuItem onClick={() => router.push("/admin")}>
+                  <svg className="size-4 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <rect x="3" y="3" width="7" height="7" />
+                    <rect x="14" y="3" width="7" height="7" />
+                    <rect x="14" y="14" width="7" height="7" />
+                    <rect x="3" y="14" width="7" height="7" />
+                  </svg>
+                  {t("admin")}
+                </DropdownMenuItem>
               )}
-            >
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="size-4">
-                <path d={link.icon} />
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={handleLogout} className="text-red-600">
+                <svg className="size-4 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                  <polyline points="16 17 21 12 16 7" />
+                  <line x1="21" y1="12" x2="9" y2="12" />
+                </svg>
+                {t("logout")}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        ) : (
+          <Link href="/login" className="ml-auto">
+            <Button variant="ghost" className="flex items-center gap-2 text-white/70 hover:text-white hover:bg-white/5">
+              <svg className="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+                <polyline points="10 17 15 12 10 7" />
+                <line x1="15" y1="12" x2="3" y2="12" />
               </svg>
+              {t("login")}
             </Button>
           </Link>
-        );
-      })}
+        )}
+      </div>
 
-      <div className="size-px bg-white/10 mx-1" />
-
-      {user ? (
-        <DropdownMenu>
-          <DropdownMenuTrigger className="flex items-center gap-2 p-2 rounded-2xl hover:bg-white/5 transition-colors outline-none">
-            <Avatar className="size-8">
-              <AvatarImage src={user.avatar_url} alt={user.name} />
-              <AvatarFallback className="bg-white/10 text-white text-xs font-medium">
-                {getInitials(user.name)}
-              </AvatarFallback>
-            </Avatar>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="size-4 text-white/50">
-              <polyline points="6 9 12 15 18 9" />
-            </svg>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56">
-            <div className="px-3 py-2">
-              <p className="text-sm font-medium">{user.name}</p>
-              <p className="text-xs text-muted-foreground">
-                {user.role === "admin" ? t("administrator") : t("user")}
-              </p>
-            </div>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => router.push("/profile")}>
-              <svg className="size-4 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                <circle cx="12" cy="7" r="4" />
-              </svg>
-              {t("profile")}
-            </DropdownMenuItem>
-            {user.role === "admin" && (
-              <DropdownMenuItem onClick={() => router.push("/admin")}>
-                <svg className="size-4 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <rect x="3" y="3" width="7" height="7" />
-                  <rect x="14" y="3" width="7" height="7" />
-                  <rect x="14" y="14" width="7" height="7" />
-                  <rect x="3" y="14" width="7" height="7" />
+      {/* Desktop pill nav */}
+      <nav className="hidden sm:flex items-center gap-2 p-2 rounded-2xl backdrop-blur-md bg-white/5">
+        {links.map((link) => {
+          const isActive = pathname === link.href;
+          return (
+            <Link key={link.href} href={link.href as any}>
+              <Button
+                variant="ghost"
+                size="icon"
+                className={cn(
+                  "size-9 rounded-full",
+                  isActive ? "bg-white/10 text-white" : "text-white/50 hover:text-white hover:bg-white/5"
+                )}
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="size-4">
+                  <path d={link.icon} />
                 </svg>
-                {t("admin")}
-              </DropdownMenuItem>
-            )}
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleLogout} className="text-red-600">
-              <svg className="size-4 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                <polyline points="16 17 21 12 16 7" />
-                <line x1="21" y1="12" x2="9" y2="12" />
+              </Button>
+            </Link>
+          );
+        })}
+
+        <div className="size-px bg-white/10 mx-1" />
+
+        {user ? (
+          <DropdownMenu>
+            <DropdownMenuTrigger className="flex items-center gap-2 p-2 rounded-2xl hover:bg-white/5 transition-colors outline-none">
+              <Avatar className="size-8">
+                <AvatarImage src={user.avatar_url} alt={user.name} />
+                <AvatarFallback className="bg-white/10 text-white text-xs font-medium">
+                  {getInitials(user.name)}
+                </AvatarFallback>
+              </Avatar>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="size-4 text-white/50">
+                <polyline points="6 9 12 15 18 9" />
               </svg>
-              {t("logout")}
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      ) : (
-        <Link href="/login">
-          <Button variant="ghost" className="flex items-center gap-2 text-white/70 hover:text-white hover:bg-white/5">
-            <svg className="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
-              <polyline points="10 17 15 12 10 7" />
-              <line x1="15" y1="12" x2="3" y2="12" />
-            </svg>
-            {t("login")}
-          </Button>
-        </Link>
-      )}
-    </nav>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <div className="px-3 py-2">
+                <p className="text-sm font-medium">{user.name}</p>
+                <p className="text-xs text-muted-foreground">
+                  {user.role === "admin" ? t("administrator") : t("user")}
+                </p>
+              </div>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => router.push("/profile")}>
+                <svg className="size-4 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                  <circle cx="12" cy="7" r="4" />
+                </svg>
+                {t("profile")}
+              </DropdownMenuItem>
+              {user.role === "admin" && (
+                <DropdownMenuItem onClick={() => router.push("/admin")}>
+                  <svg className="size-4 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <rect x="3" y="3" width="7" height="7" />
+                    <rect x="14" y="3" width="7" height="7" />
+                    <rect x="14" y="14" width="7" height="7" />
+                    <rect x="3" y="14" width="7" height="7" />
+                  </svg>
+                  {t("admin")}
+                </DropdownMenuItem>
+              )}
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={handleLogout} className="text-red-600">
+                <svg className="size-4 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                  <polyline points="16 17 21 12 16 7" />
+                  <line x1="21" y1="12" x2="9" y2="12" />
+                </svg>
+                {t("logout")}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        ) : (
+          <Link href="/login">
+            <Button variant="ghost" className="flex items-center gap-2 text-white/70 hover:text-white hover:bg-white/5">
+              <svg className="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+                <polyline points="10 17 15 12 10 7" />
+                <line x1="15" y1="12" x2="3" y2="12" />
+              </svg>
+              {t("login")}
+            </Button>
+          </Link>
+        )}
+      </nav>
+    </>
   );
 }

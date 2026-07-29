@@ -387,7 +387,7 @@ export default function SandboxPage() {
         </div>
 
         <div className="flex flex-wrap gap-2">
-          <div className="flex gap-1 bg-white/[0.03] border border-white/10 rounded-lg p-1">
+          <div className="flex flex-wrap gap-1 bg-white/[0.03] border border-white/10 rounded-lg p-1">
             {LANGS.map(l => (
               <button 
                 key={l} 
@@ -399,7 +399,7 @@ export default function SandboxPage() {
               </button>
             ))}
           </div>
-          <div className="flex gap-1 bg-white/[0.03] border border-white/10 rounded-lg p-1">
+          <div className="flex flex-wrap gap-1 bg-white/[0.03] border border-white/10 rounded-lg p-1">
             {EXAMPLES.map(ex => (
               <button 
                 key={ex.id} 

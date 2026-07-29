@@ -461,3 +461,20 @@ export async function deletePageSetting(id: string) {
   const { error } = await db.from("page_settings").delete().eq("id", id);
   return { success: !error, error: error?.message };
 }
+
+export async function submitContactForm(data: {
+  name: string;
+  email: string;
+  budget: string;
+  message: string;
+}) {
+  const db = getDb();
+  const { error } = await db.from("contacts").insert({
+    name: data.name,
+    email: data.email,
+    budget: data.budget,
+    message: data.message,
+  });
+  if (error) return { success: false, error: error.message };
+  return { success: true };
+}

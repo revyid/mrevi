@@ -72,6 +72,38 @@ export async function updateUser(userId: string, field: string, value: string): 
   }
 }
 
+// Update API key rate limit (admin only)
+export async function updateApiKeyRateLimit(userId: string, rateLimit: number): Promise<{ success: boolean; error?: string }> {
+  try {
+    const currentUser = await getSession();
+    if (!currentUser || currentUser.role !== "admin") return { success: false, error: "Unauthorized" };
+
+    const db = getDb();
+    const { error } = await db.from("api_keys").update({ rate_limit: rateLimit }).eq("user_id", userId);
+    if (error) return { success: false, error: error.message };
+    revalidatePath("/admin");
+    return { success: true };
+  } catch (err) {
+    return { success: false, error: "Failed to update rate limit" };
+  }
+}
+
+// Toggle API key active status (admin only)
+export async function toggleApiKeyActive(userId: string, isActive: boolean): Promise<{ success: boolean; error?: string }> {
+  try {
+    const currentUser = await getSession();
+    if (!currentUser || currentUser.role !== "admin") return { success: false, error: "Unauthorized" };
+
+    const db = getDb();
+    const { error } = await db.from("api_keys").update({ is_active: isActive }).eq("user_id", userId);
+    if (error) return { success: false, error: error.message };
+    revalidatePath("/admin");
+    return { success: true };
+  } catch (err) {
+    return { success: false, error: "Failed to toggle API key" };
+  }
+}
+
 // Delete user (admin only)
 export async function deleteUser(userId: string): Promise<{ success: boolean; error?: string }> {
   try {

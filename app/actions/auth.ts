@@ -158,6 +158,7 @@ export async function getOrCreateApiKeyAction(): Promise<{
   isActive?: boolean;
   createdAt?: string;
   lastUsedAt?: string | null;
+  usageCount?: number;
 }> {
   try {
     const { getSession } = await import("@/lib/auth");
@@ -183,6 +184,14 @@ export async function getOrCreateApiKeyAction(): Promise<{
     }
 
     if (existingKey) {
+      // Count usage in last hour
+      const oneHourAgo = new Date(Date.now() - 3600000).toISOString();
+      const { count } = await db
+        .from("api_key_usage")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", user.id)
+        .gte("used_at", oneHourAgo);
+
       return {
         success: true,
         id: existingKey.id,
@@ -191,6 +200,7 @@ export async function getOrCreateApiKeyAction(): Promise<{
         isActive: existingKey.is_active,
         createdAt: existingKey.created_at,
         lastUsedAt: existingKey.last_used_at,
+        usageCount: count || 0,
       };
     }
 

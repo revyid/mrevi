@@ -158,7 +158,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
   const [deleting, setDeleting] = useState(false);
 
   // API Key
-  type ApiKeyMeta = { id: string; keyPrefix: string; rateLimit: number; isActive: boolean; createdAt: string; lastUsedAt?: string | null };
+  type ApiKeyMeta = { id: string; keyPrefix: string; rateLimit: number; isActive: boolean; createdAt: string; lastUsedAt?: string | null; usageCount?: number };
   const [apiKeyMeta, setApiKeyMeta] = useState<ApiKeyMeta | null>(null);
   const [loadingApiKey, setLoadingApiKey] = useState(true);
   const [regenConfirm, setRegenConfirm] = useState(false);
@@ -191,7 +191,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
     try {
       const result = await getOrCreateApiKeyAction();
       if (result.success && result.id) {
-        setApiKeyMeta({ id: result.id, keyPrefix: result.keyPrefix!, rateLimit: result.rateLimit!, isActive: result.isActive!, createdAt: result.createdAt!, lastUsedAt: result.lastUsedAt });
+        setApiKeyMeta({ id: result.id, keyPrefix: result.keyPrefix!, rateLimit: result.rateLimit!, isActive: result.isActive!, createdAt: result.createdAt!, lastUsedAt: result.lastUsedAt, usageCount: result.usageCount });
         if (result.key) {
           try { localStorage.setItem(`mrevi_api_key_${result.id}`, result.key); } catch { /* ignore */ }
           setStoredKey(result.key);
@@ -682,7 +682,14 @@ export function ProfileForm({ profile }: ProfileFormProps) {
               )}
 
               <div className="text-xs text-muted-foreground space-y-1">
-                <p>Rate Limit: {apiKeyMeta.rateLimit} requests / hour</p>
+                <p className="flex items-center gap-2">
+                  Rate Limit: {apiKeyMeta.rateLimit} requests / hour
+                  {apiKeyMeta.usageCount !== undefined && (
+                    <span className={`font-semibold ${apiKeyMeta.usageCount >= apiKeyMeta.rateLimit ? 'text-red-500' : 'text-green-500'}`}>
+                      ({apiKeyMeta.usageCount} used this hour)
+                    </span>
+                  )}
+                </p>
                 {apiKeyMeta.lastUsedAt && <p>Last Used: {formatDate(apiKeyMeta.lastUsedAt)}</p>}
                 <p>Created: {formatDate(apiKeyMeta.createdAt)}</p>
               </div>

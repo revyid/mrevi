@@ -1,7 +1,7 @@
 ﻿"use client";
 
 import { useState } from "react";
-import { updateUser, deleteUser } from "@/app/actions/admin";
+import { updateUser, deleteUser, updateApiKeyRateLimit, toggleApiKeyActive } from "@/app/actions/admin";
 import { formatDate, getInitials } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -13,7 +13,14 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { PencilIcon, TrashIcon } from "lucide-react";
+import { PencilIcon, TrashIcon, KeyIcon, ToggleLeft, ToggleRight } from "lucide-react";
+
+interface ApiKeyInfo {
+  keyPrefix: string;
+  rateLimit: number;
+  isActive: boolean;
+  lastUsedAt: string | null;
+}
 
 interface User {
   id: string;
@@ -23,6 +30,7 @@ interface User {
   avatar_url: string;
   provider: string;
   created_at: string;
+  apiKey?: ApiKeyInfo | null;
 }
 
 interface UserTableProps {
@@ -117,8 +125,8 @@ export function UserTable({ users: initialUsers, currentUserId }: UserTableProps
               <TableRow>
                 <TableHead>User</TableHead>
                 <TableHead>Role</TableHead>
-                <TableHead>Provider</TableHead>
-                <TableHead>Joined</TableHead>
+                <TableHead>API Key</TableHead>
+                <TableHead>Rate Limit</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -140,12 +148,58 @@ export function UserTable({ users: initialUsers, currentUserId }: UserTableProps
                   <TableCell>
                     <Badge variant={user.role === "admin" ? "default" : "secondary"}>{user.role}</Badge>
                   </TableCell>
-                  <TableCell><Badge variant="outline">{user.provider}</Badge></TableCell>
                   <TableCell>
-                    <span className="text-sm text-muted-foreground">{formatDate(user.created_at)}</span>
+                    {user.apiKey ? (
+                      <div className="flex items-center gap-2">
+                        <Badge variant={user.apiKey.isActive ? "default" : "destructive"}>
+                          {user.apiKey.isActive ? "Active" : "Inactive"}
+                        </Badge>
+                        <span className="text-xs text-muted-foreground font-mono">{user.apiKey.keyPrefix}...</span>
+                      </div>
+                    ) : (
+                      <span className="text-xs text-muted-foreground">No key</span>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    {user.apiKey ? (
+                      <div className="flex items-center gap-1">
+                        <Input
+                          type="number"
+                          defaultValue={user.apiKey.rateLimit}
+                          className="w-20 h-8 text-xs"
+                          min={1}
+                          max={10000}
+                          onBlur={async (e) => {
+                            const val = parseInt(e.target.value, 10);
+                            if (val > 0 && val !== user.apiKey!.rateLimit) {
+                              const res = await updateApiKeyRateLimit(user.id, val);
+                              if (res.success) toast.success(`Rate limit updated to ${val}/hr`);
+                              else toast.error(res.error);
+                            }
+                          }}
+                        />
+                        <span className="text-xs text-muted-foreground">/hr</span>
+                      </div>
+                    ) : (
+                      <span className="text-xs text-muted-foreground">-</span>
+                    )}
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-1">
+                      {user.apiKey && user.id !== currentUserId && (
+                        <Button
+                          variant="ghost"
+                          size="icon-xs"
+                          onClick={async () => {
+                            const res = await toggleApiKeyActive(user.id, !user.apiKey!.isActive);
+                            if (res.success) toast.success(user.apiKey!.isActive ? "Key disabled" : "Key enabled");
+                            else toast.error(res.error);
+                          }}
+                          title={user.apiKey.isActive ? "Disable API key" : "Enable API key"}
+                        >
+                          {user.apiKey.isActive ? <ToggleRight className="text-green-500" /> : <ToggleLeft className="text-muted-foreground" />}
+                        </Button>
+                      )}
                       <Button variant="ghost" size="icon-xs" onClick={() => openEdit(user)} aria-label="Edit user">
                         <PencilIcon />
                       </Button>

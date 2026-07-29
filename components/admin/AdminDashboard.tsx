@@ -36,6 +36,12 @@ interface User {
   avatar_url: string;
   provider: string;
   created_at: string;
+  apiKey?: {
+    keyPrefix: string;
+    rateLimit: number;
+    isActive: boolean;
+    lastUsedAt: string | null;
+  } | null;
 }
 
 interface AdminDashboardProps {

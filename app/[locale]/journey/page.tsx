@@ -19,7 +19,7 @@ export const metadata: Metadata = {
 
 async function getExperiences() {
   const db = getDb();
-  const { data } = await db.from("experiences").select("*").order("sort_order");
+  const { data } = await db.from("journey").select("*").order("sort_order");
   return data || [];
 }
 

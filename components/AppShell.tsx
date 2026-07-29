@@ -29,7 +29,7 @@ export function AppShell({ children, profileSettings = {}, locale }: AppShellPro
 
   return (
     <div className="min-h-screen pt-24 px-5 md:px-10 lg:px-16">
-      <div className="flex gap-8 max-w-[1200px] mx-auto border border-white/10 rounded-2xl p-6">
+      <div className="flex gap-8 max-w-[1200px] mx-auto p-6">
         <aside className="hidden xl:block w-[280px] shrink-0 sticky top-24 h-[calc(100vh-6rem)] overflow-y-auto scrollbar-none">
           <ProfileCard settings={profileSettings} />
         </aside>

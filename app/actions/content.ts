@@ -269,7 +269,7 @@ export async function deleteProject(id: string) {
 
 export async function getExperiences() {
   const db = getDb();
-  const { data } = await db.from("experiences").select("*").order("sort_order");
+  const { data } = await db.from("journey").select("*").order("sort_order");
   return data || [];
 }
 
@@ -281,7 +281,7 @@ export async function createExperience(data: {
   await requireAdmin();
   const db = getDb();
   const { data: exp, error } = await db
-    .from("experiences")
+    .from("journey")
     .insert(data)
     .select()
     .single();
@@ -293,7 +293,7 @@ export async function updateExperience(id: string, field: string, value: string)
   await requireAdmin();
   const db = getDb();
   const { error } = await db
-    .from("experiences")
+    .from("journey")
     .update({ [field]: value })
     .eq("id", id);
   if (!error) revalidatePath("/");
@@ -303,7 +303,7 @@ export async function updateExperience(id: string, field: string, value: string)
 export async function deleteExperience(id: string) {
   await requireAdmin();
   const db = getDb();
-  const { error } = await db.from("experiences").delete().eq("id", id);
+  const { error } = await db.from("journey").delete().eq("id", id);
   if (!error) revalidatePath("/");
   return { success: !error, error: error?.message };
 }

@@ -1,5 +1,6 @@
 "use server";
 
+import crypto from "crypto";
 import { revalidatePath } from "next/cache";
 import {
   register as authRegister,
@@ -144,5 +145,149 @@ export async function deleteAccount(
     return await authDeleteAccount(user.id, password);
   } catch {
     return { success: false, error: "Failed to delete account" };
+  }
+}
+
+export async function getOrCreateApiKeyAction(): Promise<{
+  success: boolean;
+  error?: string;
+  key?: string;
+  id?: string;
+  keyPrefix?: string;
+  rateLimit?: number;
+  isActive?: boolean;
+  createdAt?: string;
+  lastUsedAt?: string | null;
+}> {
+  try {
+    const { getSession } = await import("@/lib/auth");
+    const user = await getSession();
+    if (!user) return { success: false, error: "Not authenticated" };
+
+    const db = getDb();
+    
+    const { data: existingKey, error: fetchError } = await db
+      .from("api_keys")
+      .select("*")
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+    if (fetchError) {
+      if (fetchError.message.includes("does not exist")) {
+        return {
+          success: false,
+          error: "API Keys table does not exist. Please run migration 003_add_api_keys.sql in Supabase SQL editor first."
+        };
+      }
+      return { success: false, error: fetchError.message };
+    }
+
+    if (existingKey) {
+      return {
+        success: true,
+        id: existingKey.id,
+        keyPrefix: existingKey.key_prefix,
+        rateLimit: existingKey.rate_limit,
+        isActive: existingKey.is_active,
+        createdAt: existingKey.created_at,
+        lastUsedAt: existingKey.last_used_at,
+      };
+    }
+
+    const rawKey = "mr_" + crypto.randomBytes(24).toString("hex");
+    const keyPrefix = rawKey.substring(0, 11);
+    const keyHash = crypto.createHash("sha256").update(rawKey).digest("hex");
+
+    const { data: newKey, error: insertError } = await db
+      .from("api_keys")
+      .insert({
+        user_id: user.id,
+        name: "Default Key",
+        key_hash: keyHash,
+        key_prefix: keyPrefix,
+        rate_limit: 100,
+        is_active: true,
+      })
+      .select()
+      .single();
+
+    if (insertError) return { success: false, error: insertError.message };
+
+    return {
+      success: true,
+      key: rawKey,
+      id: newKey.id,
+      keyPrefix: newKey.key_prefix,
+      rateLimit: newKey.rate_limit,
+      isActive: newKey.is_active,
+      createdAt: newKey.created_at,
+    };
+  } catch (err) {
+    return { success: false, error: err instanceof Error ? err.message : "Failed to get or create API key" };
+  }
+}
+
+export async function regenerateApiKeyAction(): Promise<{
+  success: boolean;
+  error?: string;
+  key?: string;
+  id?: string;
+  keyPrefix?: string;
+  rateLimit?: number;
+  isActive?: boolean;
+  createdAt?: string;
+}> {
+  try {
+    const { getSession } = await import("@/lib/auth");
+    const user = await getSession();
+    if (!user) return { success: false, error: "Not authenticated" };
+
+    const db = getDb();
+
+    const { error: deleteError } = await db
+      .from("api_keys")
+      .delete()
+      .eq("user_id", user.id);
+
+    if (deleteError) {
+      if (deleteError.message.includes("does not exist")) {
+        return {
+          success: false,
+          error: "API Keys table does not exist. Please run migration 003_add_api_keys.sql in Supabase SQL editor first."
+        };
+      }
+      return { success: false, error: deleteError.message };
+    }
+
+    const rawKey = "mr_" + crypto.randomBytes(24).toString("hex");
+    const keyPrefix = rawKey.substring(0, 11);
+    const keyHash = crypto.createHash("sha256").update(rawKey).digest("hex");
+
+    const { data: newKey, error: insertError } = await db
+      .from("api_keys")
+      .insert({
+        user_id: user.id,
+        name: "Default Key",
+        key_hash: keyHash,
+        key_prefix: keyPrefix,
+        rate_limit: 100,
+        is_active: true,
+      })
+      .select()
+      .single();
+
+    if (insertError) return { success: false, error: insertError.message };
+
+    return {
+      success: true,
+      key: rawKey,
+      id: newKey.id,
+      keyPrefix: newKey.key_prefix,
+      rateLimit: newKey.rate_limit,
+      isActive: newKey.is_active,
+      createdAt: newKey.created_at,
+    };
+  } catch (err) {
+    return { success: false, error: err instanceof Error ? err.message : "Failed to regenerate API key" };
   }
 }

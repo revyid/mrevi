@@ -22,6 +22,7 @@ const defaultNavLinks = [
   { href: "/journey", label: "Journey", icon: "M2 7h20v14H2z M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16", is_visible: true },
   { href: "/tools", label: "Tools", icon: "M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z", is_visible: true },
   { href: "/blog", label: "Thoughts", icon: "M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7 M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z", is_visible: true },
+  { href: "/sandbox", label: "Sandbox", icon: "M4 17l6-6-6-6 M12 19h8", is_visible: true },
 ];
 
 interface User {

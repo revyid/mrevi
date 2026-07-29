@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { updateProfile, changePassword, deleteAccount, logoutAction } from "@/app/actions/auth";
+import { updateProfile, changePassword, deleteAccount, logoutAction, getOrCreateApiKeyAction, regenerateApiKeyAction } from "@/app/actions/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -42,6 +42,8 @@ import {
   TrashIcon,
   GlobeIcon,
   CalendarIcon,
+  Copy,
+  Check
 } from "lucide-react";
 import { base64URLToBuffer, bufferToBase64URL } from "@/lib/webauthn-utils";
 
@@ -155,6 +157,15 @@ export function ProfileForm({ profile }: ProfileFormProps) {
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
   const [deleting, setDeleting] = useState(false);
 
+  // API Key
+  type ApiKeyMeta = { id: string; keyPrefix: string; rateLimit: number; isActive: boolean; createdAt: string; lastUsedAt?: string | null };
+  const [apiKeyMeta, setApiKeyMeta] = useState<ApiKeyMeta | null>(null);
+  const [loadingApiKey, setLoadingApiKey] = useState(true);
+  const [regenConfirm, setRegenConfirm] = useState(false);
+  const [regeningKey, setRegeningKey] = useState(false);
+  const [copiedApiKey, setCopiedApiKey] = useState(false);
+  const [storedKey, setStoredKey] = useState<string>("");
+
   const fetchSessions = useCallback(async () => {
     setLoadingSessions(true);
     try {
@@ -175,10 +186,28 @@ export function ProfileForm({ profile }: ProfileFormProps) {
     setLoadingPasskeys(false);
   }, []);
 
+  const fetchApiKey = useCallback(async () => {
+    setLoadingApiKey(true);
+    try {
+      const result = await getOrCreateApiKeyAction();
+      if (result.success && result.id) {
+        setApiKeyMeta({ id: result.id, keyPrefix: result.keyPrefix!, rateLimit: result.rateLimit!, isActive: result.isActive!, createdAt: result.createdAt!, lastUsedAt: result.lastUsedAt });
+        if (result.key) {
+          try { localStorage.setItem(`mrevi_api_key_${result.id}`, result.key); } catch { /* ignore */ }
+          setStoredKey(result.key);
+        } else {
+          try { setStoredKey(localStorage.getItem(`mrevi_api_key_${result.id}`) || ""); } catch { /* ignore */ }
+        }
+      }
+    } catch { /* ignore */ }
+    setLoadingApiKey(false);
+  }, []);
+
   useEffect(() => {
     fetchSessions();
     fetchPasskeys();
-  }, [fetchSessions, fetchPasskeys]);
+    fetchApiKey();
+  }, [fetchSessions, fetchPasskeys, fetchApiKey]);
 
   // ============================================================
   // Handlers
@@ -371,6 +400,31 @@ export function ProfileForm({ profile }: ProfileFormProps) {
       toast.error(result.error || "Failed to delete account");
     }
     setDeleting(false);
+  }
+
+  async function handleRegenApiKey() {
+    setRegeningKey(true);
+    const result = await regenerateApiKeyAction();
+    if (result.success && result.id) {
+      setApiKeyMeta({ id: result.id, keyPrefix: result.keyPrefix!, rateLimit: result.rateLimit!, isActive: result.isActive!, createdAt: result.createdAt! });
+      if (result.key) {
+        try { localStorage.setItem(`mrevi_api_key_${result.id}`, result.key); } catch { /* ignore */ }
+        setStoredKey(result.key);
+      }
+      toast.success("API key regenerated");
+    } else {
+      toast.error(result.error || "Failed to regenerate API key");
+    }
+    setRegenConfirm(false);
+    setRegeningKey(false);
+  }
+
+  function copyApiKey() {
+    const val = storedKey || (apiKeyMeta ? `${apiKeyMeta.keyPrefix}${"•".repeat(30)}` : "");
+    if (!storedKey) { toast.error("Full key not available — regenerate to reveal it"); return; }
+    navigator.clipboard.writeText(val);
+    setCopiedApiKey(true);
+    setTimeout(() => setCopiedApiKey(false), 2000);
   }
 
   // ============================================================
@@ -590,6 +644,62 @@ export function ProfileForm({ profile }: ProfileFormProps) {
         </CardContent>
       </Card>
 
+      {/* ─── API Key ─── */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <KeyIcon className="size-4" />
+            API Authentication
+          </CardTitle>
+          <CardDescription>Use this key to access the portfolio API programmatically.</CardDescription>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-4">
+          {loadingApiKey ? (
+            <div className="flex justify-center py-4"><Spinner className="size-5" /></div>
+          ) : !apiKeyMeta ? (
+            <p className="text-sm text-muted-foreground">No API key found.</p>
+          ) : (
+            <div className="space-y-4">
+              <div className="flex flex-col sm:flex-row gap-2">
+                <code className="flex-1 p-3 bg-muted rounded-lg text-sm font-mono text-foreground break-all select-all border border-border">
+                  {storedKey || `${apiKeyMeta.keyPrefix}${"•".repeat(30)}`}
+                </code>
+                <Button
+                  variant="outline"
+                  onClick={copyApiKey}
+                  disabled={!storedKey}
+                  className="shrink-0"
+                >
+                  {copiedApiKey ? <Check className="w-4 h-4 mr-2" /> : <Copy className="w-4 h-4 mr-2" />}
+                  {copiedApiKey ? "Copied" : "Copy Key"}
+                </Button>
+              </div>
+
+              {!storedKey && (
+                <p className="text-xs text-yellow-500">
+                  Full key is hidden for security. If you lost it, click "Regenerate" below to create a new one.
+                </p>
+              )}
+
+              <div className="text-xs text-muted-foreground space-y-1">
+                <p>Rate Limit: {apiKeyMeta.rateLimit} requests / hour</p>
+                {apiKeyMeta.lastUsedAt && <p>Last Used: {formatDate(apiKeyMeta.lastUsedAt)}</p>}
+                <p>Created: {formatDate(apiKeyMeta.createdAt)}</p>
+              </div>
+
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setRegenConfirm(true)}
+                className="self-start text-yellow-500 border-yellow-500/30 hover:bg-yellow-500/10"
+              >
+                Regenerate Key
+              </Button>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
       {/* â”€â”€â”€ Danger Zone â”€â”€â”€ */}
       <Card className="border-destructive/30">
         <CardHeader>
@@ -746,6 +856,29 @@ export function ProfileForm({ profile }: ProfileFormProps) {
             >
               <Spinner className={`size-4 mr-2 ${deleting ? "" : "hidden"}`} />
               Delete Account
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Regenerate API Key Confirm */}
+      <AlertDialog open={regenConfirm} onOpenChange={() => setRegenConfirm(false)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Regenerate API Key</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure? Any existing applications/scripts using your old API key will stop working immediately.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleRegenApiKey}
+              disabled={regeningKey}
+              className="bg-yellow-600 text-white hover:bg-yellow-700"
+            >
+              <Spinner className={`size-4 mr-2 ${regeningKey ? "" : "hidden"}`} />
+              Regenerate
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

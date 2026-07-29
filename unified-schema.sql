@@ -15,6 +15,8 @@
 -- ============================================================
 
 -- Tables (reverse dependency order — CASCADE handles triggers/indexes)
+DROP TABLE IF EXISTS api_key_usage    CASCADE;
+DROP TABLE IF EXISTS api_keys         CASCADE;
 DROP TABLE IF EXISTS passkeys         CASCADE;
 DROP TABLE IF EXISTS sessions         CASCADE;
 DROP TABLE IF EXISTS navigation_links CASCADE;
@@ -91,9 +93,41 @@ CREATE TABLE users (
   bio           TEXT    DEFAULT '',
   website       TEXT    DEFAULT '',
   dob           DATE    DEFAULT NULL,
-  created_at    TIMESTAMPTZ DEFAULT NOW(),
-  updated_at    TIMESTAMPTZ DEFAULT NOW()
+  created_at  TIMESTAMPTZ DEFAULT NOW(),
+  updated_at  TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- 5e. API Keys
+CREATE TABLE api_keys (
+  id           UUID        DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id      UUID        NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  name         TEXT        NOT NULL,
+  key_hash     TEXT        UNIQUE NOT NULL,
+  key_prefix   TEXT        NOT NULL,
+  rate_limit   INTEGER     DEFAULT 100,
+  is_active    BOOLEAN     DEFAULT true,
+  expires_at   TIMESTAMPTZ,
+  created_at   TIMESTAMPTZ DEFAULT NOW(),
+  last_used_at TIMESTAMPTZ
+);
+
+CREATE INDEX idx_api_keys_user_id ON api_keys(user_id);
+CREATE INDEX idx_api_keys_hash ON api_keys(key_hash);
+
+ALTER TABLE api_keys ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "allow_all_service_role" ON api_keys FOR ALL USING (true) WITH CHECK (true);
+
+-- 5f. API Key Usage
+CREATE TABLE api_key_usage (
+  id      UUID        DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id UUID        NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  used_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX idx_api_key_usage_user_time ON api_key_usage(user_id, used_at DESC);
+
+ALTER TABLE api_key_usage ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "allow_all_service_role" ON api_key_usage FOR ALL USING (true) WITH CHECK (true);
 
 CREATE INDEX idx_users_email ON users(email);
 
@@ -375,10 +409,11 @@ INSERT INTO tools (name, category, href, icon, sort_order) VALUES
 ON CONFLICT DO NOTHING;
 
 -- 9f. Blog Posts
-INSERT INTO blog_posts (title, excerpt, slug, date, read_time, sort_order) VALUES
-  ('Starting and Growing a Career in Web Design',       'As the internet continues to develop and grow exponentially, jobs related to the industry do too, particularly those that relate to web design and development.', 'starting-a-career-in-web-design',         'Apr 8, 2022',  '6min read', 1),
-  ('Create a Landing Page That Performs Great',          'Whether you work in marketing, sales, or product design, you understand the importance of a quality landing page.',                                              'create-a-landing-page-that-performs-great','Mar 15, 2022', '6min read', 2),
-  ('How Can Designers Prepare for the Future?',          'Whether you work in marketing, sales, or product design, you understand the importance of a quality landing page.',                                              'how-can-designers-prepare-for-the-future', 'Feb 28, 2022', '6min read', 3)
+INSERT INTO blog_posts (title, excerpt, content, slug, date, read_time, sort_order) VALUES
+  ('Starting and Growing a Career in Web Design',       'As the internet continues to develop and grow exponentially, jobs related to the industry do too, particularly those that relate to web design and development.', NULL, 'starting-a-career-in-web-design',         'Apr 8, 2022',  '6min read', 1),
+  ('Create a Landing Page That Performs Great',          'Whether you work in marketing, sales, or product design, you understand the importance of a quality landing page.',                                              NULL, 'create-a-landing-page-that-performs-great','Mar 15, 2022', '6min read', 2),
+  ('How Can Designers Prepare for the Future?',          'Whether you work in marketing, sales, or product design, you understand the importance of a quality landing page.',                                              NULL, 'how-can-designers-prepare-for-the-future', 'Feb 28, 2022', '6min read', 3),
+  ('API Documentation', 'Learn how to use the M. Revi Ramadhan Developer API to retrieve portfolio data programmatically.', '<h2>Developer API Documentation</h2><p>Welcome to the developer API for M. Revi Ramadhan''s portfolio. You can retrieve real-time data about projects, experiences, tools, blog posts, and site settings using your API key.</p><h3>Authentication</h3><p>All requests must include your API key in the <code>x-api-key</code> HTTP header.</p><pre><code>x-api-key: mr_your_api_key_here</code></pre><h3>Endpoints</h3><p>The base URL for the API is <code>http://localhost:3001</code> (in development) or the production API URL.</p><h4>1. Get Full Portfolio Data</h4><pre><code>GET /api/portfolio</code></pre><p>Returns all projects, experiences, tools, blog posts, and site settings.</p><h4>2. Get Projects</h4><pre><code>GET /api/projects</code></pre><h4>3. Get Journey / Experiences</h4><pre><code>GET /api/experiences</code></pre><h4>4. Get Tools</h4><pre><code>GET /api/tools</code></pre><h4>5. Get Blog Posts</h4><pre><code>GET /api/blog</code></pre><h3>Playground (Code Execution)</h3><p>You can also use the <code>/api/playground</code> endpoint (POST) to run sandboxed code in Go, Rust, or PHP. Note that these containers do not have outbound network access.</p>', 'api-documentation', 'Jul 29, 2026', '5min read', 4)
 ON CONFLICT (slug) DO NOTHING;
 
 -- ============================================================

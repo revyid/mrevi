@@ -3,7 +3,7 @@ import { getSession, getCurrentSessionToken } from "@/lib/auth";
 import { getDb } from "@/lib/db";
 
 // GET - List user sessions
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
     const user = await getSession();
     if (!user) {
@@ -23,6 +23,28 @@ export async function GET() {
 
     // Get current session token to identify current device
     const currentToken = await getCurrentSessionToken();
+
+    // Fill in missing metadata for current session from request headers
+    if (currentToken) {
+      const currentSession = (sessions || []).find((s) => s.token === currentToken);
+      if (currentSession) {
+        const updates: Record<string, string> = {};
+        if (!currentSession.user_agent) {
+          const ua = request.headers.get("user-agent") || "";
+          if (ua) updates.user_agent = ua;
+        }
+        if (!currentSession.ip_address) {
+          const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || request.headers.get("x-real-ip") || "";
+          if (ip) updates.ip_address = ip;
+        }
+        if (Object.keys(updates).length > 0) {
+          await db.from("sessions").update(updates).eq("token", currentToken).eq("user_id", user.id);
+          // Update in-memory data for response
+          if (updates.user_agent) currentSession.user_agent = updates.user_agent;
+          if (updates.ip_address) currentSession.ip_address = updates.ip_address;
+        }
+      }
+    }
 
     const enriched = (sessions || []).map((s) => ({
       ...s,

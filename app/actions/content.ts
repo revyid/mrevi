@@ -87,10 +87,12 @@ export async function getNavigationLinks(): Promise<
   return data || [];
 }
 
-export async function updateNavigationLink(href: string, label: string) {
+export async function updateNavigationLink(href: string, label: string, newHref?: string) {
   await requireAdmin();
   const db = getDb();
-  const { error } = await db.from("navigation_links").update({ label }).eq("href", href);
+  const update: Record<string, string> = { label };
+  if (newHref && newHref !== href) update.href = newHref;
+  const { error } = await db.from("navigation_links").update(update).eq("href", href);
   if (!error) revalidatePath("/");
   return { success: !error, error: error?.message };
 }

@@ -32,6 +32,7 @@ export function NavigationTab() {
   const [editModal, setEditModal] = useState<NavLink | null>(null);
   const [createModal, setCreateModal] = useState(false);
   const [editLabel, setEditLabel] = useState("");
+  const [editHref, setEditHref] = useState("");
   const [newLink, setNewLink] = useState({ href: "", label: "", icon: "" });
   const [saving, setSaving] = useState(false);
   const [updatingHref, setUpdatingHref] = useState<string | null>(null);
@@ -49,15 +50,16 @@ export function NavigationTab() {
   function openEdit(link: NavLink) {
     setEditModal(link);
     setEditLabel(link.label);
+    setEditHref(link.href);
   }
 
   async function handleSaveLabel() {
     if (!editModal) return;
     setSaving(true);
-    const result = await updateNavigationLink(editModal.href, editLabel);
+    const result = await updateNavigationLink(editModal.href, editLabel, editHref);
     if (result.success) {
-      setLinks(prev => prev.map(l => l.href === editModal.href ? { ...l, label: editLabel } : l));
-      toast.success("Label updated");
+      setLinks(prev => prev.map(l => l.href === editModal.href ? { ...l, label: editLabel, href: editHref } : l));
+      toast.success("Navigation updated");
       setEditModal(null);
     } else {
       toast.error(result.error || "Failed to update");
@@ -207,22 +209,22 @@ export function NavigationTab() {
       {/* Edit Label Modal */}
       <Dialog open={!!editModal} onOpenChange={() => setEditModal(null)}>
         <DialogContent>
-          <DialogHeader><DialogTitle>Edit Navigation Label</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>Edit Navigation</DialogTitle></DialogHeader>
           <div className="space-y-4">
-            <div className="space-y-1">
-              <label className="text-xs text-muted-foreground">Route</label>
-              <code className="block text-sm bg-muted px-3 py-2 rounded-lg">{editModal?.href}</code>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Path</label>
+              <Input value={editHref} onChange={e => setEditHref(e.target.value)}
+                onKeyDown={e => e.key === "Enter" && handleSaveLabel()} autoFocus />
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium">Display Label</label>
               <Input value={editLabel} onChange={e => setEditLabel(e.target.value)}
-                onKeyDown={e => e.key === "Enter" && handleSaveLabel()} autoFocus />
+                onKeyDown={e => e.key === "Enter" && handleSaveLabel()} />
             </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setEditModal(null)}>Cancel</Button>
-            <Button onClick={handleSaveLabel} disabled={saving || !editLabel.trim()}>
-              {saving && <Spinner className="size-4 mr-2" />}Save
+            <Button onClick={handleSaveLabel} disabled={saving || !editLabel.trim() || !editHref.trim()}> {saving && <Spinner className="size-4 mr-2" />}Save
             </Button>
           </DialogFooter>
         </DialogContent>

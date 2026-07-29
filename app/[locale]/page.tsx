@@ -72,7 +72,7 @@ function ArrowIcon() {
 
 function SectionTitle({ lines }: { lines: [string, string] }) {
   return (
-    <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-[90px] font-bold uppercase leading-[0.95] tracking-tight font-heading">
+    <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-[90px] font-bold uppercase leading-[0.95] tracking-tight font-heading text-center sm:text-left">
       {lines[0]}<br />
       <span style={{ color: "rgba(182, 180, 189, 0.2)" }}>{lines[1]}</span>
     </h2>
@@ -121,24 +121,24 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
       />
     <div className="space-y-24 w-full">
       {/* Hero */}
-      <section className="pt-8 pb-4 flex flex-col justify-center">
-        <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-[90px] font-bold uppercase leading-[0.95] tracking-tight mb-6 font-heading">
+      <section className="pt-8 pb-4 flex flex-col justify-center text-center sm:text-left">
+        <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-[90px] font-bold uppercase leading-[0.95] tracking-tight mb-6 font-heading text-center sm:text-left">
           <span className="block">{settings.hero_title_1 || "SOFTWARE"}</span>
           <span className="block" style={{ color: "rgba(182, 180, 189, 0.2)" }}>{settings.hero_title_2 || "ENGINEER"}</span>
         </h1>
-        <p className="text-muted-foreground text-[16px] max-w-xl leading-relaxed mb-10">
+        <p className="text-muted-foreground text-[16px] max-w-xl leading-relaxed mb-10 mx-auto sm:mx-0">
           {settings.hero_description || t("heroDescription")}
         </p>
-        <div className="grid grid-cols-3 gap-4 max-w-xl">
+        <div className="grid grid-cols-3 gap-4 max-w-xl mx-auto sm:mx-0 text-center sm:text-left">
           {[
             { num: settings.stat_1_num || "+12", lines: (settings.stat_1_label || "YEARS OF\nEXPERIENCE").split("\n") },
             { num: settings.stat_2_num || "+46", lines: (settings.stat_2_label || "PROJECTS\nCOMPLETED").split("\n") },
             { num: settings.stat_3_num || "+20", lines: (settings.stat_3_label || "WORLDWIDE\nCLIENTS").split("\n") },
           ].map((stat) => (
             <div key={stat.num} className="space-y-1">
-              <p className="text-4xl sm:text-5xl md:text-6xl font-semibold leading-none tracking-tight font-heading">{stat.num}</p>
+              <p className="text-3xl sm:text-5xl md:text-6xl font-semibold leading-none tracking-tight font-heading">{stat.num}</p>
               {stat.lines.map((line) => (
-                <p key={line} className="text-muted-foreground text-[10px] sm:text-xs font-medium tracking-wider">{line}</p>
+                <p key={line} className="text-muted-foreground text-[9px] sm:text-xs font-medium tracking-wider">{line}</p>
               ))}
             </div>
           ))}
@@ -223,7 +223,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
       {/* Tools */}
       <section className="space-y-8">
         <SectionTitle lines={[settings.section_tools_line1 || t("premiumTools"), settings.section_tools_line2 || t("premiumToolsSub")]} />
-        <div className="grid grid-cols-2 gap-[10px]" style={{ gridTemplateColumns: "repeat(2, minmax(220px, 1fr))" }}>
+        <div className="grid grid-cols-1 xs:grid-cols-2 gap-4">
           {tools.map((tool: Record<string, unknown>) => (
             <a key={tool.id as string} href={tool.href as string} target="_blank" rel="noopener noreferrer" className="group flex items-center gap-4 p-4 rounded-lg hover:bg-white/[0.03] transition-all">
               <div className="w-10 h-10 rounded-lg overflow-hidden shrink-0">
@@ -265,7 +265,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
       {/* Contact */}
       <section className="space-y-8">
         <SectionTitle lines={[settings.section_contact_line1 || t("letsWork"), settings.section_contact_line2 || t("letsWorkSub")]} />
-        <div className="max-w-xl">
+        <div className="max-w-xl mx-auto sm:mx-0">
           <ContactForm />
         </div>
       </section>

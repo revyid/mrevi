@@ -31,7 +31,7 @@ export function AppShell({ children, profileSettings = {}, locale }: AppShellPro
     <div className="min-h-screen pt-24 px-5 md:px-10 lg:px-16">
       <div className="max-w-[1200px] mx-auto p-6">
         {/* Mobile hero — visible below xl */}
-        <div className="xl:hidden mb-8">
+        <div className="xl:hidden mb-8 flex justify-center">
           <ProfileCard settings={profileSettings} />
         </div>
         <div className="flex gap-8">

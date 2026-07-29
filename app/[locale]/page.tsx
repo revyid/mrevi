@@ -161,7 +161,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
         ].map((card) => {
           const isAccent = card.type === "accent";
           return (
-            <div key={card.type} className={`relative flex flex-col justify-between gap-12 overflow-hidden rounded-2xl px-6 py-6 text-white ${isAccent ? "bg-accent" : "bg-primary"}`}>
+            <div key={card.type} className={`relative flex flex-col justify-between gap-12 overflow-hidden rounded-2xl px-6 py-6 text-white ${isAccent ? "bg-gradient-to-br from-orange-500 to-orange-600" : "bg-gradient-to-br from-zinc-700 to-zinc-800 border border-white/10"}`}>
               <svg className="absolute -right-4 top-6 h-24 w-40 opacity-20" viewBox="0 0 200 100" fill="none">
                 <path d={isAccent ? "M 0 60 C 40 10, 80 90, 130 30 S 220 20, 250 5" : "M 0 20 C 40 80, 80 5, 130 55 S 220 60, 250 90"} stroke={isAccent ? "white" : "currentColor"} strokeWidth="3" />
               </svg>

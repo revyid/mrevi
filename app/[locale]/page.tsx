@@ -119,14 +119,14 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(personSchema) }}
       />
-    <div className="space-y-24 w-full">
+    <div className="space-y-16 lg:space-y-24 w-full">
       {/* Hero */}
       <section className="pt-8 pb-4 flex flex-col justify-center text-center lg:text-left">
         <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-[90px] font-bold uppercase leading-[0.95] tracking-tight mb-6 font-heading text-center lg:text-left">
           <span className="block">{settings.hero_title_1 || "SOFTWARE"}</span>
           <span className="block" style={{ color: "rgba(182, 180, 189, 0.2)" }}>{settings.hero_title_2 || "ENGINEER"}</span>
         </h1>
-        <p className="text-muted-foreground text-[16px] max-w-xl leading-relaxed mb-10 mx-auto lg:mx-0">
+        <p className="text-muted-foreground text-[14px] sm:text-[16px] max-w-xl leading-relaxed mb-10 mx-auto lg:mx-0">
           {settings.hero_description || t("heroDescription")}
         </p>
         <div className="grid grid-cols-3 gap-4 max-w-xl mx-auto lg:mx-0 text-center lg:text-left">
@@ -175,7 +175,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
                 </svg>
               )}
               <div className="flex items-end justify-between gap-3 relative z-10">
-                <p className="text-[16px] font-medium leading-[120%] max-w-[70%]">{card.text}</p>
+                <p className="text-[13px] sm:text-[16px] font-medium leading-[120%] max-w-[70%]">{card.text}</p>
                 <Link href={card.href as any} className={`shrink-0 w-10 h-10 flex items-center justify-center rounded-full border transition-all ${isAccent ? "border-white/30 bg-white/10 hover:bg-white hover:text-accent" : "border-primary-foreground/30 bg-primary-foreground/10 hover:bg-primary-foreground hover:text-primary"}`}>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M15 5l-1.41 1.41L18.17 11H2v2h16.17l-4.59 4.59L15 19l7-7-7-7z" /></svg>
                 </Link>
@@ -196,8 +196,8 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
                 <img src={p.image as string} alt={p.title as string} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
               </div>
               <div className="flex-1 min-w-0">
-                <h3 className="font-semibold text-[24px] group-hover:text-primary transition-colors font-heading">{p.title as string}</h3>
-                <p className="text-muted-foreground text-[16px] mt-0.5">{p.subtitle as string}</p>
+                <h3 className="font-semibold text-[18px] sm:text-[24px] group-hover:text-primary transition-colors font-heading">{p.title as string}</h3>
+                <p className="text-muted-foreground text-[14px] sm:text-[16px] mt-0.5">{p.subtitle as string}</p>
               </div>
             </a>
           ))}
@@ -211,10 +211,10 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
           {experiences.map((e: Record<string, unknown>) => (
             <div key={e.id as string} className="group flex flex-col sm:flex-row sm:items-center gap-4 py-6 first:pt-0 last:pb-0">
               <div className="flex-1 min-w-0 space-y-1">
-                <h3 className="font-semibold text-[24px] text-foreground font-heading">{e.company as string}</h3>
-                <p className="text-muted-foreground text-[16px] leading-relaxed max-w-2xl">{e.description as string}</p>
+                <h3 className="font-semibold text-[18px] sm:text-[24px] text-foreground font-heading">{e.company as string}</h3>
+                <p className="text-muted-foreground text-[14px] sm:text-[16px] leading-relaxed max-w-2xl">{e.description as string}</p>
               </div>
-              <p className="text-muted-foreground text-[16px] shrink-0 sm:text-right">{e.period as string}</p>
+              <p className="text-muted-foreground text-[14px] sm:text-[16px] shrink-0 sm:text-right">{e.period as string}</p>
             </div>
           ))}
         </div>
@@ -230,8 +230,8 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
                 <img src={tool.icon as string} alt={tool.name as string} className="w-full h-full object-cover" loading="lazy" />
               </div>
               <div>
-                <h3 className="font-semibold text-[16px] group-hover:text-primary transition-colors font-heading">{tool.name as string}</h3>
-                <p className="text-muted-foreground text-[14px] mt-0.5">{tool.category as string}</p>
+                <h3 className="font-semibold text-[14px] sm:text-[16px] group-hover:text-primary transition-colors font-heading">{tool.name as string}</h3>
+                <p className="text-muted-foreground text-[12px] sm:text-[14px] mt-0.5">{tool.category as string}</p>
               </div>
             </a>
           ))}

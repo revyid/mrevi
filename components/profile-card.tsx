@@ -154,7 +154,7 @@ export function ProfileCard({ settings = {} }: ProfileCardProps) {
     <div className="w-full rounded-2xl bg-card overflow-hidden">
       {/* Profile Image */}
       <div className="flex justify-center pt-6 px-6">
-        <div className="w-[220px] h-[220px] rounded-2xl overflow-hidden">
+        <div className="w-[150px] h-[150px] sm:w-[220px] sm:h-[220px] rounded-2xl overflow-hidden">
           <img
             src={avatar}
             alt={name}

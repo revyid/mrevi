@@ -28,7 +28,7 @@ export default async function ToolsPage() {
   const tools = await getTools();
 
   return (
-    <div className="space-y-24 w-full">
+    <div className="space-y-16 lg:space-y-24 w-full">
       <section className="pt-8 pb-4">
         <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-[90px] font-bold uppercase leading-[0.95] tracking-tight font-heading text-center lg:text-left">
           <span className="block">{t("title")}</span>
@@ -44,8 +44,8 @@ export default async function ToolsPage() {
               <img src={tool.icon as string} alt={tool.name as string} className="w-full h-full object-cover" loading="lazy" />
             </div>
             <div>
-              <h3 className="font-semibold text-[16px] group-hover:text-primary transition-colors font-heading">{tool.name as string}</h3>
-              <p className="text-muted-foreground text-[14px] mt-0.5">{tool.category as string}</p>
+              <h3 className="font-semibold text-[14px] sm:text-[16px] group-hover:text-primary transition-colors font-heading">{tool.name as string}</h3>
+              <p className="text-muted-foreground text-[12px] sm:text-[14px] mt-0.5">{tool.category as string}</p>
             </div>
           </a>
         ))}

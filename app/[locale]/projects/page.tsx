@@ -28,7 +28,7 @@ export default async function ProjectsPage() {
   const projects = await getProjects();
 
   return (
-    <div className="space-y-24 w-full">
+    <div className="space-y-16 lg:space-y-24 w-full">
       <section className="pt-8 pb-4">
         <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-[90px] font-bold uppercase leading-[0.95] tracking-tight font-heading text-center lg:text-left">
           <span className="block">{t("title")}</span>

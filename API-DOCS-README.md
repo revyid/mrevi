@@ -41,7 +41,7 @@ Atau melalui Supabase SQL Editor, copy-paste isi dari `api-docs-seed.sql`.
 
 ### 4. `/api/experiences`
 - **Method:** GET
-- **Deskripsi:** Fetch semua work experiences
+- **Deskripsi:** Fetch semua journey entries
 - **Auth:** Required (x-api-key header)
 
 ### 5. `/api/tools`

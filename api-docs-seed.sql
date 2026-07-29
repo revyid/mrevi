@@ -14,7 +14,7 @@ INSERT INTO blog_posts (
   gen_random_uuid(),
   'API Documentation',
   'api-docs',
-  'Complete API documentation for mrevi-api endpoints including authentication, rate limits, and usage examples for portfolio, projects, blog, experiences, and tools endpoints.',
+  'Complete API documentation for mrevi-api endpoints including authentication, rate limits, and usage examples for portfolio, projects, blog, journey, and tools endpoints.',
   '<p>For complete API documentation, visit <a href="/blog/api-docs">/blog/api-docs</a></p>',
   '2026-07-28',
   '10 min read',

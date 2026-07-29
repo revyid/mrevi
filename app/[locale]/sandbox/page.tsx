@@ -219,11 +219,13 @@ type Lang = 'JavaScript' | 'Python' | 'TypeScript' | 'cURL' | 'Go' | 'Rust' | 'P
 const LANGS: Lang[] = ['JavaScript', 'Python', 'TypeScript', 'cURL', 'Go', 'Rust', 'PHP'];
 
 const EXAMPLES = [
-  { id: 'portfolio', label: 'Full Portfolio', path: 'api/portfolio' },
-  { id: 'projects', label: 'Projects', path: 'api/projects' },
-  { id: 'experiences', label: 'Journey', path: 'api/experiences' },
-  { id: 'tools', label: 'Tools', path: 'api/tools' },
-  { id: 'blog', label: 'Blog', path: 'api/blog' },
+  { id: 'gh-user', label: 'GitHub User', path: 'api/github?path=user' },
+  { id: 'gh-user-info', label: 'User Info', path: 'api/github?path=user/revyfachryza' },
+  { id: 'gh-repos', label: 'My Repos', path: 'api/github?path=user/repos&per_page=10' },
+  { id: 'gh-search-repo', label: 'Search Repos', path: 'api/github?path=search/repositories&q=nextjs' },
+  { id: 'gh-rate', label: 'Rate Limit', path: 'api/github?path=rate_limit' },
+  { id: 'gh-orgs', label: 'My Orgs', path: 'api/github?path=user/orgs' },
+  { id: 'playground', label: 'Playground', path: 'api/playground' },
 ];
 
 const LANG_INFO: Record<Lang, string> = {
@@ -231,9 +233,9 @@ const LANG_INFO: Record<Lang, string> = {
   Python: 'Real CPython via Pyodide (WebAssembly); requests patched to use browser network.',
   TypeScript: 'Transpiles to JS via official TS compiler, then runs natively.',
   cURL: 'Parses curl commands and executes via server proxy — no CORS restrictions.',
-  Go: 'Compiles & runs via glot.io (server-side proxy). No outbound network from the sandbox.',
-  Rust: 'Compiles & runs via glot.io (server-side proxy). No outbound network from the sandbox.',
-  PHP: 'Runs via glot.io (server-side proxy). No outbound network from the sandbox.',
+  Go: 'Compiles & runs via glot.io (server-side). No outbound network from sandbox.',
+  Rust: 'Compiles & runs via glot.io (server-side). No outbound network from sandbox.',
+  PHP: 'Runs via glot.io (server-side). No outbound network from sandbox.',
 };
 
 function sdkCode(lang: Lang, p: string, apiBase: string, apiKey: string): string {
@@ -247,21 +249,18 @@ import "fmt"
 func main() {
     fmt.Println("Hello from Go!")
     fmt.Println("Sandbox: glot.io (no outbound network)")
-    fmt.Printf("Endpoint path: %s\\n", "${p}")
 }`;
   }
   if (lang === 'Rust') {
     return `fn main() {
     println!("Hello from Rust!");
     println!("Sandbox: glot.io (no outbound network)");
-    println!("Endpoint path: {}", "${p}");
 }`;
   }
   if (lang === 'PHP') {
     return `<?php
 echo "Hello from PHP!\\n";
-echo "Sandbox: glot.io (no outbound network)\\n";
-echo "Endpoint path: ${p}\\n";`;
+echo "Sandbox: glot.io (no outbound network)\\n";`;
   }
 
   const url = `${apiBase}/${p}`;
@@ -306,11 +305,10 @@ export default function SandboxPage() {
   }, []);
 
   useEffect(() => {
-    if (!running) {
+    if (!running && !code) {
       setCode(sdkCode(lang, example.path, apiBase, apiKey));
-      setLines([]);
     }
-  }, [lang, example, apiBase, apiKey, running]);
+  }, [lang, example, apiBase, apiKey, running, code]);
 
   const run = async () => {
     setRunning(true);
@@ -335,6 +333,7 @@ export default function SandboxPage() {
 
   const reset = () => {
     setCode(sdkCode(lang, example.path, apiBase, apiKey));
+    setLines([]);
   };
 
   return (
@@ -345,7 +344,7 @@ export default function SandboxPage() {
           <span className="block text-muted-foreground/20">SANDBOX</span>
         </h1>
         <p className="text-muted-foreground text-lg mt-4 max-w-2xl">
-          {LANG_INFO[lang]} Test the portfolio API using your key or the default public key.
+          {LANG_INFO[lang]} Test the GitHub API proxy using your key or the default public key.
         </p>
       </div>
 

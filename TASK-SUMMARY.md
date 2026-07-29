@@ -18,7 +18,7 @@ Dokumentasi lengkap meliputi:
   - `GET /api/portfolio` - Fetch all portfolio data
   - `GET /api/projects` - Fetch all projects
   - `GET /api/blog` - Fetch all blog posts
-  - `GET /api/experiences` - Fetch all experiences
+  - `GET /api/experiences` - Fetch all journey entries
   - `GET /api/tools` - Fetch all tools
 - Request/Response examples dengan curl
 - Error responses (401, 429, 500)
@@ -89,7 +89,7 @@ Check bahwa API Documentation muncul di blog list:
 | `/api/portfolio` | GET | All portfolio data | ✅ |
 | `/api/projects` | GET | All projects | ✅ |
 | `/api/blog` | GET | All blog posts | ✅ |
-| `/api/experiences` | GET | All experiences | ✅ |
+| `/api/experiences` | GET | All journey entries | ✅ |
 | `/api/tools` | GET | All tools | ✅ |
 
 ## Authentication Flow

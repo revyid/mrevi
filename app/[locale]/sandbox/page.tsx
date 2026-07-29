@@ -282,7 +282,7 @@ export default function SandboxPage() {
   const [lang, setLang] = useState<Lang>('JavaScript');
   const [example, setExample] = useState(EXAMPLES[0]);
   const [apiKey, setApiKey] = useState<string>('');
-  const [apiBase, setApiBase] = useState<string>('http://localhost:3001');
+  const [apiBase, setApiBase] = useState<string>('https://api.revy.my.id');
   const [code, setCode] = useState('');
   const [lines, setLines] = useState<string[]>([]);
   const [running, setRunning] = useState(false);
@@ -290,7 +290,7 @@ export default function SandboxPage() {
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const url = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+      const url = process.env.NEXT_PUBLIC_API_URL || 'https://api.revy.my.id';
       setApiBase(url);
 
       // Try fetching API key from server action
@@ -380,7 +380,7 @@ export default function SandboxPage() {
               type="text" 
               value={apiBase} 
               onChange={e => setApiBase(e.target.value)} 
-              placeholder="http://localhost:3001"
+              placeholder="https://api.revy.my.id"
               className="w-full bg-white/[0.03] border border-white/10 rounded-lg p-2.5 font-mono text-sm outline-none focus:border-primary/50 text-foreground"
             />
           </div>

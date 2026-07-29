@@ -30,13 +30,13 @@ export default async function ToolsPage() {
   return (
     <div className="space-y-24 w-full">
       <section className="pt-8 pb-4">
-        <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-[90px] font-bold uppercase leading-[0.95] tracking-tight font-heading">
+        <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-[90px] font-bold uppercase leading-[0.95] tracking-tight font-heading text-center sm:text-left">
           <span className="block">{t("title")}</span>
           <span className="block text-muted-foreground/20">{t("titleSub")}</span>
         </h1>
       </section>
 
-      <section className="grid grid-cols-2 gap-[10px]" style={{ gridTemplateColumns: "repeat(2, minmax(220px, 1fr))" }}>
+      <section className="grid grid-cols-1 sm:grid-cols-2 gap-2">
         {tools.map((tool: Record<string, unknown>) => (
           <a key={tool.id as string} href={tool.href as string} target="_blank" rel="noopener noreferrer"
             className="group flex items-center gap-4 p-4 rounded-lg hover:bg-white/[0.03] transition-all">

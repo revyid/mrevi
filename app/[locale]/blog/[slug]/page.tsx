@@ -62,7 +62,7 @@ export default async function BlogPostPage({
   if (!post) notFound();
 
   return (
-    <article className="max-w-3xl mx-auto py-8 space-y-8">
+    <article className="max-w-3xl mx-auto py-8 space-y-8 px-1">
       <Link href="/blog">
         <Button variant="ghost" size="sm">
           <svg className="size-4 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -77,13 +77,13 @@ export default async function BlogPostPage({
           <Badge variant="secondary">{post.date}</Badge>
           <span className="text-sm text-muted-foreground">{post.read_time}</span>
         </div>
-        <h1 className="text-4xl sm:text-5xl font-bold tracking-tight font-heading">{post.title}</h1>
-        <p className="text-lg text-muted-foreground leading-relaxed">{post.excerpt}</p>
+        <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight font-heading leading-tight">{post.title}</h1>
+        <p className="text-base sm:text-lg text-muted-foreground leading-relaxed">{post.excerpt}</p>
       </div>
 
       <Separator />
 
-      <div className="prose prose-invert max-w-none">
+      <div className="prose prose-invert max-w-none prose-sm sm:prose-base">
         {post.content ? (
           <div dangerouslySetInnerHTML={{ __html: post.content }} />
         ) : (

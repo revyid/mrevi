@@ -30,8 +30,8 @@ export function AppShell({ children, profileSettings = {}, locale }: AppShellPro
   return (
     <div className="min-h-screen pt-24 px-5 md:px-10 lg:px-16">
       <div className="max-w-[1200px] mx-auto p-6 grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-8">
-        {/* Single ProfileCard — positioned via grid. Mobile: row 1 (constrained), Desktop: col 1 */}
-        <div className="max-w-md mx-auto w-full lg:max-w-none lg:mx-0 lg:sticky lg:top-24 lg:h-[calc(100vh-6rem)] lg:overflow-y-auto scrollbar-none">
+        {/* Single ProfileCard — di mobile dibates width-nya biar gak lebar, di desktop sidebar penuh */}
+        <div className="max-w-sm mx-auto w-full lg:max-w-none lg:mx-0 lg:sticky lg:top-24 lg:h-[calc(100vh-6rem)] lg:overflow-y-auto scrollbar-none">
           <ProfileCard settings={profileSettings} />
         </div>
         <main className="min-w-0 pb-12">{children}</main>

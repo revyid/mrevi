@@ -286,6 +286,7 @@ export default function SandboxPage() {
   const [code, setCode] = useState('');
   const [lines, setLines] = useState<string[]>([]);
   const [running, setRunning] = useState(false);
+  const codeStore = useRef<Record<string, string>>({});
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -304,11 +305,22 @@ export default function SandboxPage() {
     }
   }, []);
 
+  // Initialize code per tab key — only if user hasn't edited it
   useEffect(() => {
-    if (!running && !code) {
+    const key = `${lang}::${example.id}`;
+    if (codeStore.current[key]) {
+      setCode(codeStore.current[key]);
+    } else {
       setCode(sdkCode(lang, example.path, apiBase, apiKey));
+      codeStore.current[key] = sdkCode(lang, example.path, apiBase, apiKey);
     }
-  }, [lang, example, apiBase, apiKey, running, code]);
+  }, [lang, example, apiBase, apiKey]);
+
+  const handleCodeChange = (val: string) => {
+    setCode(val);
+    const key = `${lang}::${example.id}`;
+    codeStore.current[key] = val;
+  };
 
   const run = async () => {
     setRunning(true);
@@ -332,8 +344,10 @@ export default function SandboxPage() {
   };
 
   const reset = () => {
-    setCode(sdkCode(lang, example.path, apiBase, apiKey));
+    const template = sdkCode(lang, example.path, apiBase, apiKey);
+    setCode(template);
     setLines([]);
+    codeStore.current[`${lang}::${example.id}`] = template;
   };
 
   return (
@@ -424,7 +438,7 @@ export default function SandboxPage() {
           </div>
           <textarea 
             value={code} 
-            onChange={e => setCode(e.target.value)} 
+            onChange={e => handleCodeChange(e.target.value)} 
             spellCheck={false} 
             disabled={running}
             className="flex-1 w-full p-4 bg-transparent text-white font-mono text-sm leading-relaxed resize-none outline-none disabled:opacity-60" 

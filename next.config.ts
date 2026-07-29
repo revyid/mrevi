@@ -29,7 +29,7 @@ const securityHeaders = [
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "font-src 'self' https://fonts.gstatic.com",
       "img-src 'self' data: blob: https://res.cloudinary.com https://framerusercontent.com https://lh3.googleusercontent.com https://avatars.githubusercontent.com",
-      "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.revy.my.id http://localhost:3001",
+      "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.revy.my.id http://localhost:3001 https://cdn.jsdelivr.net",
       "frame-ancestors 'none'",
     ].join("; "),
   },

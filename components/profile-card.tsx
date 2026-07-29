@@ -170,7 +170,7 @@ export function ProfileCard({ settings = {} }: ProfileCardProps) {
         </h2>
 
         {/* Rotating role pill */}
-        <div className="h-6 my-4">
+        <div className="h-6 my-4 text-center">
           <RotatingText roles={roles} />
         </div>
 

@@ -31,7 +31,7 @@ export default async function BlogPage() {
   return (
     <div className="space-y-24 w-full">
       <section className="pt-8 pb-4">
-        <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-[90px] font-bold uppercase leading-[0.95] tracking-tight font-heading text-center sm:text-left">
+        <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-[90px] font-bold uppercase leading-[0.95] tracking-tight font-heading text-center lg:text-left">
           <span className="block">{t("title")}</span>
           <span className="block text-muted-foreground/20">{t("titleSub")}</span>
         </h1>

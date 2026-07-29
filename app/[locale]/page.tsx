@@ -72,7 +72,7 @@ function ArrowIcon() {
 
 function SectionTitle({ lines }: { lines: [string, string] }) {
   return (
-    <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-[90px] font-bold uppercase leading-[0.95] tracking-tight font-heading text-center sm:text-left">
+    <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-[90px] font-bold uppercase leading-[0.95] tracking-tight font-heading text-center lg:text-left">
       {lines[0]}<br />
       <span style={{ color: "rgba(182, 180, 189, 0.2)" }}>{lines[1]}</span>
     </h2>
@@ -121,15 +121,15 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
       />
     <div className="space-y-24 w-full">
       {/* Hero */}
-      <section className="pt-8 pb-4 flex flex-col justify-center text-center sm:text-left">
-        <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-[90px] font-bold uppercase leading-[0.95] tracking-tight mb-6 font-heading text-center sm:text-left">
+      <section className="pt-8 pb-4 flex flex-col justify-center text-center lg:text-left">
+        <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-[90px] font-bold uppercase leading-[0.95] tracking-tight mb-6 font-heading text-center lg:text-left">
           <span className="block">{settings.hero_title_1 || "SOFTWARE"}</span>
           <span className="block" style={{ color: "rgba(182, 180, 189, 0.2)" }}>{settings.hero_title_2 || "ENGINEER"}</span>
         </h1>
-        <p className="text-muted-foreground text-[16px] max-w-xl leading-relaxed mb-10 mx-auto sm:mx-0">
+        <p className="text-muted-foreground text-[16px] max-w-xl leading-relaxed mb-10 mx-auto lg:mx-0">
           {settings.hero_description || t("heroDescription")}
         </p>
-        <div className="grid grid-cols-3 gap-4 max-w-xl mx-auto sm:mx-0 text-center sm:text-left">
+        <div className="grid grid-cols-3 gap-4 max-w-xl mx-auto lg:mx-0 text-center lg:text-left">
           {[
             { num: settings.stat_1_num || "+12", lines: (settings.stat_1_label || "YEARS OF\nEXPERIENCE").split("\n") },
             { num: settings.stat_2_num || "+46", lines: (settings.stat_2_label || "PROJECTS\nCOMPLETED").split("\n") },
@@ -265,7 +265,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
       {/* Contact */}
       <section className="space-y-8">
         <SectionTitle lines={[settings.section_contact_line1 || t("letsWork"), settings.section_contact_line2 || t("letsWorkSub")]} />
-        <div className="max-w-xl mx-auto sm:mx-0">
+        <div className="max-w-xl mx-auto lg:mx-0">
           <ContactForm />
         </div>
       </section>

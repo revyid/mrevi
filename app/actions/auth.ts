@@ -2,6 +2,7 @@
 
 import crypto from "crypto";
 import { revalidatePath } from "next/cache";
+import { headers } from "next/headers";
 import {
   register as authRegister,
   login as authLogin,
@@ -11,11 +12,6 @@ import {
   comparePassword,
 } from "@/lib/auth";
 import { getDb } from "@/lib/db";
-
-interface SessionMeta {
-  userAgent?: string;
-  ipAddress?: string;
-}
 
 const DEBUG = process.env.NODE_ENV !== "production" || process.env.AUTH_DEBUG === "true";
 
@@ -31,15 +27,23 @@ function serverAuthError(label: string, err: unknown) {
   }
 }
 
+async function getMetaFromHeaders(clientMeta?: { userAgent?: string }) {
+  const h = await headers();
+  const ip = h.get("x-forwarded-for")?.split(",")[0]?.trim() || h.get("x-real-ip") || "";
+  const ua = h.get("user-agent") || clientMeta?.userAgent || "";
+  return { userAgent: ua, ipAddress: ip };
+}
+
 export async function registerAction(
   name: string,
   email: string,
   password: string,
   locale: string = "en",
-  meta?: SessionMeta
+  clientMeta?: { userAgent?: string }
 ): Promise<{ success: boolean; error?: string }> {
   serverAuthLog("registerAction called", { name, email });
   try {
+    const meta = await getMetaFromHeaders(clientMeta);
     const result = await authRegister(name, email, password, meta);
     if (result.error) {
       serverAuthError("registerAction failed", result.error);
@@ -56,11 +60,12 @@ export async function registerAction(
 export async function loginAction(
   email: string,
   password: string,
-  meta?: SessionMeta,
+  clientMeta?: { userAgent?: string },
   locale: string = "en"
 ): Promise<{ success: boolean; error?: string; role?: string }> {
-  serverAuthLog("loginAction called", { email, userAgent: meta?.userAgent?.slice(0, 60) });
+  serverAuthLog("loginAction called", { email });
   try {
+    const meta = await getMetaFromHeaders(clientMeta);
     const result = await authLogin(email, password, meta);
     if (result.error) {
       serverAuthError("loginAction failed", result.error);

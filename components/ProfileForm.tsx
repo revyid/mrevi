@@ -140,7 +140,6 @@ export function ProfileForm({ profile }: ProfileFormProps) {
   const [sessions, setSessions] = useState<Session[]>([]);
   const [loadingSessions, setLoadingSessions] = useState(true);
   const [logoutAllConfirm, setLogoutAllConfirm] = useState(false);
-  const [logoutSessionId, setLogoutSessionId] = useState<string | null>(null);
   const [loggingOut, setLoggingOut] = useState<string | null>(null);
 
   // Passkeys
@@ -261,7 +260,6 @@ export function ProfileForm({ profile }: ProfileFormProps) {
       toast.error("Failed to logout session");
     }
     setLoggingOut(null);
-    setLogoutSessionId(null);
   }
 
   async function handleLogoutAll() {
@@ -620,7 +618,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
                         variant="ghost"
                         size="icon-xs"
                         className="text-destructive"
-                        onClick={() => setLogoutSessionId(session.id)}
+                        onClick={() => handleLogoutSession(session.id)}
                         disabled={loggingOut === session.id}
                       >
                         {loggingOut === session.id ? <Spinner className="size-3" /> : <LogOutIcon />}
@@ -784,21 +782,6 @@ export function ProfileForm({ profile }: ProfileFormProps) {
         </DialogContent>
       </Dialog>
 
-      {/* Logout Session Confirm */}
-      <AlertDialog open={!!logoutSessionId} onOpenChange={() => setLogoutSessionId(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Logout Session</AlertDialogTitle>
-            <AlertDialogDescription>This session will be logged out on that device.</AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={() => logoutSessionId && handleLogoutSession(logoutSessionId)}>
-              Logout
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
 
       {/* Logout All Confirm */}
       <AlertDialog open={logoutAllConfirm} onOpenChange={() => setLogoutAllConfirm(false)}>

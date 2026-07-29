@@ -35,11 +35,12 @@ export async function registerAction(
   name: string,
   email: string,
   password: string,
-  locale: string = "en"
+  locale: string = "en",
+  meta?: SessionMeta
 ): Promise<{ success: boolean; error?: string }> {
   serverAuthLog("registerAction called", { name, email });
   try {
-    const result = await authRegister(name, email, password);
+    const result = await authRegister(name, email, password, meta);
     if (result.error) {
       serverAuthError("registerAction failed", result.error);
       return { success: false, error: result.error };

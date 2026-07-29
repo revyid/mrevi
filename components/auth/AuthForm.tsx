@@ -135,7 +135,7 @@ export function AuthForm({ mode }: AuthFormProps) {
         }
       } else {
         authLog("Register attempt", { name: fullName, email });
-        const result = await registerAction(fullName, email, password, locale);
+        const result = await registerAction(fullName, email, password, locale, { userAgent: navigator.userAgent });
         authLog("Register result", result);
         if (result.error) {
           authError("Register failed", result.error);

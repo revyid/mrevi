@@ -172,10 +172,10 @@ export async function deleteSession(): Promise<void> {
 
     if (sessionCookie?.value) {
       const payload = await verifyToken(sessionCookie.value);
-      if (payload?.userId) {
+      if (payload?.userId && payload?.token) {
         const db = getDb();
         try {
-          await db.from("sessions").delete().eq("user_id", payload.userId);
+          await db.from("sessions").delete().eq("user_id", payload.userId).eq("token", payload.token);
         } catch {
           // Ignore — table might not exist
         }
@@ -237,7 +237,7 @@ export async function deleteAccount(userId: string, password: string): Promise<{
 // Auth Actions
 // ============================================================
 
-export async function register(name: string, email: string, password: string) {
+export async function register(name: string, email: string, password: string, meta?: SessionMeta) {
   try {
     const db = getDb();
 
@@ -277,7 +277,7 @@ export async function register(name: string, email: string, password: string) {
     }
 
     // Create session
-    await createSession(user.id);
+    await createSession(user.id, meta);
 
     return { user };
   } catch (e) {

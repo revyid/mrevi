@@ -83,7 +83,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    await createSession(user.id);
+    await createSession(user.id, {
+      userAgent: request.headers.get("user-agent") || "",
+      ipAddress: request.headers.get("x-forwarded-for") || request.headers.get("x-real-ip") || "",
+    });
     log("Session created", { userId: user.id, role: user.role });
 
     return NextResponse.json({ success: true, role: user.role });

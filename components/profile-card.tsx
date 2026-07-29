@@ -165,7 +165,7 @@ export function ProfileCard({ settings = {} }: ProfileCardProps) {
 
       {/* Bio Section */}
       <div className="px-6 pt-6 pb-8 text-center xl:text-left">
-        <h2 className="text-2xl font-bold tracking-tight text-foreground font-heading">
+        <h2 className="text-2xl font-bold tracking-tight text-foreground font-heading text-center xl:text-left">
           {name}
         </h2>
 

@@ -28,7 +28,7 @@ const securityHeaders = [
       "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net",
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "font-src 'self' https://fonts.gstatic.com",
-      "img-src 'self' data: blob: https://res.cloudinary.com https://framerusercontent.com https://lh3.googleusercontent.com https://avatars.githubusercontent.com",
+      "img-src 'self' data: blob: https://res.cloudinary.com https://framerusercontent.com https://lh3.googleusercontent.com https://avatars.githubusercontent.com https://cdn.jsdelivr.net",
       "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.revy.my.id http://localhost:3001 https://cdn.jsdelivr.net",
       "frame-ancestors 'none'",
     ].join("; "),
@@ -42,6 +42,7 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "framerusercontent.com" },
       { protocol: "https", hostname: "lh3.googleusercontent.com" },
       { protocol: "https", hostname: "avatars.githubusercontent.com" },
+      { protocol: "https", hostname: "cdn.jsdelivr.net" },
     ],
   },
   async headers() {

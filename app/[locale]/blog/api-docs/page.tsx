@@ -11,7 +11,11 @@ export const metadata: Metadata = {
     url: `${BASE_URL}/en/blog/api-docs`,
     title: "API Documentation — M. Revi Ramadhan",
     description: "API documentation for GitHub API proxy and code playground.",
+    images: [
+      { url: `${BASE_URL}/og`, width: 1200, height: 630, alt: "API Documentation — M. Revi Ramadhan" },
+    ],
   },
+  twitter: { card: "summary_large_image", title: "API Documentation — M. Revi Ramadhan", description: "API documentation for GitHub API proxy and code playground.", images: [`${BASE_URL}/og`] },
   alternates: { canonical: `${BASE_URL}/en/blog/api-docs` },
 };
 

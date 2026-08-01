@@ -12,8 +12,11 @@ export const metadata: Metadata = {
     url: `${BASE_URL}/en/projects`,
     title: "Projects — M. Revi Ramadhan",
     description: "Framer templates, web apps, and design work by M. Revi Ramadhan.",
+    images: [
+      { url: `${BASE_URL}/og`, width: 1200, height: 630, alt: "Projects — M. Revi Ramadhan" },
+    ],
   },
-  twitter: { card: "summary", title: "Projects — M. Revi Ramadhan", description: "Selected projects by M. Revi Ramadhan." },
+  twitter: { card: "summary_large_image", title: "Projects — M. Revi Ramadhan", description: "Selected projects by M. Revi Ramadhan.", images: [`${BASE_URL}/og`] },
   alternates: { canonical: `${BASE_URL}/en/projects` },
 };
 

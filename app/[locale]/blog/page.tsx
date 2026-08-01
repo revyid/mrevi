@@ -13,8 +13,11 @@ export const metadata: Metadata = {
     url: `${BASE_URL}/en/blog`,
     title: "Blog — M. Revi Ramadhan",
     description: "Design thoughts, tutorials, and insights on software engineering.",
+    images: [
+      { url: `${BASE_URL}/og`, width: 1200, height: 630, alt: "Blog — M. Revi Ramadhan" },
+    ],
   },
-  twitter: { card: "summary", title: "Blog — M. Revi Ramadhan", description: "Design thoughts and insights." },
+  twitter: { card: "summary_large_image", title: "Blog — M. Revi Ramadhan", description: "Design thoughts and insights.", images: [`${BASE_URL}/og`] },
   alternates: { canonical: `${BASE_URL}/en/blog` },
 };
 

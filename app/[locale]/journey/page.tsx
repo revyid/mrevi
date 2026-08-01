@@ -12,8 +12,11 @@ export const metadata: Metadata = {
     url: `${BASE_URL}/en/journey`,
     title: "Journey — M. Revi Ramadhan",
     description: "My learning journey as a student and self-taught developer.",
+    images: [
+      { url: `${BASE_URL}/og`, width: 1200, height: 630, alt: "Journey — M. Revi Ramadhan" },
+    ],
   },
-  twitter: { card: "summary", title: "Journey — M. Revi Ramadhan", description: "My learning journey as a student and self-taught developer." },
+  twitter: { card: "summary_large_image", title: "Journey — M. Revi Ramadhan", description: "My learning journey as a student and self-taught developer.", images: [`${BASE_URL}/og`] },
   alternates: { canonical: `${BASE_URL}/en/journey` },
 };
 

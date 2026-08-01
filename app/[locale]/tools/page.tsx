@@ -11,9 +11,12 @@ export const metadata: Metadata = {
     type: "website",
     url: `${BASE_URL}/en/tools`,
     title: "Tools — M. Revi Ramadhan",
-    description: "Tools used by M. Revi Ramadhan for design and development.",
+    description: "Design and dev tools used by M. Revi Ramadhan.",
+    images: [
+      { url: `${BASE_URL}/og`, width: 1200, height: 630, alt: "Tools — M. Revi Ramadhan" },
+    ],
   },
-  twitter: { card: "summary", title: "Tools — M. Revi Ramadhan", description: "Design and dev tools used by M. Revi Ramadhan." },
+  twitter: { card: "summary_large_image", title: "Tools — M. Revi Ramadhan", description: "Design and dev tools used by M. Revi Ramadhan.", images: [`${BASE_URL}/og`] },
   alternates: { canonical: `${BASE_URL}/en/tools` },
 };
 

@@ -41,11 +41,20 @@ export async function generateMetadata({
       description: post.excerpt,
       publishedTime: post.date,
       authors: ["M. Revi Ramadhan"],
+      images: [
+        {
+          url: `${BASE_URL}/og/blog/${slug}`,
+          width: 1200,
+          height: 630,
+          alt: post.title,
+        },
+      ],
     },
     twitter: {
       card: "summary_large_image",
       title: post.title,
       description: post.excerpt,
+      images: [`${BASE_URL}/og/blog/${slug}`],
     },
     alternates: { canonical: url },
   };

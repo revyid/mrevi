@@ -2,11 +2,10 @@ import { ImageResponse } from "next/og";
 import { OgCard } from "@/components/og/og-card";
 import { poppinsFonts } from "@/components/og/fonts";
 
-export const alt = "M. Revi Ramadhan — Software Engineer";
-export const size = { width: 1200, height: 630 };
-export const contentType = "image/png";
+export const runtime = "nodejs";
+export const dynamic = "force-static";
 
-export default async function Image() {
+export async function GET() {
   return new ImageResponse(
     <OgCard
       title="M. Revi Ramadhan"
@@ -14,7 +13,8 @@ export default async function Image() {
       footer="revy.my.id"
     />,
     {
-      ...size,
+      width: 1200,
+      height: 630,
       fonts: await poppinsFonts(),
     }
   );

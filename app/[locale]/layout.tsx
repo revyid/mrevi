@@ -39,10 +39,10 @@ export async function generateMetadata({
       template: "%s — M. Revi Ramadhan",
     },
     description: "Self-taught developer and student at SMAN 1 Bungo, Indonesia. Building web apps, Framer templates, and more.",
-    metadataBase: new URL("https://revy.my.id"),
+    metadataBase: new URL("https://www.revy.my.id"),
     alternates: {
-      canonical: "https://revy.my.id",
-      languages: { "x-default": "https://revy.my.id" },
+      canonical: "https://www.revy.my.id",
+      languages: { "x-default": "https://www.revy.my.id" },
     },
     openGraph: {
       type: "website",

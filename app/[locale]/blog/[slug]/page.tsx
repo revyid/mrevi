@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 
-const BASE_URL = "https://revy.my.id";
+const BASE_URL = "https://www.revy.my.id";
 
 interface BlogPost {
   id: string; title: string; excerpt: string;

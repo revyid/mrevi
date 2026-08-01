@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 import { getDb } from "@/lib/db";
 
-const BASE_URL = "https://revy.my.id";
+const BASE_URL = "https://www.revy.my.id";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Static pages

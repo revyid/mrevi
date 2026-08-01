@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Link } from "@/i18n/navigation";
 
-const BASE_URL = "https://revy.my.id";
+const BASE_URL = "https://www.revy.my.id";
 
 export const metadata: Metadata = {
   title: "API Documentation — M. Revi Ramadhan",

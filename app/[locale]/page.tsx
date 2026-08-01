@@ -5,7 +5,7 @@ import { ContactForm } from "@/components/contact-form";
 import { getDb } from "@/lib/db";
 import { getSettings } from "@/app/actions/content";
 
-const BASE_URL = "https://revy.my.id";
+const BASE_URL = "https://www.revy.my.id";
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSettings();
@@ -96,7 +96,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
     name,
     alternateName: "Revi",
     description: bio,
-    url: "https://revy.my.id",
+    url: "https://www.revy.my.id",
     image: avatar,
     jobTitle: title,
     alumniOf: {

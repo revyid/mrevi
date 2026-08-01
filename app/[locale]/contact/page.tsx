@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { ContactForm } from "@/components/contact-form";
 
-const BASE_URL = "https://revy.my.id";
+const BASE_URL = "https://www.revy.my.id";
 
 export const metadata: Metadata = {
   title: "Contact — M. Revi Ramadhan",

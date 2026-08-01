@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { getDb } from "@/lib/db";
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://revy.my.id";
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://www.revy.my.id";
 
 export const metadata: Metadata = {
   title: "Tools — M. Revi Ramadhan",

@@ -1,5 +1,5 @@
 import { headers } from "next/headers";
-import { redirect } from "next/navigation";
+import { LoginView } from "@/components/login-view";
 
 const AUTH_URL = process.env.NEXT_PUBLIC_AUTH_URL || "https://api.revy.my.id";
 
@@ -17,5 +17,5 @@ export default async function LoginPage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  redirect(await buildAuthUrl(locale));
+  return <LoginView authUrl={await buildAuthUrl(locale)} />;
 }

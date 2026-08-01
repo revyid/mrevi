@@ -2,9 +2,11 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { startRegistration } from "@simplewebauthn/browser";
 import { updateProfile, changePassword, deleteAccount, getOrCreateApiKeyAction, regenerateApiKeyAction } from "@/app/actions/auth";
 import { apiFetch } from "@/lib/api-client";
 import { useAuth } from "@/components/auth/AuthProvider";
+import { TotpPanel } from "@/components/totp-panel";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -146,6 +148,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
   const [passkeys, setPasskeys] = useState<Passkey[]>([]);
   const [loadingPasskeys, setLoadingPasskeys] = useState(true);
   const [deletePasskeyId, setDeletePasskeyId] = useState<string | null>(null);
+  const [addingPasskey, setAddingPasskey] = useState(false);
 
   // Delete account
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -273,10 +276,30 @@ export function ProfileForm({ profile }: ProfileFormProps) {
   }
 
   async function handleAddPasskey() {
-    // Passkeys are origin-bound: registration must happen on the auth domain
-    // (api.revy.my.id). Redirect the user there to add a passkey.
-    const authBase = process.env.NEXT_PUBLIC_AUTH_URL || "https://api.revy.my.id";
-    window.location.href = `${authBase}/account?tab=passkeys`;
+    // Passkeys are origin-bound: this site (www.revy.my.id) is its own RP,
+    // so the ceremony happens right here.
+    setAddingPasskey(true);
+    try {
+      const gen = await apiFetch<{ options: unknown; challenge: string }>(
+        "/api/auth/passkey/generate",
+        { method: "POST" }
+      );
+      const credential = await startRegistration({
+        optionsJSON: gen.options as never,
+      });
+      await apiFetch("/api/auth/passkey/verify", {
+        method: "POST",
+        body: JSON.stringify({ credential, challenge: gen.challenge, name: "Passkey" }),
+      });
+      toast.success("Passkey added");
+      fetchPasskeys();
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      const isCancelled =
+        msg.includes("cancelled") || msg.includes("NotAllowedError") || msg.includes("denied");
+      if (!isCancelled) toast.error("Failed to add passkey");
+    }
+    setAddingPasskey(false);
   }
 
   async function handleDeletePasskey() {
@@ -439,16 +462,11 @@ export function ProfileForm({ profile }: ProfileFormProps) {
           </div>
 
           <Separator />
-
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium">Two-Factor Authentication</p>
-              <p className="text-xs text-muted-foreground">Add an extra layer of security</p>
-            </div>
-            <Badge variant="secondary">Coming Soon</Badge>
-          </div>
         </CardContent>
       </Card>
+
+      {/* ─── Two-Factor Authentication ─── */}
+      <TotpPanel />
 
       {/* â”€â”€â”€ Passkeys â”€â”€â”€ */}
       <Card>
@@ -485,9 +503,9 @@ export function ProfileForm({ profile }: ProfileFormProps) {
               ))}
             </div>
           )}
-          <Button variant="outline" size="sm" onClick={handleAddPasskey} className="self-start">
-            <KeyIcon data-icon="inline-start" />
-            Add Passkey
+          <Button variant="outline" size="sm" onClick={handleAddPasskey} disabled={addingPasskey} className="self-start">
+            {addingPasskey ? <Spinner className="size-4 mr-2" /> : <KeyIcon data-icon="inline-start" />}
+            {addingPasskey ? "Adding..." : "Add Passkey"}
           </Button>
         </CardContent>
       </Card>

@@ -1,13 +1,14 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { startRegistration, startAuthentication } from "@simplewebauthn/browser";
 import { apiFetch, getToken } from "@/lib/api-client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Spinner } from "@/components/ui/spinner";
 import { FingerprintIcon, Trash2Icon } from "lucide-react";
+
+const AUTH_URL = process.env.NEXT_PUBLIC_AUTH_URL || "https://api.revy.my.id";
 
 interface Passkey {
   id: string;
@@ -27,7 +28,6 @@ function domainLabel(rpId?: string) {
 export function PasskeysPanel() {
   const [passkeys, setPasskeys] = useState<Passkey[]>([]);
   const [loading, setLoading] = useState(true);
-  const [adding, setAdding] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
@@ -47,35 +47,10 @@ export function PasskeysPanel() {
     load();
   }, [load]);
 
-  async function handleAdd() {
-    setAdding(true);
-    setError(null);
-    setSuccess(null);
-    try {
-      const gen = await apiFetch<{ options: unknown; challenge: string }>(
-        "/api/auth/passkey/generate",
-        { method: "POST" }
-      );
-
-      const credential = await startRegistration({
-        optionsJSON: gen.options as never,
-      });
-
-      await apiFetch("/api/auth/passkey/verify", {
-        method: "POST",
-        body: JSON.stringify({ credential, challenge: gen.challenge, name: "Passkey" }),
-      });
-
-      setSuccess("Passkey added");
-      await load();
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : String(e);
-      const isCancelled =
-        msg.includes("cancelled") || msg.includes("NotAllowedError") || msg.includes("denied");
-      if (!isCancelled) setError("Failed to add passkey");
-    } finally {
-      setAdding(false);
-    }
+  // Passkeys are RP-bound to api.revy.my.id, so the ceremony must run on the
+  // auth domain — the list below is managed here, adding happens over there.
+  function handleAdd() {
+    window.location.href = `${AUTH_URL}/account?tab=passkeys`;
   }
 
   async function handleDelete(id: string) {
@@ -105,7 +80,7 @@ export function PasskeysPanel() {
           </div>
         ) : passkeys.length === 0 ? (
           <p className="text-sm text-muted-foreground">
-            No passkeys yet. Add one to skip the password on this site.
+            No passkeys yet. Add one to sign in without a password.
           </p>
         ) : (
           <ul className="space-y-2">
@@ -151,58 +126,11 @@ export function PasskeysPanel() {
           </Alert>
         )}
 
-        <Button onClick={handleAdd} disabled={adding || loading} className="w-full">
-          {adding ? <><Spinner className="size-4 mr-2" />Adding...</> : "Add passkey"}
+        <Button onClick={handleAdd} disabled={loading} className="w-full">
+          <FingerprintIcon />
+          Add passkey
         </Button>
       </CardContent>
     </Card>
-  );
-}
-
-export function PasskeyLoginButton() {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  async function handleLogin() {
-    setLoading(true);
-    setError(null);
-    try {
-      const gen = await apiFetch<{ options: unknown; challenge: string }>(
-        "/api/auth/passkey/login-generate",
-        { method: "POST" }
-      );
-
-      const credential = await startAuthentication({
-        optionsJSON: gen.options as never,
-      });
-
-      const verify = await apiFetch<{ token: string; user?: { role?: string } }>(
-        "/api/auth/passkey/login-verify",
-        { method: "POST", body: JSON.stringify({ credential, challenge: gen.challenge }) }
-      );
-
-      const locale = window.location.pathname.startsWith("/id") ? "/id" : "/en";
-      window.location.href = `${locale}/callback?token=${encodeURIComponent(verify.token)}`;
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : String(e);
-      const isCancelled =
-        msg.includes("cancelled") || msg.includes("NotAllowedError") || msg.includes("denied");
-      if (!isCancelled) setError("Passkey login failed");
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  return (
-    <div className="flex flex-col items-center gap-3">
-      {error && (
-        <Alert variant="destructive" className="max-w-sm">
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
-      )}
-      <Button variant="outline" onClick={handleLogin} disabled={loading} className="w-full">
-        {loading ? <><Spinner className="size-4 mr-2" />Verifying...</> : <><FingerprintIcon className="size-4 mr-2" />Sign in with passkey</>}
-      </Button>
-    </div>
   );
 }

@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { startRegistration } from "@simplewebauthn/browser";
 import { updateProfile, changePassword, deleteAccount, getOrCreateApiKeyAction, regenerateApiKeyAction } from "@/app/actions/auth";
 import { apiFetch } from "@/lib/api-client";
 import { useAuth } from "@/components/auth/AuthProvider";
@@ -46,6 +45,7 @@ import {
   TrashIcon,
   GlobeIcon,
   CalendarIcon,
+  AtSignIcon,
   Copy,
   Check
 } from "lucide-react";
@@ -64,6 +64,7 @@ interface ProfileFormProps {
     bio?: string;
     website?: string;
     dob?: string;
+    username?: string;
   };
 }
 
@@ -129,7 +130,10 @@ export function ProfileForm({ profile }: ProfileFormProps) {
   const [bio, setBio] = useState(profile.bio || "");
   const [website, setWebsite] = useState(profile.website || "");
   const [dob, setDob] = useState(profile.dob || "");
+  const [username, setUsername] = useState(profile.username || "");
   const [saving, setSaving] = useState(false);
+
+  const locale = typeof window !== "undefined" && window.location.pathname.startsWith("/id") ? "id" : "en";
 
   // Password
   const [showPasswordModal, setShowPasswordModal] = useState(false);
@@ -148,7 +152,6 @@ export function ProfileForm({ profile }: ProfileFormProps) {
   const [passkeys, setPasskeys] = useState<Passkey[]>([]);
   const [loadingPasskeys, setLoadingPasskeys] = useState(true);
   const [deletePasskeyId, setDeletePasskeyId] = useState<string | null>(null);
-  const [addingPasskey, setAddingPasskey] = useState(false);
 
   // Delete account
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -212,7 +215,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
 
   async function handleSaveProfile() {
     setSaving(true);
-    const result = await updateProfile(profile.id, { name, avatarUrl, bio, website, dob });
+    const result = await updateProfile(profile.id, { name, avatarUrl, bio, website, dob, username });
     if (result.success) {
       toast.success("Profile saved");
     } else {
@@ -276,30 +279,10 @@ export function ProfileForm({ profile }: ProfileFormProps) {
   }
 
   async function handleAddPasskey() {
-    // Passkeys are origin-bound: this site (www.revy.my.id) is its own RP,
-    // so the ceremony happens right here.
-    setAddingPasskey(true);
-    try {
-      const gen = await apiFetch<{ options: unknown; challenge: string }>(
-        "/api/auth/passkey/generate",
-        { method: "POST" }
-      );
-      const credential = await startRegistration({
-        optionsJSON: gen.options as never,
-      });
-      await apiFetch("/api/auth/passkey/verify", {
-        method: "POST",
-        body: JSON.stringify({ credential, challenge: gen.challenge, name: "Passkey" }),
-      });
-      toast.success("Passkey added");
-      fetchPasskeys();
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : String(e);
-      const isCancelled =
-        msg.includes("cancelled") || msg.includes("NotAllowedError") || msg.includes("denied");
-      if (!isCancelled) toast.error("Failed to add passkey");
-    }
-    setAddingPasskey(false);
+    // Passkeys are RP-bound to api.revy.my.id — the ceremony must run on the
+    // auth domain. Redirect there; the list on this page stays in sync after.
+    const authBase = process.env.NEXT_PUBLIC_AUTH_URL || "https://api.revy.my.id";
+    window.location.href = `${authBase}/account?tab=passkeys`;
   }
 
   async function handleDeletePasskey() {
@@ -364,7 +347,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
   // ============================================================
 
   return (
-    <div className="max-w-2xl mx-auto py-8 flex flex-col gap-6">
+    <div className="max-w-5xl mx-auto py-8 flex flex-col gap-6">
       <div>
         <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-[90px] font-bold uppercase leading-[0.95] tracking-tight font-heading">
           <span className="block">MY</span>
@@ -372,6 +355,9 @@ export function ProfileForm({ profile }: ProfileFormProps) {
         </h1>
       </div>
 
+      <div className="grid gap-6 lg:grid-cols-2 items-start">
+      {/* ─── LEFT COLUMN ─── */}
+      <div className="space-y-6">
       {/* â”€â”€â”€ Profile Info â”€â”€â”€ */}
       <Card>
         <CardHeader>
@@ -415,6 +401,28 @@ export function ProfileForm({ profile }: ProfileFormProps) {
           </div>
 
           <div className="space-y-2">
+            <label className="text-sm font-medium flex items-center gap-1">
+              <AtSignIcon className="size-3" /> Username
+            </label>
+            <div className="flex gap-2 items-center">
+              <Input
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="revy8k"
+                className="font-mono"
+              />
+              {username && (
+                <a
+                  href={`/${locale}/user/${username}`}
+                  className="text-xs text-muted-foreground hover:text-foreground shrink-0 underline underline-offset-2"
+                >
+                  /user/{username}
+                </a>
+              )}
+            </div>
+          </div>
+
+          <div className="space-y-2">
             <label className="text-sm font-medium">Bio</label>
             <Textarea value={bio} onChange={(e) => setBio(e.target.value)} placeholder="Tell us about yourself..." rows={3} />
           </div>
@@ -436,7 +444,10 @@ export function ProfileForm({ profile }: ProfileFormProps) {
           </Button>
         </CardContent>
       </Card>
+      </div>
 
+      {/* ─── RIGHT COLUMN ─── */}
+      <div className="space-y-6">
       {/* â”€â”€â”€ Security â”€â”€â”€ */}
       <Card>
         <CardHeader>
@@ -503,9 +514,9 @@ export function ProfileForm({ profile }: ProfileFormProps) {
               ))}
             </div>
           )}
-          <Button variant="outline" size="sm" onClick={handleAddPasskey} disabled={addingPasskey} className="self-start">
-            {addingPasskey ? <Spinner className="size-4 mr-2" /> : <KeyIcon data-icon="inline-start" />}
-            {addingPasskey ? "Adding..." : "Add Passkey"}
+          <Button variant="outline" size="sm" onClick={handleAddPasskey} className="self-start">
+            <KeyIcon data-icon="inline-start" />
+            Add Passkey
           </Button>
         </CardContent>
       </Card>
@@ -649,6 +660,8 @@ export function ProfileForm({ profile }: ProfileFormProps) {
           </Button>
         </CardContent>
       </Card>
+      </div>
+      </div>
 
       {/* ============================================================ */}
       {/* MODALS                                                       */}

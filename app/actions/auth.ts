@@ -124,7 +124,7 @@ export async function clearSessionCookie(): Promise<{ success: boolean }> {
 
 export async function updateProfile(
   userId: string,
-  data: { name?: string; avatarUrl?: string; bio?: string; website?: string; dob?: string }
+  data: { name?: string; avatarUrl?: string; bio?: string; website?: string; dob?: string; username?: string }
 ): Promise<{ success: boolean; error?: string }> {
   try {
     const db = getDb();
@@ -134,6 +134,20 @@ export async function updateProfile(
     if (data.bio !== undefined) updateData.bio = data.bio;
     if (data.website !== undefined) updateData.website = data.website;
     if (data.dob !== undefined) updateData.dob = data.dob;
+    if (data.username !== undefined) {
+      const username = data.username.trim().toLowerCase();
+      if (!/^[a-z0-9][a-z0-9_-]{2,29}$/.test(username)) {
+        return { success: false, error: "Username: 3-30 chars, lowercase letters, numbers, - or _" };
+      }
+      const { data: taken } = await db
+        .from("users")
+        .select("id")
+        .eq("username", username)
+        .neq("id", userId)
+        .maybeSingle();
+      if (taken) return { success: false, error: "Username already taken" };
+      updateData.username = username;
+    }
 
     const { error } = await db.from("users").update(updateData).eq("id", userId);
     if (error) return { success: false, error: error.message };

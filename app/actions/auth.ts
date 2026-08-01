@@ -83,6 +83,45 @@ export async function logoutAction() {
   await deleteSession();
 }
 
+// ============================================================
+// SSO callback — token issued by mrevi-api, stored in the
+// httpOnly `session` cookie so server components keep working.
+// ============================================================
+
+export async function setSessionCookie(token: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    if (!token) return { success: false, error: "No token provided" };
+
+    const { verifyToken } = await import("@/lib/auth");
+    const payload = await verifyToken(token);
+    if (!payload?.userId || !payload?.token) {
+      return { success: false, error: "Invalid token" };
+    }
+
+    const { cookies } = await import("next/headers");
+    const cookieStore = await cookies();
+    cookieStore.set("session", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 7 * 24 * 60 * 60,
+      path: "/",
+    });
+
+    return { success: true };
+  } catch (e) {
+    serverAuthError("setSessionCookie exception", e);
+    return { success: false, error: e instanceof Error ? e.message : "Failed to set session" };
+  }
+}
+
+export async function clearSessionCookie(): Promise<{ success: boolean }> {
+  const { cookies } = await import("next/headers");
+  const cookieStore = await cookies();
+  cookieStore.delete("session");
+  return { success: true };
+}
+
 export async function updateProfile(
   userId: string,
   data: { name?: string; avatarUrl?: string; bio?: string; website?: string; dob?: string }

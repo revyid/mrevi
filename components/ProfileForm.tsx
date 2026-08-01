@@ -2,7 +2,9 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { updateProfile, changePassword, deleteAccount, logoutAction, getOrCreateApiKeyAction, regenerateApiKeyAction } from "@/app/actions/auth";
+import { updateProfile, changePassword, deleteAccount, getOrCreateApiKeyAction, regenerateApiKeyAction } from "@/app/actions/auth";
+import { apiFetch } from "@/lib/api-client";
+import { useAuth } from "@/components/auth/AuthProvider";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -45,12 +47,9 @@ import {
   Copy,
   Check
 } from "lucide-react";
-import { base64URLToBuffer, bufferToBase64URL } from "@/lib/webauthn-utils";
-
 // ============================================================
 // Types
 // ============================================================
-
 interface ProfileFormProps {
   profile: {
     id: string;
@@ -120,6 +119,7 @@ function DeviceIcon({ device }: { device: string }) {
 
 export function ProfileForm({ profile }: ProfileFormProps) {
   const router = useRouter();
+  const { logout } = useAuth();
 
   // Profile state
   const [name, setName] = useState(profile.name || "");
@@ -145,9 +145,6 @@ export function ProfileForm({ profile }: ProfileFormProps) {
   // Passkeys
   const [passkeys, setPasskeys] = useState<Passkey[]>([]);
   const [loadingPasskeys, setLoadingPasskeys] = useState(true);
-  const [showPasskeyModal, setShowPasskeyModal] = useState(false);
-  const [newPasskeyName, setNewPasskeyName] = useState("");
-  const [addingPasskey, setAddingPasskey] = useState(false);
   const [deletePasskeyId, setDeletePasskeyId] = useState<string | null>(null);
 
   // Delete account
@@ -168,8 +165,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
   const fetchSessions = useCallback(async () => {
     setLoadingSessions(true);
     try {
-      const res = await fetch("/api/sessions");
-      const data = await res.json();
+      const data = await apiFetch<{ sessions: Session[] }>("/api/auth/sessions");
       setSessions(data.sessions || []);
     } catch { /* ignore */ }
     setLoadingSessions(false);
@@ -178,8 +174,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
   const fetchPasskeys = useCallback(async () => {
     setLoadingPasskeys(true);
     try {
-      const res = await fetch("/api/auth/passkey/list");
-      const data = await res.json();
+      const data = await apiFetch<{ passkeys: Passkey[] }>("/api/auth/passkey/list");
       setPasskeys(data.passkeys || []);
     } catch { /* ignore */ }
     setLoadingPasskeys(false);
@@ -249,10 +244,9 @@ export function ProfileForm({ profile }: ProfileFormProps) {
   async function handleLogoutSession(sessionId: string) {
     setLoggingOut(sessionId);
     try {
-      await fetch("/api/sessions", {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ session_id: sessionId }),
+      await apiFetch("/api/auth/revoke", {
+        method: "POST",
+        body: JSON.stringify({ sessionId }),
       });
       setSessions((prev) => prev.filter((s) => s.id !== sessionId));
       toast.success("Session logged out");
@@ -265,10 +259,9 @@ export function ProfileForm({ profile }: ProfileFormProps) {
   async function handleLogoutAll() {
     setLoggingOut("all");
     try {
-      await fetch("/api/sessions", {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ all: true }),
+      await apiFetch("/api/auth/revoke", {
+        method: "POST",
+        body: JSON.stringify({ revokeAll: true }),
       });
       toast.success("All other sessions logged out");
       fetchSessions();
@@ -280,97 +273,16 @@ export function ProfileForm({ profile }: ProfileFormProps) {
   }
 
   async function handleAddPasskey() {
-    if (!newPasskeyName.trim()) {
-      toast.error("Name is required");
-      return;
-    }
-    setAddingPasskey(true);
-    try {
-      // 1. Get registration options
-      const genRes = await fetch("/api/auth/passkey/generate", { method: "POST" });
-      const { options, challenge } = await genRes.json();
-
-      // 2. Convert base64url strings to ArrayBuffer for browser API
-      const publicKeyOptions: PublicKeyCredentialCreationOptions = {
-        ...options,
-        challenge: base64URLToBuffer(options.challenge),
-        user: {
-          ...options.user,
-          id: base64URLToBuffer(options.user.id),
-        },
-        excludeCredentials: (options.excludeCredentials || []).map((cred: { id: string; type?: string; transports?: string[] }) => ({
-          ...cred,
-          id: base64URLToBuffer(cred.id),
-        })),
-      };
-
-      // 3. Create credential via browser
-      const credential = await navigator.credentials.create({
-        publicKey: publicKeyOptions,
-      }) as PublicKeyCredential | null;
-
-      if (!credential) {
-        toast.error("Passkey creation cancelled");
-        setAddingPasskey(false);
-        return;
-      }
-
-      // 4. Convert response back to base64url for server
-      const response = credential.response as AuthenticatorAttestationResponse;
-      const credentialForServer = {
-        id: credential.id,
-        rawId: bufferToBase64URL(credential.rawId),
-        type: credential.type,
-        response: {
-          attestationObject: bufferToBase64URL(response.attestationObject),
-          clientDataJSON: bufferToBase64URL(response.clientDataJSON),
-        },
-        authenticatorAttachment: (credential as unknown as Record<string, unknown>).authenticatorAttachment,
-        clientExtensionResults: credential.getClientExtensionResults(),
-      };
-
-      // 5. Verify and save
-      const verifyRes = await fetch("/api/auth/passkey/verify", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ credential: credentialForServer, name: newPasskeyName, challenge }),
-      });
-
-      const verifyData = await verifyRes.json();
-
-      if (verifyData.success) {
-        toast.success("Passkey added successfully");
-        setShowPasskeyModal(false);
-        setNewPasskeyName("");
-        fetchPasskeys();
-      } else {
-        toast.error(verifyData.error || "Failed to add passkey");
-      }
-    } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : String(e);
-      // Any WebAuthn user/denial error â€” subtle toast, not blocking
-      const isUserCancellation =
-        msg.includes("timed out") ||
-        msg.includes("NotAllowedError") ||
-        msg.includes("cancelled") ||
-        msg.includes("not allowed") ||
-        msg.includes("denied") ||
-        msg.includes("user agent");
-
-      if (isUserCancellation) {
-        toast("Passkey prompt cancelled", { duration: 2000 });
-      } else {
-        console.error("[Passkey] Error:", msg);
-        toast.error("Failed to add passkey");
-      }
-    }
-    setAddingPasskey(false);
+    // Passkeys are origin-bound: registration must happen on the auth domain
+    // (api.revy.my.id). Redirect the user there to add a passkey.
+    const authBase = process.env.NEXT_PUBLIC_AUTH_URL || "https://api.revy.my.id";
+    window.location.href = `${authBase}/account?tab=passkeys`;
   }
 
   async function handleDeletePasskey() {
     if (!deletePasskeyId) return;
     try {
-      await fetch(`/api/auth/passkey/${deletePasskeyId}`, { method: "DELETE" });
+      await apiFetch(`/api/auth/passkey/${deletePasskeyId}`, { method: "DELETE" });
       setPasskeys((prev) => prev.filter((p) => p.id !== deletePasskeyId));
       toast.success("Passkey deleted");
     } catch {
@@ -392,8 +304,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
     const result = await deleteAccount(deletePassword);
     if (result.success) {
       toast.success("Account deleted successfully");
-      await logoutAction();
-      router.push("/login");
+      await logout();
     } else {
       toast.error(result.error || "Failed to delete account");
     }
@@ -574,7 +485,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
               ))}
             </div>
           )}
-          <Button variant="outline" size="sm" onClick={() => setShowPasskeyModal(true)} className="self-start">
+          <Button variant="outline" size="sm" onClick={handleAddPasskey} className="self-start">
             <KeyIcon data-icon="inline-start" />
             Add Passkey
           </Button>
@@ -755,33 +666,6 @@ export function ProfileForm({ profile }: ProfileFormProps) {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
-      {/* Add Passkey */}
-      <Dialog open={showPasskeyModal} onOpenChange={() => setShowPasskeyModal(false)}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Add Passkey</DialogTitle>
-            <DialogDescription>Name your passkey, then verify with biometrics or PIN</DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Passkey Name</label>
-              <Input value={newPasskeyName} onChange={(e) => setNewPasskeyName(e.target.value)} placeholder="e.g. MacBook Pro, iPhone" />
-            </div>
-            <div className="rounded-lg border p-3 text-sm text-muted-foreground">
-              <p>Your browser will prompt verification via <span className="font-medium text-foreground">fingerprint, Face ID, or PIN</span> your device.</p>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowPasskeyModal(false)}>Cancel</Button>
-            <Button onClick={handleAddPasskey} disabled={addingPasskey || !newPasskeyName.trim()}>
-              <Spinner className={`size-4 mr-2 ${addingPasskey ? "" : "hidden"}`} />
-              Add Passkey
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
 
       {/* Logout All Confirm */}
       <AlertDialog open={logoutAllConfirm} onOpenChange={() => setLogoutAllConfirm(false)}>

@@ -13,8 +13,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
-import { logoutAction } from "@/app/actions/auth";
 import { useRouter } from "@/i18n/navigation";
+import { useAuth } from "@/components/auth/AuthProvider";
 
 const defaultNavLinks = [
   { href: "/", label: "Home", icon: "M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z M9 22V12h6v10", is_visible: true },
@@ -48,13 +48,12 @@ export function Navigation({ user, locale, navLinks }: { user?: User | null; loc
   const pathname = usePathname();
   const router = useRouter();
   const t = useTranslations("nav");
+  const { logout } = useAuth();
 
   const links = (navLinks && navLinks.length > 0 ? navLinks : defaultNavLinks).filter(l => l.is_visible !== false);
 
   async function handleLogout() {
-    await logoutAction();
-    router.push("/login");
-    router.refresh();
+    await logout();
   }
 
   function NavIcon({ icon, className }: { icon: string; className?: string }) {

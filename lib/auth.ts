@@ -116,19 +116,22 @@ export async function getSession(): Promise<User | null> {
 
     const db = getDb();
 
-    // Try to validate session from DB, but don't fail if sessions table is missing
+    // Validate session from DB by the SPECIFIC token in the JWT.
+    // This ensures revoked sessions are truly invalidated, even if
+    // the user has other active sessions on other devices.
     try {
       const { data: session, error: sessionError } = await db
         .from("sessions")
         .select("id")
-        .eq("user_id", payload.userId)
+        .eq("token", payload.token)
         .gt("expires_at", new Date().toISOString())
-        .limit(1)
         .maybeSingle();
 
-      // If table exists but no session found, cookie is stale
+      // If table exists but no session matches this token, cookie is stale/revoked
       if (sessionError && !sessionError.message?.includes("does not exist")) {
         console.warn("[Auth] Session query error:", sessionError.message);
+      } else if (!sessionError && !session) {
+        return null;
       }
     } catch {
       // sessions table might not exist — that's OK, rely on JWT only

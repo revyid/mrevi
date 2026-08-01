@@ -1,41 +1,26 @@
 -- ============================================================
 -- Realtime auto-logout (SSO)
--- Jalankan di Supabase SQL Editor setelah menjalankan unified-schema.sql
+-- Jalankan di Supabase SQL Editor.
 --
--- Cara kerja: klien (revy.my.id) subscribe ke DELETE pada tabel
--- `sessions` dengan filter token=<session token dari JWT>. Ketika
--- session di-revoke (logout di perangkat lain / logout all),
--- event realtime dikirim dan semua app yang terhubung force-logout.
---
--- CATATAN KEAMANAN: policy "allow_all_service_role" pada tabel
--- sessions berlaku untuk SEMUA role (termasuk anon) karena tidak
--- ada klausa role. Ini memang desain lama schema ini — client
--- realtime butuh anon read untuk menerima event. Karena token
--- session bersifat unguessable (UUID + timestamp), risiko terbatas.
+-- Kalau muncul error "already a member of publication":
+--   itu artinya sudah aktif, tidak masalah, lanjut.
+-- Kalau error "relation ... does not exist":
+--   kamu buka project Supabase yang salah (tabel sessions
+--   tidak ada di sana).
 -- ============================================================
 
--- 1. Aktifkan Realtime untuk tabel sessions (idempotent)
-do $$
-begin
-  if not exists (
-    select 1 from pg_publication_tables
-    where pubname = 'supabase_realtime'
-      and schemaname = 'public'
-      and tablename = 'sessions'
-  ) then
-    alter publication supabase_realtime add table public.sessions;
-  end if;
-end $$;
+-- 1. Aktifkan Realtime untuk tabel sessions
+ALTER PUBLICATION supabase_realtime ADD TABLE public.sessions;
 
--- 2. Pastikan policy anon SELECT ada (jika belum dari schema lama)
-drop policy if exists "anon_read_sessions" on public.sessions;
-create policy "anon_read_sessions"
-  on public.sessions
-  for select
-  to anon
-  using (true);
+-- 2. Policy anon SELECT (client realtime butuh baca)
+DROP POLICY IF EXISTS "anon_read_sessions" ON public.sessions;
+CREATE POLICY "anon_read_sessions"
+  ON public.sessions
+  FOR SELECT
+  TO anon
+  USING (true);
 
 -- 3. Verifikasi
-select schemaname, tablename, pubname
-from pg_publication_tables
-where tablename = 'sessions';
+SELECT schemaname, tablename, pubname
+FROM pg_publication_tables
+WHERE tablename = 'sessions';

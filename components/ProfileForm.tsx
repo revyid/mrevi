@@ -234,9 +234,12 @@ export function ProfileForm({ profile }: ProfileFormProps) {
       return;
     }
     setChangingPassword(true);
-    const result = await changePassword(currentPassword, newPassword);
+    const result = await changePassword(
+      profile.provider === "credentials" ? currentPassword : "",
+      newPassword
+    );
     if (result.success) {
-      toast.success("Password changed successfully");
+      toast.success("Password saved — you can now sign in with email & password");
       setShowPasswordModal(false);
       setCurrentPassword("");
       setNewPassword("");
@@ -462,14 +465,14 @@ export function ProfileForm({ profile }: ProfileFormProps) {
             <div>
               <p className="text-sm font-medium">Password</p>
               <p className="text-xs text-muted-foreground">
-                {profile.provider === "credentials" ? "Last changed: unknown" : "Managed via OAuth"}
+                {profile.provider === "credentials"
+                  ? "Last changed: unknown"
+                  : "No password yet — set one to sign in with email & password"}
               </p>
             </div>
-            {profile.provider === "credentials" && (
-              <Button variant="outline" size="sm" onClick={() => setShowPasswordModal(true)}>
-                Change Password
-              </Button>
-            )}
+            <Button variant="outline" size="sm" onClick={() => setShowPasswordModal(true)}>
+              {profile.provider === "credentials" ? "Change Password" : "Set Password"}
+            </Button>
           </div>
 
           <Separator />
@@ -667,18 +670,26 @@ export function ProfileForm({ profile }: ProfileFormProps) {
       {/* MODALS                                                       */}
       {/* ============================================================ */}
 
-      {/* Change Password */}
+      {/* Change / Set Password */}
       <Dialog open={showPasswordModal} onOpenChange={() => setShowPasswordModal(false)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Change Password</DialogTitle>
-            <DialogDescription>Please enter your password saat ini dan password baru</DialogDescription>
+            <DialogTitle>
+              {profile.provider === "credentials" ? "Change Password" : "Set Password"}
+            </DialogTitle>
+            <DialogDescription>
+              {profile.provider === "credentials"
+                ? "Enter your current password and the new one"
+                : "Create a password to sign in with email & password on any device"}
+            </DialogDescription>
           </DialogHeader>
           <div className="flex flex-col gap-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Current Password</label>
-              <Input type="password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} />
-            </div>
+            {profile.provider === "credentials" && (
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Current Password</label>
+                <Input type="password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} />
+              </div>
+            )}
             <div className="space-y-2">
               <label className="text-sm font-medium">New Password</label>
               <Input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="Minimum 6 characters" />

@@ -85,7 +85,8 @@
     "passwordError": "Gagal mengubah kata sandi",
     "passwordMismatch": "Kata sandi tidak cocok",
     "accountProvider": "Akun terhubung melalui",
-    "oauthPasswordNote": "Ganti kata sandi tidak tersedia untuk akun OAuth"
+    "setPassword": "Buat Kata Sandi",
+    "setPasswordNote": "Buat kata sandi untuk masuk dengan email & password"
   },
   "admin": {
     "title": "Admin",

@@ -87,7 +87,8 @@
     "passwordError": "Failed to change password",
     "passwordMismatch": "Passwords do not match",
     "accountProvider": "Account linked via",
-    "oauthPasswordNote": "Password change is not available for OAuth accounts"
+    "setPassword": "Set Password",
+    "setPasswordNote": "Create a password to sign in with email & password"
   },
   "admin": {
     "title": "Admin",

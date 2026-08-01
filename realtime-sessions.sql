@@ -14,8 +14,18 @@
 -- session bersifat unguessable (UUID + timestamp), risiko terbatas.
 -- ============================================================
 
--- 1. Aktifkan Realtime untuk tabel sessions
-alter publication supabase_realtime add table public.sessions;
+-- 1. Aktifkan Realtime untuk tabel sessions (idempotent)
+do $$
+begin
+  if not exists (
+    select 1 from pg_publication_tables
+    where pubname = 'supabase_realtime'
+      and schemaname = 'public'
+      and tablename = 'sessions'
+  ) then
+    alter publication supabase_realtime add table public.sessions;
+  end if;
+end $$;
 
 -- 2. Pastikan policy anon SELECT ada (jika belum dari schema lama)
 drop policy if exists "anon_read_sessions" on public.sessions;
@@ -26,6 +36,6 @@ create policy "anon_read_sessions"
   using (true);
 
 -- 3. Verifikasi
-select schemaname, tablename, publicationname
+select schemaname, tablename, pubname
 from pg_publication_tables
 where tablename = 'sessions';

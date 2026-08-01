@@ -49,6 +49,9 @@ export async function generateMetadata({
       siteName: "M. Revi Ramadhan",
       locale: "en_US",
     },
+    twitter: {
+      card: "summary_large_image",
+    },
     robots: {
       index: true,
       follow: true,

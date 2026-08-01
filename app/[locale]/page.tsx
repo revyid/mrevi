@@ -29,13 +29,11 @@ export async function generateMetadata(): Promise<Metadata> {
       title: `${name} — ${title}`,
       description: bio,
       siteName: name,
-      images: avatar ? [{ url: avatar, width: 400, height: 400, alt: name }] : [],
     },
     twitter: {
-      card: "summary",
+      card: "summary_large_image",
       title: `${name} — ${title}`,
       description: bio,
-      images: avatar ? [avatar] : [],
     },
     alternates: {
       canonical: BASE_URL,

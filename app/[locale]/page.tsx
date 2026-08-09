@@ -264,6 +264,30 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
         </div>
       </section>
 
+      {/* Templates */}
+      <section className="space-y-8">
+        <SectionTitle lines={["HTML TEMPLATES", "GALLERY"]} />
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {[
+            { name: "TechFlow SaaS", desc: "Modern SaaS landing page", emoji: "🚀", href: "https://template.revy.my.id/techflow-saas/" },
+            { name: "FoodHub Delivery", desc: "Food delivery platform", emoji: "🍕", href: "https://template.revy.my.id/foodhub-delivery/" },
+            { name: "Lens Light", desc: "Photography portfolio", emoji: "📸", href: "https://template.revy.my.id/lens-light/" },
+            { name: "Kopi Nusantara", desc: "Coffee shop website", emoji: "☕", href: "https://template.revy.my.id/kopi-nusantara/" },
+            { name: "Artisan Bakery", desc: "Bakery website design", emoji: "🥐", href: "https://template.revy.my.id/artisan-bakery/" },
+            { name: "ZenFit Studio", desc: "Fitness studio website", emoji: "💪", href: "https://template.revy.my.id/zenfit-studio/" },
+          ].map((t) => (
+            <a key={t.name} href={t.href} target="_blank" rel="noopener noreferrer" className="group flex items-center gap-4 p-4 rounded-xl border border-border hover:border-primary/30 hover:bg-white/[0.02] transition-all">
+              <div className="w-12 h-12 rounded-lg bg-white/[0.03] flex items-center justify-center text-2xl shrink-0">{t.emoji}</div>
+              <div className="flex-1 min-w-0">
+                <h3 className="font-semibold text-[16px] group-hover:text-primary transition-colors font-heading">{t.name}</h3>
+                <p className="text-muted-foreground text-[13px] mt-0.5">{t.desc}</p>
+              </div>
+              <div className="shrink-0 opacity-40 group-hover:opacity-100 transition-opacity"><ArrowIcon /></div>
+            </a>
+          ))}
+        </div>
+      </section>
+
       {/* Contact */}
       <section className="space-y-8">
         <SectionTitle lines={[settings.section_contact_line1 || t("letsWork"), settings.section_contact_line2 || t("letsWorkSub")]} />

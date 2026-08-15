@@ -17,10 +17,10 @@ Dokumentasi API dapat diakses melalui:
 Untuk menambahkan post API documentation ke blog, jalankan SQL seed:
 
 ```bash
-psql -h your_host -U your_user -d your_database -f api-docs-seed.sql
+psql -h your_host -U your_user -d your_database -f database/api-docs-seed.sql
 ```
 
-Atau melalui Supabase SQL Editor, copy-paste isi dari `api-docs-seed.sql`.
+Atau melalui Supabase SQL Editor, copy-paste isi dari `database/api-docs-seed.sql`.
 
 ## Endpoint yang Tersedia
 
@@ -142,7 +142,7 @@ app/
     blog/
       api-docs/
         page.tsx          # API Documentation page
-api-docs-seed.sql         # SQL seed untuk blog post
+api-docs-seed.sql         # SQL seed untuk blog post (di database/)
 ```
 
 ## Development

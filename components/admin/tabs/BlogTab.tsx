@@ -53,15 +53,15 @@ export function BlogTab() {
   const [editReadTime, setEditReadTime] = useState("");
   const [saving, setSaving] = useState(false);
 
-  useEffect(() => {
-    loadPosts();
-  }, []);
 
   async function loadPosts() {
     const data = await getBlogPosts();
     setPosts(data as BlogPost[]);
     setLoading(false);
   }
+  useEffect(() => {
+    loadPosts();
+  }, []);
 
   function openEdit(post: BlogPost) {
     setEditingPost(post);

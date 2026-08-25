@@ -39,13 +39,13 @@ export function NavigationTab() {
   const [deleting, setDeleting] = useState<string | null>(null);
   const [dragIdx, setDragIdx] = useState<number | null>(null);
 
-  useEffect(() => { load(); }, []);
 
   async function load() {
     const data = await getNavigationLinks();
     setLinks(data as NavLink[]);
     setLoading(false);
   }
+  useEffect(() => { load(); }, []);
 
   function openEdit(link: NavLink) {
     setEditModal(link);

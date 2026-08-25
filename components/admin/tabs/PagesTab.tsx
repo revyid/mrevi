@@ -64,13 +64,13 @@ export function PagesTab() {
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState<string | null>(null);
 
-  useEffect(() => { load(); }, []);
 
   async function load() {
     const data = await getPageSettings();
     setPages(data);
     setLoading(false);
   }
+  useEffect(() => { load(); }, []);
 
   function openEdit(page: PageSetting) {
     setForm({ path: page.path, label: page.label, status: page.status, access_role: page.access_role });

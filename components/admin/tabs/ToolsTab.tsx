@@ -28,13 +28,13 @@ export function ToolsTab() {
   const [showAdd, setShowAdd] = useState(false);
   const [form, setForm] = useState({ name: "", category: "", href: "", icon: "" });
 
-  useEffect(() => { load(); }, []);
 
   async function load() {
     const data = await getTools();
     setTools(data as Tool[]);
     setLoading(false);
   }
+  useEffect(() => { load(); }, []);
 
   function openEdit(t: Tool) {
     setEditModal(t);

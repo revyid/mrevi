@@ -28,13 +28,13 @@ export function ExperiencesTab() {
   const [showAdd, setShowAdd] = useState(false);
   const [form, setForm] = useState({ company: "", description: "", period: "" });
 
-  useEffect(() => { load(); }, []);
 
   async function load() {
     const data = await getExperiences();
     setExperiences(data as Experience[]);
     setLoading(false);
   }
+  useEffect(() => { load(); }, []);
 
   function openEdit(e: Experience) {
     setEditModal(e);

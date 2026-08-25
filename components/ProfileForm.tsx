@@ -618,7 +618,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
 
               {!storedKey && (
                 <p className="text-xs text-yellow-500">
-                  Full key is hidden for security. If you lost it, click "Regenerate" below to create a new one.
+                  Full key is hidden for security. If you lost it, click &quot;Regenerate&quot; below to create a new one.
                 </p>
               )}
 

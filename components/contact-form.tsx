@@ -52,7 +52,7 @@ export function ContactForm() {
           <polyline points="22 4 12 14.01 9 11.01" />
         </svg>
         <p className="text-lg font-medium">Thank you!</p>
-        <p className="text-sm text-muted-foreground">Your message has been sent. I'll reply as soon as possible.</p>
+        <p className="text-sm text-muted-foreground">Your message has been sent. I&apos;ll reply as soon as possible.</p>
         <Button variant="outline" size="sm" onClick={() => setSubmitted(false)}>Send another message</Button>
       </div>
     );

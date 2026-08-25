@@ -28,13 +28,13 @@ export function ProjectsTab() {
   const [showAdd, setShowAdd] = useState(false);
   const [form, setForm] = useState({ title: "", subtitle: "", href: "", image: "" });
 
-  useEffect(() => { load(); }, []);
 
   async function load() {
     const data = await getProjects();
     setProjects(data as Project[]);
     setLoading(false);
   }
+  useEffect(() => { load(); }, []);
 
   function openEdit(p: Project) {
     setEditModal(p);

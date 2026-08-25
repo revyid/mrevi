@@ -72,11 +72,16 @@ function ArrowIcon() {
   );
 }
 
-function SectionTitle({ lines }: { lines: [string, string] }) {
+function SectionTitle({ lines }: { lines: [string, string] | [string] }) {
   return (
     <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-[90px] font-bold uppercase leading-[0.95] tracking-tight font-heading text-center lg:text-left">
-      {lines[0]}<br />
-      <span style={{ color: "rgba(182, 180, 189, 0.2)" }}>{lines[1]}</span>
+      {lines[0]}
+      {lines[1] && (
+        <>
+          <br />
+          <span style={{ color: "rgba(182, 180, 189, 0.2)" }}>{lines[1]}</span>
+        </>
+      )}
     </h2>
   );
 }
@@ -266,7 +271,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
 
       {/* Templates */}
       <section className="space-y-8">
-        <SectionTitle lines={["HTML TEMPLATES", "GALLERY"]} />
+        <SectionTitle lines={["SHOWCASE"]} />
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {[
             { name: "TechFlow SaaS", desc: "Modern SaaS landing page", emoji: "🚀", href: "https://template.revy.my.id/techflow-saas/" },

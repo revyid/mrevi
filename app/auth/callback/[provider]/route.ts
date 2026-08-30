@@ -110,7 +110,7 @@ export async function GET(
     }
 
     const userRole = result.user?.role;
-    return NextResponse.redirect(`${origin}${userRole === "admin" ? "/admin" : next}`);
+    return NextResponse.redirect(`${origin}${userRole === "admin" ? "https://admin.revy.my.id" : next}`);
   } catch (error) {
     console.error("[OAuth] Callback error:", error);
     return NextResponse.redirect(`${origin}/login?error=auth_failed`);

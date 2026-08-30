@@ -117,7 +117,7 @@ export function Navigation({ user, locale, navLinks }: { user?: User | null; loc
                 {t("profile")}
               </DropdownMenuItem>
               {user.role === "admin" && (
-                <DropdownMenuItem onClick={() => router.push("/admin")}>
+                <DropdownMenuItem onClick={() => window.location.href = "https://admin.revy.my.id"}>
                   <svg className="size-4 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <rect x="3" y="3" width="7" height="7" />
                     <rect x="14" y="3" width="7" height="7" />

@@ -89,7 +89,7 @@ export function AuthForm({ mode }: AuthFormProps) {
 
       if (verifyData.success) {
         toast.success(t("loginSuccess"));
-        router.push(verifyData.role === "admin" ? "/admin" : "/");
+        if (verifyData.role === "admin") { window.location.href = "https://admin.revy.my.id"; } else { router.push("/"); }
         router.refresh();
       } else {
         const errMsg = verifyData.error || "Passkey login failed";
@@ -130,7 +130,7 @@ export function AuthForm({ mode }: AuthFormProps) {
           toast.error(result.error);
         } else {
           toast.success(t("loginSuccess"));
-          router.push(result.role === "admin" ? "/admin" : "/");
+          if (result.role === "admin") { window.location.href = "https://admin.revy.my.id"; } else { router.push("/"); }
           router.refresh();
         }
       } else {

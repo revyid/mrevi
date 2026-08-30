@@ -173,7 +173,7 @@ export async function GET(
       );
     }
 
-    const redirectUrl = result.user?.role === "admin" ? "/admin" : "/";
+    const redirectUrl = result.user?.role === "admin" ? "https://admin.revy.my.id" : "/";
     return NextResponse.redirect(new URL(redirectUrl, request.url));
   } catch (error) {
     const msg = error instanceof Error ? error.message : String(error);

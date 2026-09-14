@@ -3,8 +3,17 @@
 import { usePathname } from "next/navigation";
 import { ProfileCard, type ProfileCardSettings } from "@/components/profile-card";
 
-// These segment suffixes hide the sidebar regardless of locale prefix
-const NO_SIDEBAR_SEGMENTS = ["/admin", "/login", "/register", "/profile"];
+// These segment suffixes hide the sidebar regardless of locale prefix.
+// Side card (ProfileCard) ONLY shows on root + content pages (projects, journey, tools, blog, contact, sandbox, blog/*).
+// Bare layout for: admin, auth, account settings, user pages, OAuth callback, error/not-found.
+const NO_SIDEBAR_SEGMENTS = [
+  "/admin",
+  "/login",
+  "/register",
+  "/profile",
+  "/user",      // public user profile pages
+  "/callback",  // OAuth token-exchange (session flow)
+];
 
 interface AppShellProps {
   children: React.ReactNode;

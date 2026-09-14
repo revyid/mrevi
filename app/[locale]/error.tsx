@@ -18,7 +18,8 @@ export default function LocaleError({
   }, [error]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-8">
+    // Visually override the inherited AppShell sidebar: full-screen overlay on top of sidebar.
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-8 bg-background">
       <div className="max-w-md w-full text-center space-y-6">
         <DotmHex5 size={42} bloom className="mx-auto" />
         <h1 className="text-6xl font-bold font-heading">

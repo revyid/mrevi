@@ -88,7 +88,7 @@ function PillEditor({
               onClick={() => remove(idx)}
               aria-label={`Remove ${role}`}
             >
-              Ã—
+              ×
             </button>
           </span>
         ))}

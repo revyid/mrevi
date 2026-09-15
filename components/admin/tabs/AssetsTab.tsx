@@ -215,7 +215,7 @@ export function AssetsTab() {
                     {formatBytes(asset.bytes)}
                   </TableCell>
                   <TableCell className="text-sm text-muted-foreground">
-                    {asset.width}Ã—{asset.height}
+                    {asset.width}×{asset.height}
                   </TableCell>
                   <TableCell className="text-sm text-muted-foreground">
                     {formatDate(asset.created_at)}

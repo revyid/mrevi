@@ -44,6 +44,12 @@ function getInitials(name: string) {
   return name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
 }
 
+// Detect absolute URLs so we render <a target=_blank> instead of <Link>.
+// next-intl's <Link> throws on http(s) hrefs because it tries to prefix the locale.
+function isExternalUrl(href: string): boolean {
+  return /^https?:\/\//i.test(href);
+}
+
 export function Navigation({ user, locale, navLinks }: { user?: User | null; locale: string; navLinks?: NavLinkItem[] }) {
   const pathname = usePathname();
   const router = useRouter();
@@ -67,22 +73,27 @@ export function Navigation({ user, locale, navLinks }: { user?: User | null; loc
   return (
     <nav className="flex items-center gap-2 p-2 rounded-2xl backdrop-blur-md bg-white/5">
         {links.map((link) => {
-          const isActive = pathname === link.href;
-          return (
-            <Link key={link.href} href={link.href as any}>
-              <Button
-                variant="ghost"
-                size="icon"
-                className={cn(
-                  "size-9 rounded-full",
-                  isActive ? "bg-white/10 text-white" : "text-white/50 hover:text-white hover:bg-white/5"
-                )}
-              >
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="size-4">
-                  <path d={link.icon} />
-                </svg>
-              </Button>
-            </Link>
+          const isActive = !isExternalUrl(link.href) && pathname === link.href;
+          const button = (
+            <Button
+              variant="ghost"
+              size="icon"
+              className={cn(
+                "size-9 rounded-full",
+                isActive ? "bg-white/10 text-white" : "text-white/50 hover:text-white hover:bg-white/5"
+              )}
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="size-4">
+                <path d={link.icon} />
+              </svg>
+            </Button>
+          );
+          // Render plain <a> for absolute URLs so the browser handles them
+          // natively; <Link> for internal routes so next-intl can locale-prefix.
+          return isExternalUrl(link.href) ? (
+            <a key={link.href} href={link.href} target="_blank" rel="noopener noreferrer">{button}</a>
+          ) : (
+            <Link key={link.href} href={link.href as any}>{button}</Link>
           );
         })}
 

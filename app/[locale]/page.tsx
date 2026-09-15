@@ -269,25 +269,31 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
         </div>
       </section>
 
-      {/* Templates */}
+      {/* Templates — showcase of example business websites. Mirrors the recent-projects
+          layout (divide-y list with image preview) instead of the old emoji grid. */}
       <section className="space-y-8">
         <SectionTitle lines={["SHOWCASE"]} />
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="divide-y divide-border">
           {[
-            { name: "TechFlow SaaS", desc: "Modern SaaS landing page", emoji: "🚀", href: "https://template.revy.my.id/techflow-saas/" },
-            { name: "FoodHub Delivery", desc: "Food delivery platform", emoji: "🍕", href: "https://template.revy.my.id/foodhub-delivery/" },
-            { name: "Lens Light", desc: "Photography portfolio", emoji: "📸", href: "https://template.revy.my.id/lens-light/" },
-            { name: "Kopi Nusantara", desc: "Coffee shop website", emoji: "☕", href: "https://template.revy.my.id/kopi-nusantara/" },
-            { name: "Artisan Bakery", desc: "Bakery website design", emoji: "🥐", href: "https://template.revy.my.id/artisan-bakery/" },
-            { name: "ZenFit Studio", desc: "Fitness studio website", emoji: "💪", href: "https://template.revy.my.id/zenfit-studio/" },
+            { name: "Kopi Seni", desc: "Coffee roastery — dark & artisan", tag: "F&B",          image: "https://placehold.co/600x450/1a1a1a/f46c38?text=Kopi+Seni",            href: "https://revy.biz.id/umkm/kopi-seni.html" },
+            { name: "Lara Batik", desc: "Fashion batik — editorial, elegant", tag: "Fashion",   image: "https://placehold.co/600x450/1a1a1a/f46c38?text=Lara+Batik",           href: "https://revy.biz.id/umkm/batik-lara.html" },
+            { name: "Dapur Rasa", desc: "QR digital menu — scan & order", tag: "Kuliner",       image: "https://placehold.co/600x450/1a1a1a/f46c38?text=Dapur+Rasa",           href: "https://revy.biz.id/umkm/dapur-rasa.html" },
+            { name: "Salon Mawar", desc: "Salon & spa — booking + gallery", tag: "Jasa",        image: "https://placehold.co/600x450/1a1a1a/f46c38?text=Salon+Mawar",          href: "https://revy.biz.id/" },
+            { name: "Toko Elektronik", desc: "Catalog + WhatsApp checkout", tag: "Retail",      image: "https://placehold.co/600x450/1a1a1a/f46c38?text=Elektronik",           href: "https://revy.biz.id/" },
+            { name: "Hotel Boutique", desc: "Room showcase + direct booking", tag: "Hospitality", image: "https://placehold.co/600x450/1a1a1a/f46c38?text=Hotel+Boutique",     href: "https://revy.biz.id/" },
           ].map((t) => (
-            <a key={t.name} href={t.href} target="_blank" rel="noopener noreferrer" className="group flex items-center gap-4 p-4 rounded-xl border border-border hover:border-primary/30 hover:bg-white/[0.02] transition-all">
-              <div className="w-12 h-12 rounded-lg bg-white/[0.03] flex items-center justify-center text-2xl shrink-0">{t.emoji}</div>
-              <div className="flex-1 min-w-0">
-                <h3 className="font-semibold text-[16px] group-hover:text-primary transition-colors font-heading">{t.name}</h3>
-                <p className="text-muted-foreground text-[13px] mt-0.5">{t.desc}</p>
-              </div>
+            <a key={t.name} href={t.href} target="_blank" rel="noopener noreferrer" className="group flex items-center gap-4 sm:gap-6 py-5 first:pt-0 last:pb-0 transition-all hover:bg-white/[0.02] rounded-lg -mx-2 px-2">
               <div className="shrink-0 opacity-40 group-hover:opacity-100 transition-opacity"><ArrowIcon /></div>
+              <div className="shrink-0 w-[110px] h-[80px] sm:w-[130px] sm:h-[90px] rounded-xl overflow-hidden bg-muted border border-border">
+                <img src={t.image} alt={t.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <h3 className="font-semibold text-[18px] sm:text-[24px] group-hover:text-primary transition-colors font-heading">{t.name}</h3>
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary">{t.tag}</span>
+                </div>
+                <p className="text-muted-foreground text-[14px] sm:text-[16px] mt-0.5">{t.desc}</p>
+              </div>
             </a>
           ))}
         </div>

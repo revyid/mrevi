@@ -41,6 +41,13 @@ export function ThemeProvider({ theme }: ThemeProviderProps) {
       root.style.setProperty("--muted", hexToOklch(theme.theme_muted));
       root.style.setProperty("--secondary", hexToOklch(theme.theme_muted));
     }
+    // Apply theme_accent to --accent (and a derived --accent-foreground)
+    // so the admin's saved accent color actually shows on the public site,
+    // not just in the admin live-preview.
+    if (theme.theme_accent) {
+      root.style.setProperty("--accent", hexToOklch(theme.theme_accent));
+      root.style.setProperty("--accent-foreground", hexToOklch(theme.theme_foreground || "#fafafa"));
+    }
     if (theme.theme_border) {
       root.style.setProperty("--border", hexToOklch(theme.theme_border));
       root.style.setProperty("--input", hexToOklch(theme.theme_border));

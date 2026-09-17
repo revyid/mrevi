@@ -21,6 +21,8 @@ export interface BizProduct {
   price: string;
   image: string;
   tag: string;
+  /** Optional external link (e.g. the live business site). Rows without it render without a link. */
+  href?: string;
 }
 
 export async function getBizProducts(): Promise<BizProduct[]> {

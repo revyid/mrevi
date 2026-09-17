@@ -37,7 +37,7 @@ Buka [http://localhost:3000](http://localhost:3000).
 1. Buat project di [Supabase](https://supabase.com)
 2. Jalankan `database/unified-schema.sql` di SQL Editor (schema lengkap, aman di-re-run)
 3. Untuk perubahan inkremental, jalankan file di `database/migrations/`
-4. Set env vars (lihat `.env.example`): `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+4. Copy `.env.example` ke `.env.local` lalu isi nilai aslinya (daftar env vars ada di file itu): `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `JWT_SECRET`
 
 ## Dokumentasi
 

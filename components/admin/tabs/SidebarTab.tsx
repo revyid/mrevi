@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect } from "react";
 import { getSettings, updateSettings } from "@/app/actions/content";
@@ -102,7 +102,7 @@ function PillEditor({
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), add())}
-          placeholder="Add a role labelâ€¦"
+          placeholder="Add a role label…"
           className="h-8 text-sm"
         />
         <Button type="button" size="sm" variant="outline" onClick={add}>
@@ -149,7 +149,7 @@ function SkillCardPreview({
           </svg>
         )}
       </div>
-      <p className="font-medium leading-tight">{text || "Card text hereâ€¦"}</p>
+      <p className="font-medium leading-tight">{text || "Card text here…"}</p>
     </div>
   );
 }
@@ -207,7 +207,7 @@ export function SidebarTab() {
           {saving ? (
             <>
               <Spinner className="size-4 mr-2" />
-              Savingâ€¦
+              Saving…
             </>
           ) : (
             "Save All"
@@ -217,7 +217,7 @@ export function SidebarTab() {
 
       <Separator />
 
-      {/* â”€â”€ Profile Card â”€â”€ */}
+      {/* ── Profile Card ── */}
       <SectionHeader
         title="Profile Card"
         desc="Name, bio, and avatar shown in the sidebar"
@@ -231,7 +231,7 @@ export function SidebarTab() {
             placeholder="M. Revi Ramadhan"
           />
         </Field>
-        <Field label="Title (unused â€” replaced by rotating pills)">
+        <Field label="Title (unused — replaced by rotating pills)">
           <Input
             value={settings.profile_title || ""}
             onChange={(e) => update("profile_title", e.target.value)}
@@ -244,7 +244,7 @@ export function SidebarTab() {
         <Textarea
           value={settings.profile_bio || ""}
           onChange={(e) => update("profile_bio", e.target.value)}
-          placeholder="Short bio shown in the sidebarâ€¦"
+          placeholder="Short bio shown in the sidebar…"
           rows={3}
         />
       </Field>
@@ -258,7 +258,7 @@ export function SidebarTab() {
 
       <Separator />
 
-      {/* â”€â”€ Rotating Role Pills â”€â”€ */}
+      {/* ── Rotating Role Pills ── */}
       <SectionHeader
         title="Rotating Role Pills"
         desc="Labels that animate in the pill badge under the name"
@@ -270,7 +270,7 @@ export function SidebarTab() {
 
       <Separator />
 
-      {/* â”€â”€ Social Links â”€â”€ */}
+      {/* ── Social Links ── */}
       <SectionHeader
         title="Social Links"
         desc="URLs for the social icons at the bottom of the profile card"
@@ -323,7 +323,7 @@ export function SidebarTab() {
 
       <Separator />
 
-      {/* â”€â”€ Skill Cards â”€â”€ */}
+      {/* ── Skill Cards ── */}
       <SectionHeader
         title="Skill Cards"
         desc='The two coloured cards shown below the hero section on the home page'
@@ -388,7 +388,7 @@ export function SidebarTab() {
             <Input
               value={settings.skill_card_2_text || ""}
               onChange={(e) => update("skill_card_2_text", e.target.value)}
-              placeholder="FRAMER, FIGMA, WORDPRESS, REACTJS"
+              placeholder="Comma-separated skills or keywords"
             />
           </Field>
           <Field label="Link URL" hint="Where the arrow button takes the user">

@@ -152,10 +152,9 @@ export async function updateProfile(
     const { error } = await db.from("users").update(updateData).eq("id", userId);
     if (error) return { success: false, error: error.message };
 
+    // Only the "en" locale exists in routing — revalidating /id/* paths is a no-op.
     revalidatePath("/en/profile");
-    revalidatePath("/id/profile");
     revalidatePath("/en");
-    revalidatePath("/id");
     return { success: true };
   } catch {
     return { success: false, error: "Failed to update profile" };

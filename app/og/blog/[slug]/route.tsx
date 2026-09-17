@@ -4,7 +4,6 @@ import { OgCard } from "@/components/og/og-card";
 import { poppinsFonts } from "@/components/og/fonts";
 
 export const runtime = "nodejs";
-export const dynamic = "force-static";
 
 export async function GET(
   _request: Request,

@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
@@ -361,7 +361,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
       <div className="grid gap-6 lg:grid-cols-2 items-start">
       {/* ─── LEFT COLUMN ─── */}
       <div className="space-y-6">
-      {/* â”€â”€â”€ Profile Info â”€â”€â”€ */}
+      {/* ─── Profile Info ─── */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -451,7 +451,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
 
       {/* ─── RIGHT COLUMN ─── */}
       <div className="space-y-6">
-      {/* â”€â”€â”€ Security â”€â”€â”€ */}
+      {/* ─── Security ─── */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -482,7 +482,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
       {/* ─── Two-Factor Authentication ─── */}
       <TotpPanel />
 
-      {/* â”€â”€â”€ Passkeys â”€â”€â”€ */}
+      {/* ─── Passkeys ─── */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -524,7 +524,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
         </CardContent>
       </Card>
 
-      {/* â”€â”€â”€ Active Sessions â”€â”€â”€ */}
+      {/* ─── Active Sessions ─── */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -648,7 +648,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
         </CardContent>
       </Card>
 
-      {/* â”€â”€â”€ Danger Zone â”€â”€â”€ */}
+      {/* ─── Danger Zone ─── */}
       <Card className="border-destructive/30">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-destructive">

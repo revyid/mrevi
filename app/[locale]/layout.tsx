@@ -38,7 +38,7 @@ export async function generateMetadata({
       default: "M. Revi Ramadhan — Software Engineer",
       template: "%s — M. Revi Ramadhan",
     },
-    description: "Self-taught developer and student at SMAN 1 Bungo, Indonesia. Building web apps, Framer templates, and more.",
+    description: "Self-taught developer and student at SMAN 1 Bungo, Indonesia.",
     metadataBase: new URL("https://www.revy.my.id"),
     alternates: {
       canonical: "https://www.revy.my.id",

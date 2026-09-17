@@ -54,7 +54,7 @@ export async function getSocialLinks(): Promise<{
   };
 }
 
-/** Returns the two skill-card objects shown below the hero. */
+/** Returns the two skill-card objects shown below the hero (only configured ones). */
 export async function getSkillCards(): Promise<Array<{
   text: string;
   href: string;
@@ -63,16 +63,16 @@ export async function getSkillCards(): Promise<Array<{
   const s = await getSettings();
   return [
     {
-      text: s.skill_card_1_text || "DYNAMIC ANIMATION, MOTION DESIGN",
+      text: s.skill_card_1_text || "",
       href: s.skill_card_1_href || "/journey",
       type: (s.skill_card_1_type as "accent" | "primary") || "accent",
     },
     {
-      text: s.skill_card_2_text || "FRAMER, FIGMA, WORDPRESS, REACTJS",
+      text: s.skill_card_2_text || "",
       href: s.skill_card_2_href || "/projects",
       type: (s.skill_card_2_type as "accent" | "primary") || "primary",
     },
-  ];
+  ].filter((card) => card.text.trim());
 }
 
 /** Returns the navigation link labels from the navigation_links table. */
@@ -169,7 +169,7 @@ export async function updateTheme(theme: Record<string, string>) {
   const db = getDb();
   const rows = Object.entries(theme).map(([key, value]) => ({ key, value }));
   const { error } = await db.from("site_settings").upsert(rows, { onConflict: "key" });
-  if (!error) { revalidatePath("/"); revalidatePath("/en"); revalidatePath("/id"); }
+  if (!error) { revalidatePath("/"); revalidatePath("/en"); }
   return { success: !error, error: error?.message };
 }
 
@@ -271,7 +271,7 @@ export async function deleteProject(id: string) {
 
 export async function getExperiences() {
   const db = getDb();
-  const { data } = await db.from("journey").select("*").order("sort_order");
+  const { data } = await db.from("experiences").select("*").order("sort_order");
   return data || [];
 }
 
@@ -283,7 +283,7 @@ export async function createExperience(data: {
   await requireAdmin();
   const db = getDb();
   const { data: exp, error } = await db
-    .from("journey")
+    .from("experiences")
     .insert(data)
     .select()
     .single();
@@ -295,7 +295,7 @@ export async function updateExperience(id: string, field: string, value: string)
   await requireAdmin();
   const db = getDb();
   const { error } = await db
-    .from("journey")
+    .from("experiences")
     .update({ [field]: value })
     .eq("id", id);
   if (!error) revalidatePath("/");
@@ -305,7 +305,7 @@ export async function updateExperience(id: string, field: string, value: string)
 export async function deleteExperience(id: string) {
   await requireAdmin();
   const db = getDb();
-  const { error } = await db.from("journey").delete().eq("id", id);
+  const { error } = await db.from("experiences").delete().eq("id", id);
   if (!error) revalidatePath("/");
   return { success: !error, error: error?.message };
 }

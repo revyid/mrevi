@@ -4,6 +4,7 @@ import { Link } from "@/i18n/navigation";
 import { ContactForm } from "@/components/contact-form";
 import { getDb } from "@/lib/db";
 import { getSettings } from "@/app/actions/content";
+import { getBizProducts } from "@/app/actions/biz";
 
 const BASE_URL = "https://www.revy.my.id";
 
@@ -11,7 +12,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSettings();
   const name = settings.profile_name || "M. Revi Ramadhan";
   const title = settings.profile_title || "Software Engineer";
-  const bio = settings.profile_bio || "Software Engineer with 4 years of experience. Student at SMAN 1 Bungo, Indonesia.";
+  const bio = settings.profile_bio || "Self-taught developer and student at SMAN 1 Bungo, Indonesia.";
   const avatar = settings.profile_avatar || "";
 
   return {
@@ -21,7 +22,7 @@ export async function generateMetadata(): Promise<Metadata> {
     keywords: [
       "M. Revi Ramadhan", "Revi", "Muhammad Revi Ramadhan",
       "software engineer", "web developer", "portfolio",
-      "SMAN 1 Bungo", "Indonesia", "Framer", "Next.js",
+      "SMAN 1 Bungo", "Indonesia", "Next.js",
     ],
     openGraph: {
       type: "website",
@@ -48,11 +49,12 @@ export async function generateMetadata(): Promise<Metadata> {
 
 async function getData() {
   const db = getDb();
-  const [projectsRes, experiencesRes, toolsRes, blogRes] = await Promise.all([
+  const [projectsRes, experiencesRes, toolsRes, blogRes, bizProducts] = await Promise.all([
     db.from("projects").select("*").order("sort_order"),
-    db.from("journey").select("*").order("sort_order"),
+    db.from("experiences").select("*").order("sort_order"),
     db.from("tools").select("*").order("sort_order"),
     db.from("blog_posts").select("*").order("sort_order"),
+    getBizProducts(),
   ]);
   const settings = await getSettings();
   return {
@@ -60,6 +62,7 @@ async function getData() {
     experiences: experiencesRes.data || [],
     tools: toolsRes.data || [],
     blogPosts: blogRes.data || [],
+    bizProducts,
     settings,
   };
 }
@@ -89,12 +92,34 @@ function SectionTitle({ lines }: { lines: [string, string] | [string] }) {
 export default async function Home({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   const t = await getTranslations("home");
-  const { projects, experiences, tools, blogPosts, settings } = await getData();
+  const { projects, experiences, tools, blogPosts, bizProducts, settings } = await getData();
 
   const name    = settings.profile_name   || "M. Revi Ramadhan";
   const title   = settings.profile_title  || "Software Engineer";
   const bio     = settings.profile_bio    || "Self-taught developer and student at SMAN 1 Bungo, Indonesia.";
   const avatar  = settings.profile_avatar || "";
+
+  // Only show stats that the admin actually configured in site_settings —
+  // no invented template numbers when the keys are empty.
+  const stats = [
+    { num: settings.stat_1_num, label: settings.stat_1_label || "" },
+    { num: settings.stat_2_num, label: settings.stat_2_label || "" },
+    { num: settings.stat_3_num, label: settings.stat_3_label || "" },
+  ].filter((s) => s.num && s.num.trim());
+
+  // Skill cards: render only what is configured (hide template placeholder texts).
+  const skillCards = [
+    {
+      text: settings.skill_card_1_text || "",
+      href: settings.skill_card_1_href || "/journey",
+      type: (settings.skill_card_1_type as "accent" | "primary") || "accent",
+    },
+    {
+      text: settings.skill_card_2_text || "",
+      href: settings.skill_card_2_href || "/projects",
+      type: (settings.skill_card_2_type as "accent" | "primary") || "primary",
+    },
+  ].filter((card) => card.text.trim());
 
   // JSON-LD: Person schema for rich search results
   const personSchema = {
@@ -130,45 +155,35 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
       {/* Hero */}
       <section className="pt-8 pb-4 flex flex-col justify-center text-center lg:text-left">
         <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-[90px] font-bold uppercase leading-[0.95] tracking-tight mb-6 font-heading text-center lg:text-left">
-          <span className="block">{settings.hero_title_1 || "SOFTWARE"}</span>
-          <span className="block" style={{ color: "rgba(182, 180, 189, 0.2)" }}>{settings.hero_title_2 || "ENGINEER"}</span>
+          <span className="block">{settings.hero_title_1 || "DEVELOPER"}</span>
+          {settings.hero_title_2 && (
+            <span className="block" style={{ color: "rgba(182, 180, 189, 0.2)" }}>{settings.hero_title_2}</span>
+          )}
         </h1>
         <p className="text-muted-foreground text-[14px] sm:text-[16px] max-w-xl leading-relaxed mb-10 mx-auto lg:mx-0">
           {settings.hero_description || t("heroDescription")}
         </p>
-        <div className="grid grid-cols-3 gap-4 max-w-xl mx-auto lg:mx-0 text-center lg:text-left">
-          {[
-            { num: settings.stat_1_num || "+12", lines: (settings.stat_1_label || "YEARS OF\nEXPERIENCE").split("\n") },
-            { num: settings.stat_2_num || "+46", lines: (settings.stat_2_label || "PROJECTS\nCOMPLETED").split("\n") },
-            { num: settings.stat_3_num || "+20", lines: (settings.stat_3_label || "WORLDWIDE\nCLIENTS").split("\n") },
-          ].map((stat) => (
-            <div key={stat.num} className="space-y-1">
-              <p className="text-3xl sm:text-5xl md:text-6xl font-semibold leading-none tracking-tight font-heading">{stat.num}</p>
-              {stat.lines.map((line) => (
-                <p key={line} className="text-muted-foreground text-[9px] sm:text-xs font-medium tracking-wider">{line}</p>
-              ))}
-            </div>
-          ))}
-        </div>
+        {stats.length > 0 && (
+          <div className="grid grid-cols-3 gap-4 max-w-xl mx-auto lg:mx-0 text-center lg:text-left">
+            {stats.map((stat) => (
+              <div key={stat.num} className="space-y-1">
+                <p className="text-3xl sm:text-5xl md:text-6xl font-semibold leading-none tracking-tight font-heading">{stat.num}</p>
+                {stat.label && stat.label.split("\n").map((line) => (
+                  <p key={line} className="text-muted-foreground text-[9px] sm:text-xs font-medium tracking-wider">{line}</p>
+                ))}
+              </div>
+            ))}
+          </div>
+        )}
       </section>
 
       {/* Skill Cards */}
+      {skillCards.length > 0 && (
       <section className="grid sm:grid-cols-2 gap-4">
-        {[
-          {
-            text: settings.skill_card_1_text || "DYNAMIC ANIMATION, MOTION DESIGN",
-            href: settings.skill_card_1_href || "/journey",
-            type: (settings.skill_card_1_type as "accent" | "primary") || "accent",
-          },
-          {
-            text: settings.skill_card_2_text || "FRAMER, FIGMA, WORDPRESS, REACTJS",
-            href: settings.skill_card_2_href || "/projects",
-            type: (settings.skill_card_2_type as "accent" | "primary") || "primary",
-          },
-        ].map((card) => {
+        {skillCards.map((card) => {
           const isAccent = card.type === "accent";
           return (
-            <div key={card.type} className={`relative flex flex-col justify-between gap-12 overflow-hidden rounded-2xl px-6 py-6 text-white ${isAccent ? "bg-gradient-to-br from-orange-500 to-orange-600" : "bg-gradient-to-br from-zinc-700 to-zinc-800 border border-white/10"}`}>
+            <div key={card.href} className={`relative flex flex-col justify-between gap-12 overflow-hidden rounded-2xl px-6 py-6 text-white ${isAccent ? "bg-gradient-to-br from-orange-500 to-orange-600" : "bg-gradient-to-br from-zinc-700 to-zinc-800 border border-white/10"}`}>
               <svg className="absolute -right-4 top-6 h-24 w-40 opacity-20" viewBox="0 0 200 100" fill="none">
                 <path d={isAccent ? "M 0 60 C 40 10, 80 90, 130 30 S 220 20, 250 5" : "M 0 20 C 40 80, 80 5, 130 55 S 220 60, 250 90"} stroke={isAccent ? "white" : "currentColor"} strokeWidth="3" />
               </svg>
@@ -191,6 +206,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
           );
         })}
       </section>
+      )}
 
       {/* Projects */}
       <section className="space-y-8">
@@ -269,35 +285,53 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
         </div>
       </section>
 
-      {/* Templates — showcase of example business websites. Mirrors the recent-projects
-          layout (divide-y list with image preview) instead of the old emoji grid. */}
+      {/* Showcase — realtime business sites managed by the admin (BizTab,
+          stored in site_settings key "biz_products"). Section is hidden
+          entirely when no products exist. */}
+      {bizProducts.length > 0 && (
       <section className="space-y-8">
         <SectionTitle lines={["SHOWCASE"]} />
         <div className="divide-y divide-border">
-          {[
-            { name: "Kopi Seni", desc: "Coffee roastery — dark & artisan", tag: "F&B",          image: "https://placehold.co/600x450/1a1a1a/f46c38?text=Kopi+Seni",            href: "https://revy.biz.id/umkm/kopi-seni.html" },
-            { name: "Lara Batik", desc: "Fashion batik — editorial, elegant", tag: "Fashion",   image: "https://placehold.co/600x450/1a1a1a/f46c38?text=Lara+Batik",           href: "https://revy.biz.id/umkm/batik-lara.html" },
-            { name: "Dapur Rasa", desc: "QR digital menu — scan & order", tag: "Kuliner",       image: "https://placehold.co/600x450/1a1a1a/f46c38?text=Dapur+Rasa",           href: "https://revy.biz.id/umkm/dapur-rasa.html" },
-            { name: "Salon Mawar", desc: "Salon & spa — booking + gallery", tag: "Jasa",        image: "https://placehold.co/600x450/1a1a1a/f46c38?text=Salon+Mawar",          href: "https://revy.biz.id/" },
-            { name: "Toko Elektronik", desc: "Catalog + WhatsApp checkout", tag: "Retail",      image: "https://placehold.co/600x450/1a1a1a/f46c38?text=Elektronik",           href: "https://revy.biz.id/" },
-            { name: "Hotel Boutique", desc: "Room showcase + direct booking", tag: "Hospitality", image: "https://placehold.co/600x450/1a1a1a/f46c38?text=Hotel+Boutique",     href: "https://revy.biz.id/" },
-          ].map((t) => (
-            <a key={t.name} href={t.href} target="_blank" rel="noopener noreferrer" className="group flex items-center gap-4 sm:gap-6 py-5 first:pt-0 last:pb-0 transition-all hover:bg-white/[0.02] rounded-lg -mx-2 px-2">
-              <div className="shrink-0 opacity-40 group-hover:opacity-100 transition-opacity"><ArrowIcon /></div>
-              <div className="shrink-0 w-[110px] h-[80px] sm:w-[130px] sm:h-[90px] rounded-xl overflow-hidden bg-muted border border-border">
-                <img src={t.image} alt={t.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <h3 className="font-semibold text-[18px] sm:text-[24px] group-hover:text-primary transition-colors font-heading">{t.name}</h3>
-                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary">{t.tag}</span>
+          {bizProducts.map((p) => {
+            const inner = (
+              <>
+                {p.href ? (
+                  <div className="shrink-0 opacity-40 group-hover:opacity-100 transition-opacity"><ArrowIcon /></div>
+                ) : null}
+                <div className="shrink-0 w-[110px] h-[80px] sm:w-[130px] sm:h-[90px] rounded-xl overflow-hidden bg-muted border border-border">
+                  {p.image ? (
+                    <img src={p.image} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-muted-foreground text-xs">{p.name}</div>
+                  )}
                 </div>
-                <p className="text-muted-foreground text-[14px] sm:text-[16px] mt-0.5">{t.desc}</p>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-semibold text-[18px] sm:text-[24px] group-hover:text-primary transition-colors font-heading">{p.name}</h3>
+                    {p.tag && (
+                      <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary">{p.tag}</span>
+                    )}
+                  </div>
+                  {p.desc && (
+                    <p className="text-muted-foreground text-[14px] sm:text-[16px] mt-0.5">{p.desc}</p>
+                  )}
+                </div>
+              </>
+            );
+            const rowClass = "group flex items-center gap-4 sm:gap-6 py-5 first:pt-0 last:pb-0 transition-all hover:bg-white/[0.02] rounded-lg -mx-2 px-2";
+            return p.href ? (
+              <a key={p.id} href={p.href} target="_blank" rel="noopener noreferrer" className={rowClass}>
+                {inner}
+              </a>
+            ) : (
+              <div key={p.id} className={rowClass}>
+                {inner}
               </div>
-            </a>
-          ))}
+            );
+          })}
         </div>
       </section>
+      )}
 
       {/* Contact */}
       <section className="space-y-8">
@@ -310,17 +344,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
       {/* Footer */}
       <footer className="py-8 text-center border-t border-border">
         <p className="text-muted-foreground text-[16px]">
-          {settings.footer_credit_1_label && settings.footer_credit_1_href ? (
-            <>
-              Made by{" "}
-              <a href={settings.footer_credit_1_href} target="_blank" rel="noopener noreferrer" className="text-white hover:underline">{settings.footer_credit_1_label}</a>
-              {settings.footer_credit_2_label && settings.footer_credit_2_href && (
-                <> | Powered by <a href={settings.footer_credit_2_href} target="_blank" rel="noopener noreferrer" className="text-white hover:underline">{settings.footer_credit_2_label}</a></>
-              )}
-            </>
-          ) : (
-            settings.footer_text || "Made by Templyo | Powered by Framer"
-          )}
+          {settings.footer_text || `© ${new Date().getFullYear()} revy.my.id`}
         </p>
       </footer>
     </div>

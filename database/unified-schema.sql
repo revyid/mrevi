@@ -320,44 +320,47 @@ CREATE TRIGGER on_navigation_links_updated_at
 -- ============================================================
 
 -- 9a. Site Settings defaults
+-- NOTE: content keys default to empty strings on purpose — the site renders
+-- honest fallbacks (or hides the block) instead of fictional template data.
+-- Fill real values in via the admin CMS (SettingsTab).
 INSERT INTO site_settings (key, value) VALUES
 
   -- Profile / Sidebar Card
   ('profile_name',   'M. Revi Ramadhan'),
   ('profile_title',  'Software Engineer'),
-  ('profile_bio',    'Based in Indonesia with 12+ years of experience in software engineering. Have completed 46+ projects for clients worldwide.'),
+  ('profile_bio',    ''),
   ('profile_avatar', 'https://res.cloudinary.com/dr95izqlg/image/upload/v1777198819/i85y5yann4nxdy38vpge.jpg'),
 
   -- Rotating role pills inside the profile card
-  ('profile_roles',  'Software Engineer,Frontend Developer,Full Stack Developer,UI/UX Enthusiast'),
+  ('profile_roles',  'Developer'),
 
-  -- Social links
-  ('social_facebook',  '#'),
-  ('social_twitter',   '#'),
-  ('social_instagram', '#'),
-  ('social_email',     'your@email.com'),
-  ('social_github',    '#'),
-  ('social_linkedin',  '#'),
+  -- Social links (empty = icon hidden, never fake links)
+  ('social_facebook',  ''),
+  ('social_twitter',   ''),
+  ('social_instagram', ''),
+  ('social_email',     ''),
+  ('social_github',    ''),
+  ('social_linkedin',  ''),
 
-  -- Hero Section
-  ('hero_title_1',     'SOFTWARE'),
-  ('hero_title_2',     'ENGINEER'),
+  -- Hero Section (empty lines fall back to a single "DEVELOPER" heading)
+  ('hero_title_1',     ''),
+  ('hero_title_2',     ''),
   ('hero_description', 'Passionate about creating intuitive and engaging user experiences. Specialize in transforming ideas into beautifully crafted products.'),
 
-  -- Stats
-  ('stat_1_num',   '+12'),
-  ('stat_1_label', 'YEARS OF\nEXPERIENCE'),
-  ('stat_2_num',   '+46'),
-  ('stat_2_label', 'PROJECTS\nCOMPLETED'),
-  ('stat_3_num',   '+20'),
-  ('stat_3_label', 'WORLDWIDE\nCLIENTS'),
+  -- Stats (empty = block hidden; fill with real numbers via the CMS)
+  ('stat_1_num',   ''),
+  ('stat_1_label', ''),
+  ('stat_2_num',   ''),
+  ('stat_2_label', ''),
+  ('stat_3_num',   ''),
+  ('stat_3_label', ''),
 
-  -- Skill Cards (the two cards below hero)
-  ('skill_card_1_text', 'DYNAMIC ANIMATION, MOTION DESIGN'),
-  ('skill_card_1_href', '/experience'),
+  -- Skill Cards (the two cards below hero; empty text = card hidden)
+  ('skill_card_1_text', ''),
+  ('skill_card_1_href', '/journey'),
   ('skill_card_1_type', 'accent'),    -- bg-accent (dark/orange card)
 
-  ('skill_card_2_text', 'FRAMER, FIGMA, WORDPRESS, REACTJS'),
+  ('skill_card_2_text', ''),
   ('skill_card_2_href', '/projects'),
   ('skill_card_2_type', 'primary'),   -- bg-primary card
 
@@ -373,44 +376,40 @@ INSERT INTO site_settings (key, value) VALUES
   ('section_contact_line1',     'LET''S WORK'),
   ('section_contact_line2',     'TOGETHER'),
 
-  -- Footer
-  ('footer_text',      'Made by Templyo | Powered by Framer'),
-  ('footer_credit_1_label', 'Templyo'),
-  ('footer_credit_1_href',  'https://templyo.io/templates'),
-  ('footer_credit_2_label', 'Framer'),
-  ('footer_credit_2_href',  'https://framer.link/BwZ7hBi'),
+  -- Footer (empty = falls back to "© <year> revy.my.id")
+  ('footer_text',      ''),
+  ('footer_credit_1_label', ''),
+  ('footer_credit_1_href',  ''),
+  ('footer_credit_2_label', ''),
+  ('footer_credit_2_href',  ''),
 
   -- Contact / Email
-  ('contact_email', 'your@email.com')
+  ('contact_email', '')
 
 ON CONFLICT (key) DO NOTHING;
 
 -- 9b. Navigation Links defaults
 INSERT INTO navigation_links (href, label, icon, sort_order) VALUES
-  ('/',           'Home',       'M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z M9 22V12h6v10', 1),
-  ('/projects',   'Projects',   'M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z', 2),
-  ('/experience', 'Experience', 'M2 7h20v14H2z M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16', 3),
-  ('/tools',      'Tools',      'M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z', 4),
-  ('/blog',       'Thoughts',   'M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7 M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z', 5)
+  ('/',        'Home',     'M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z M9 22V12h6v10', 1),
+  ('/projects','Projects', 'M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z', 2),
+  ('/journey', 'Journey',  'M2 7h20v14H2z M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16', 3),
+  ('/tools',   'Tools',    'M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z', 4),
+  ('/blog',    'Thoughts', 'M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7 M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z', 5)
 ON CONFLICT (href) DO NOTHING;
 
 -- 9c. Projects
-INSERT INTO projects (title, subtitle, href, image, sort_order) VALUES
-  ('NajmAI',  'SaaS Framer Template',   'https://framer.link/iij2V3q?duplicateType=siteTemplate', 'https://framerusercontent.com/images/4mYEXU91rLBNKIW9k6hZh16l7Q.jpeg?width=2400&height=1800', 1),
-  ('Damas',   'Free Framer Template',   'https://framer.link/KhRj2A5?duplicateType=siteTemplate', 'https://framerusercontent.com/images/5Ra4AFZmEJOkMGLAEjkRXt2oqF4.png?width=2400&height=1800',  2),
-  ('Majd',    'Free Portfolio Template','https://framer.link/BQAw2Te?duplicateType=siteTemplate', 'https://framerusercontent.com/images/PhIxX38mhdPQ9JAYHuioKv54qpc.png?width=520&height=540',    3)
-ON CONFLICT DO NOTHING;
+-- No seed rows: projects are real work and must be added via the admin CMS
+-- (ProjectsTab). The Framer template demo projects (NajmAI, Damas, Majd)
+-- were removed — they were not real projects.
 
 -- 9d. Experiences
-INSERT INTO experiences (company, description, period, sort_order) VALUES
-  ('PixelForge Studios',  'Led the design team in creating user-centric mobile and web applications, improving the user experience and increasing user engagement.', 'Jan 2020 - Present', 1),
-  ('BlueWave Innovators', 'Developed and implemented design strategies for new product lines, collaborated closely with engineers and product managers.',            'Jun 2017 - Dec 2019', 2),
-  ('TrendCraft Solutions','Designed user interfaces for e-commerce platforms, focusing on enhancing usability and visual appeal.',                                   'Mar 2015 - May 2017', 3)
-ON CONFLICT DO NOTHING;
+-- No seed rows: the fictional companies (PixelForge Studios, BlueWave
+-- Innovators, TrendCraft Solutions) were template placeholder data and
+-- have been removed. Add real entries via the admin CMS (ExperiencesTab).
 
 -- 9e. Tools
+-- Real tools only (no affiliate links). Icons: devicon CDN / official sites.
 INSERT INTO tools (name, category, href, icon, sort_order) VALUES
-  ('Framer',        'Website Builder',   'https://framer.com?via=mejed_k',  'https://framerusercontent.com/images/ay9QMj9AVG8gxBjilndTmDdmeQ.png', 1),
   ('Figma',         'Design Tool',       'https://www.figma.com/',           'https://framerusercontent.com/images/SvTAZZonMqViqF7fP6GK7CWmL84.png', 2),
   ('Lemon Squeezy', 'Payments Provider', 'https://www.lemonsqueezy.com/',    'https://framerusercontent.com/images/U1s9zT0tOtXbjdWvMrIgPFH0TyM.png', 3),
   ('ChatGPT',       'AI Assistant',      'https://chat.openai.com/',         'https://framerusercontent.com/images/MViiiLyIvL8tvy7d1XtOsM32o.png',  4),
@@ -419,11 +418,10 @@ INSERT INTO tools (name, category, href, icon, sort_order) VALUES
 ON CONFLICT DO NOTHING;
 
 -- 9f. Blog Posts
+-- Only the real API-documentation post is seeded. The three stock 2022
+-- design articles were template placeholder content and have been removed.
 INSERT INTO blog_posts (title, excerpt, content, slug, date, read_time, sort_order) VALUES
-  ('Starting and Growing a Career in Web Design',       'As the internet continues to develop and grow exponentially, jobs related to the industry do too, particularly those that relate to web design and development.', NULL, 'starting-a-career-in-web-design',         'Apr 8, 2022',  '6min read', 1),
-  ('Create a Landing Page That Performs Great',          'Whether you work in marketing, sales, or product design, you understand the importance of a quality landing page.',                                              NULL, 'create-a-landing-page-that-performs-great','Mar 15, 2022', '6min read', 2),
-  ('How Can Designers Prepare for the Future?',          'Whether you work in marketing, sales, or product design, you understand the importance of a quality landing page.',                                              NULL, 'how-can-designers-prepare-for-the-future', 'Feb 28, 2022', '6min read', 3),
-  ('API Documentation', 'Learn how to use the M. Revi Ramadhan Developer API to retrieve portfolio data programmatically.', '<h2>Developer API Documentation</h2><p>Welcome to the developer API for M. Revi Ramadhan''s portfolio. You can retrieve real-time data about projects, experiences, tools, blog posts, and site settings using your API key.</p><h3>Authentication</h3><p>All requests must include your API key in the <code>x-api-key</code> HTTP header.</p><pre><code>x-api-key: mr_your_api_key_here</code></pre><h3>Endpoints</h3><p>The base URL for the API is <code>http://localhost:3001</code> (in development) or the production API URL.</p><h4>1. Get Full Portfolio Data</h4><pre><code>GET /api/portfolio</code></pre><p>Returns all projects, experiences, tools, blog posts, and site settings.</p><h4>2. Get Projects</h4><pre><code>GET /api/projects</code></pre><h4>3. Get Journey / Experiences</h4><pre><code>GET /api/experiences</code></pre><h4>4. Get Tools</h4><pre><code>GET /api/tools</code></pre><h4>5. Get Blog Posts</h4><pre><code>GET /api/blog</code></pre><h3>Playground (Code Execution)</h3><p>You can also use the <code>/api/playground</code> endpoint (POST) to run sandboxed code in Go, Rust, or PHP. Note that these containers do not have outbound network access.</p>', 'api-documentation', 'Jul 29, 2026', '5min read', 4)
+  ('API Documentation', 'Learn how to use the M. Revi Ramadhan Developer API to retrieve portfolio data programmatically.', '<h2>Developer API Documentation</h2><p>Welcome to the developer API for M. Revi Ramadhan''s portfolio. You can retrieve real-time data about projects, experiences, tools, blog posts, and site settings using your API key.</p><h3>Authentication</h3><p>All requests must include your API key in the <code>x-api-key</code> HTTP header.</p><pre><code>x-api-key: mr_your_api_key_here</code></pre><h3>Endpoints</h3><p>The base URL for the API is <code>http://localhost:3001</code> (in development) or the production API URL.</p><h4>1. Get Full Portfolio Data</h4><pre><code>GET /api/portfolio</code></pre><p>Returns all projects, experiences, tools, blog posts, and site settings.</p><h4>2. Get Projects</h4><pre><code>GET /api/projects</code></pre><h4>3. Get Journey / Experiences</h4><pre><code>GET /api/experiences</code></pre><h4>4. Get Tools</h4><pre><code>GET /api/tools</code></pre><h4>5. Get Blog Posts</h4><pre><code>GET /api/blog</code></pre><h3>Playground (Code Execution)</h3><p>You can also use the <code>/api/playground</code> endpoint (POST) to run sandboxed code in Go, Rust, or PHP. Note that these containers do not have outbound network access.</p>', 'api-documentation', 'Jul 29, 2026', '5min read', 1)
 ON CONFLICT (slug) DO NOTHING;
 
 -- ============================================================

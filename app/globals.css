@@ -37,7 +37,7 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
   --font-sans: var(--font-inter);
-  --font-mono: var(--font-geist-mono);
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   --font-heading: var(--font-poppins);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
@@ -126,12 +126,6 @@
   }
   html {
     @apply font-sans;
-  }
-}
-
-@layer utilities {
-  .p-4 {
-    padding: calc(var(--spacing) * 10);
   }
 }
 

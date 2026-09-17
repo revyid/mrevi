@@ -18,7 +18,7 @@ insert into page_settings (path, label, status, access_role) values
   ('/', 'Home', 'live', 'public'),
   ('/blog', 'Blog', 'live', 'public'),
   ('/projects', 'Projects', 'live', 'public'),
-  ('/experience', 'Experience', 'live', 'public'),
+  ('/journey', 'Journey', 'live', 'public'),
   ('/tools', 'Tools', 'live', 'public'),
   ('/contact', 'Contact', 'live', 'public'),
   ('/profile', 'Profile', 'live', 'user'),

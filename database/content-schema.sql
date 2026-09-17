@@ -78,20 +78,23 @@ CREATE TABLE site_settings (
 );
 
 -- Insert default settings
+-- NOTE: content keys default to empty strings on purpose — the site renders
+-- honest fallbacks (or hides the block) instead of fictional template data.
+-- Fill real values in via the admin CMS (SettingsTab).
 INSERT INTO site_settings (key, value) VALUES
   ('profile_name', 'M. Revi Ramadhan'),
   ('profile_title', 'Software Engineer'),
-  ('profile_bio', 'Based in Indonesia with 12+ years of experience in software engineering. Have completed 46+ projects for clients worldwide.'),
+  ('profile_bio', ''),
   ('profile_avatar', 'https://res.cloudinary.com/dr95izqlg/image/upload/v1777198819/i85y5yann4nxdy38vpge.jpg'),
-  ('hero_title_1', 'SOFTWARE'),
-  ('hero_title_2', 'ENGINEER'),
+  ('hero_title_1', ''),
+  ('hero_title_2', ''),
   ('hero_description', 'Passionate about creating intuitive and engaging user experiences. Specialize in transforming ideas into beautifully crafted products.'),
-  ('stat_1_num', '+12'),
-  ('stat_1_label', 'YEARS OF\nEXPERIENCE'),
-  ('stat_2_num', '+46'),
-  ('stat_2_label', 'PROJECTS\nCOMPLETED'),
-  ('stat_3_num', '+20'),
-  ('stat_3_label', 'WORLDWIDE\nCLIENTS')
+  ('stat_1_num', ''),
+  ('stat_1_label', ''),
+  ('stat_2_num', ''),
+  ('stat_2_label', ''),
+  ('stat_3_num', ''),
+  ('stat_3_label', '')
 ON CONFLICT (key) DO NOTHING;
 
 -- ============================================================
@@ -113,31 +116,17 @@ CREATE TRIGGER on_site_settings_updated_at BEFORE UPDATE ON site_settings FOR EA
 
 -- ============================================================
 -- INSERT DEFAULT DATA
+-- No seed rows for projects/experiences/blog: those must be real
+-- content managed via the admin CMS. The Framer template demo
+-- projects (NajmAI, Damas, Majd), fictional companies (PixelForge
+-- Studios, BlueWave Innovators, TrendCraft Solutions) and stock
+-- 2022 blog articles were removed.
 -- ============================================================
 
--- Projects
-INSERT INTO projects (title, subtitle, href, image, sort_order) VALUES
-  ('NajmAI', 'SaaS Framer Template', 'https://framer.link/iij2V3q?duplicateType=siteTemplate', 'https://framerusercontent.com/images/4mYEXU91rLBNKIW9k6hZh16l7Q.jpeg?width=2400&height=1800', 1),
-  ('Damas', 'Free Framer Template', 'https://framer.link/KhRj2A5?duplicateType=siteTemplate', 'https://framerusercontent.com/images/5Ra4AFZmEJOkMGLAEjkRXt2oqF4.png?width=2400&height=1800', 2),
-  ('Majd', 'Free Portfolio Template', 'https://framer.link/BQAw2Te?duplicateType=siteTemplate', 'https://framerusercontent.com/images/PhIxX38mhdPQ9JAYHuioKv54qpc.png?width=520&height=540', 3);
-
--- Experiences
-INSERT INTO experiences (company, description, period, sort_order) VALUES
-  ('PixelForge Studios', 'Led the design team in creating user-centric mobile and web applications, improving the user experience and increasing user engagement.', 'Jan 2020 - Present', 1),
-  ('BlueWave Innovators', 'Developed and implemented design strategies for new product lines, collaborated closely with engineers and product managers.', 'Jun 2017 - Dec 2019', 2),
-  ('TrendCraft Solutions', 'Designed user interfaces for e-commerce platforms, focusing on enhancing usability and visual appeal.', 'Mar 2015 - May 2017', 3);
-
--- Tools
+-- Tools (real tools only, no affiliate links)
 INSERT INTO tools (name, category, href, icon, sort_order) VALUES
-  ('Framer', 'Website Builder', 'https://framer.com?via=mejed_k', 'https://framerusercontent.com/images/ay9QMj9AVG8gxBjilndTmDdmeQ.png', 1),
   ('Figma', 'Design Tool', 'https://www.figma.com/', 'https://framerusercontent.com/images/SvTAZZonMqViqF7fP6GK7CWmL84.png', 2),
   ('Lemon Squeezy', 'Payments Provider', 'https://www.lemonsqueezy.com/', 'https://framerusercontent.com/images/U1s9zT0tOtXbjdWvMrIgPFH0TyM.png', 3),
   ('ChatGPT', 'AI Assistant', 'https://chat.openai.com/', 'https://framerusercontent.com/images/MViiiLyIvL8tvy7d1XtOsM32o.png', 4),
   ('Notion', 'Productivity Tool', 'https://www.notion.so/', 'https://framerusercontent.com/images/iP5FTKjb84EsPLiEwbrAY7NEy44.png', 5),
   ('Nextjs', 'React framework', 'https://nextjs.org/', 'https://framerusercontent.com/images/MnQFYNLxlgT4EvY2ctcJfHAXZA.png', 6);
-
--- Blog Posts
-INSERT INTO blog_posts (title, excerpt, slug, date, read_time, sort_order) VALUES
-  ('Starting and Growing a Career in Web Design', 'As the internet continues to develop and grow exponentially, jobs related to the industry do too, particularly those that relate to web design and development.', 'starting-a-career-in-web-design', 'Apr 8, 2022', '6min read', 1),
-  ('Create a Landing Page That Performs Great', 'Whether you work in marketing, sales, or product design, you understand the importance of a quality landing page.', 'create-a-landing-page-that-performs-great', 'Mar 15, 2022', '6min read', 2),
-  ('How Can Designers Prepare for the Future?', 'Whether you work in marketing, sales, or product design, you understand the importance of a quality landing page.', 'how-can-designers-prepare-for-the-future', 'Feb 28, 2022', '6min read', 3);

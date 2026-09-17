@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
@@ -135,7 +135,7 @@ export function AssetsTab() {
   }
 
   function handleUploadComplete(url: string) {
-    // Don't hide form here â€” let the user see all uploads finish
+    // Don't hide form here — let the user see all uploads finish
     // Form hides when user clicks the Upload button again or we call after all done
   }
 

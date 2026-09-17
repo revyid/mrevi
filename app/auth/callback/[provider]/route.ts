@@ -110,7 +110,12 @@ export async function GET(
     }
 
     const userRole = result.user?.role;
-    return NextResponse.redirect(`${origin}${userRole === "admin" ? "https://admin.revy.my.id" : next}`);
+    // Admins go to the absolute admin host — do NOT prefix it with origin
+    // (that previously produced https://revy.my.idhttps://admin.revy.my.id).
+    if (userRole === "admin") {
+      return NextResponse.redirect("https://admin.revy.my.id");
+    }
+    return NextResponse.redirect(`${origin}${next}`);
   } catch (error) {
     console.error("[OAuth] Callback error:", error);
     return NextResponse.redirect(`${origin}/login?error=auth_failed`);

@@ -6,12 +6,12 @@ const BASE_URL = "https://www.revy.my.id";
 
 export const metadata: Metadata = {
   title: "Projects — M. Revi Ramadhan",
-  description: "Projects by M. Revi Ramadhan — Framer templates, web apps, and design work.",
+  description: "Projects by M. Revi Ramadhan — web apps and design work.",
   openGraph: {
     type: "website",
     url: `${BASE_URL}/en/projects`,
     title: "Projects — M. Revi Ramadhan",
-    description: "Framer templates, web apps, and design work by M. Revi Ramadhan.",
+    description: "Web apps and design work by M. Revi Ramadhan.",
     images: [
       { url: `${BASE_URL}/og`, width: 1200, height: 630, alt: "Projects — M. Revi Ramadhan" },
     ],

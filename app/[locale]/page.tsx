@@ -4,7 +4,7 @@ import { Link } from "@/i18n/navigation";
 import { ContactForm } from "@/components/contact-form";
 import { getDb } from "@/lib/db";
 import { getSettings } from "@/app/actions/content";
-import { getBizProducts } from "@/app/actions/biz";
+import { getShowcaseDemos } from "@/app/actions/biz";
 
 const BASE_URL = "https://www.revy.my.id";
 
@@ -49,12 +49,12 @@ export async function generateMetadata(): Promise<Metadata> {
 
 async function getData() {
   const db = getDb();
-  const [projectsRes, experiencesRes, toolsRes, blogRes, bizProducts] = await Promise.all([
+  const [projectsRes, experiencesRes, toolsRes, blogRes, showcaseDemos] = await Promise.all([
     db.from("projects").select("*").order("sort_order"),
     db.from("journey").select("*").order("sort_order"),
     db.from("tools").select("*").order("sort_order"),
     db.from("blog_posts").select("*").order("sort_order"),
-    getBizProducts(),
+    getShowcaseDemos(),
   ]);
   const settings = await getSettings();
   return {
@@ -62,7 +62,7 @@ async function getData() {
     experiences: experiencesRes.data || [],
     tools: toolsRes.data || [],
     blogPosts: blogRes.data || [],
-    bizProducts,
+    showcaseDemos,
     settings,
   };
 }
@@ -92,7 +92,14 @@ function SectionTitle({ lines }: { lines: [string, string] | [string] }) {
 export default async function Home({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   const t = await getTranslations("home");
-  const { projects, experiences, tools, blogPosts, bizProducts, settings } = await getData();
+  const { projects, experiences, tools, blogPosts, showcaseDemos, settings } = await getData();
+
+  // Footer credit links (Credit 1 / Credit 2 — label + URL, set in the
+  // admin Settings tab). Falls back to plain footer text when unset.
+  const credits = [
+    { label: settings.footer_credit_1_label || "", href: settings.footer_credit_1_href || "" },
+    { label: settings.footer_credit_2_label || "", href: settings.footer_credit_2_href || "" },
+  ].filter((c) => c.label && c.href);
 
   const name    = settings.profile_name   || "M. Revi Ramadhan";
   const title   = settings.profile_title  || "Software Engineer";
@@ -285,14 +292,15 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
         </div>
       </section>
 
-      {/* Showcase — realtime business sites managed by the admin (BizTab,
-          stored in site_settings key "biz_products"). Section is hidden
-          entirely when no products exist. */}
-      {bizProducts.length > 0 && (
+      {/* Showcase — realtime business demos managed in the admin panel
+          (Biz -> Demos tab, stored in site_settings key "showcase_demos" —
+          the same "demo bisnis" data that powers the bisnis showcase
+          landing). Section is hidden entirely when no demos exist. */}
+      {showcaseDemos.length > 0 && (
       <section className="space-y-8">
         <SectionTitle lines={["SHOWCASE"]} />
         <div className="divide-y divide-border">
-          {bizProducts.map((p) => {
+          {showcaseDemos.map((p) => {
             const inner = (
               <>
                 {p.href ? (
@@ -301,6 +309,8 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
                 <div className="shrink-0 w-[110px] h-[80px] sm:w-[130px] sm:h-[90px] rounded-xl overflow-hidden bg-muted border border-border">
                   {p.image ? (
                     <img src={p.image} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
+                  ) : p.emoji ? (
+                    <div className="w-full h-full flex items-center justify-center text-2xl">{p.emoji}</div>
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-muted-foreground text-xs">{p.name}</div>
                   )}
@@ -341,10 +351,19 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
         </div>
       </section>
 
-      {/* Footer */}
+      {/* Footer — credit links (Credit 1 / Credit 2) with plain-text fallback */}
       <footer className="py-8 text-center border-t border-border">
         <p className="text-muted-foreground text-[16px]">
-          {settings.footer_text || `© ${new Date().getFullYear()} revy.my.id`}
+          {credits.length > 0
+            ? credits.map((c, i) => (
+                <span key={c.href}>
+                  {i > 0 && <span className="mx-2 opacity-40">—</span>}
+                  <a href={c.href} target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">
+                    {c.label}
+                  </a>
+                </span>
+              ))
+            : settings.footer_text || `© ${new Date().getFullYear()} revy.my.id`}
         </p>
       </footer>
     </div>

@@ -132,11 +132,25 @@ export function SettingsTab() {
       <div className="space-y-4">
         <div>
           <h4 className="text-sm font-semibold">Footer</h4>
-          <p className="text-xs text-muted-foreground">Custom footer text. Leave empty for the default “© revy.my.id” credit.</p>
+          <p className="text-xs text-muted-foreground">Credit links shown at the bottom of the site. Leave both empty to fall back to the default “© revy.my.id” credit.</p>
         </div>
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Footer Text</label>
-          <Input value={settings.footer_text || ""} onChange={(e) => update("footer_text", e.target.value)} placeholder="© revy.my.id" />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Credit 1 — Label</label>
+            <Input value={settings.footer_credit_1_label || ""} onChange={(e) => update("footer_credit_1_label", e.target.value)} placeholder="Revy" />
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Credit 1 — URL</label>
+            <Input value={settings.footer_credit_1_href || ""} onChange={(e) => update("footer_credit_1_href", e.target.value)} placeholder="https://revy.my.id" />
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Credit 2 — Label</label>
+            <Input value={settings.footer_credit_2_label || ""} onChange={(e) => update("footer_credit_2_label", e.target.value)} placeholder="Next.js" />
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Credit 2 — URL</label>
+            <Input value={settings.footer_credit_2_href || ""} onChange={(e) => update("footer_credit_2_href", e.target.value)} placeholder="https://nextjs.org" />
+          </div>
         </div>
       </div>
     </div>

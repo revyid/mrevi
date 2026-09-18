@@ -124,3 +124,35 @@ export async function updateBizSettings(settings: Record<string, string>) {
     return { success: false, error: e instanceof Error ? e.message : "Failed to update settings" };
   }
 }
+
+// ============================================================
+// SHOWCASE DEMOS (stored as JSON in site_settings key "showcase_demos")
+// Managed in the admin panel (Biz -> Demos tab). The portfolio
+// SHOWCASE section renders these — the same data that powers the
+// bisnis showcase landing, so there is a single source of truth.
+// ============================================================
+
+export interface ShowcaseDemo {
+  id: string;
+  name: string;
+  desc: string;
+  /** Legacy emoji fallback when no preview image was uploaded. */
+  emoji?: string;
+  /** Preview image URL (preferred over emoji). */
+  image?: string;
+  /** Link to the live demo/site. Rows without it render without a link. */
+  href?: string;
+  tag: string;
+}
+
+export async function getShowcaseDemos(): Promise<ShowcaseDemo[]> {
+  const db = getDb();
+  const { data } = await db.from("site_settings").select("value").eq("key", "showcase_demos").maybeSingle();
+  if (!data?.value) return [];
+  try {
+    const parsed = JSON.parse(data.value);
+    return Array.isArray(parsed) ? (parsed as ShowcaseDemo[]) : [];
+  } catch {
+    return [];
+  }
+}

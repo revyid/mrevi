@@ -99,8 +99,9 @@ function SocialIcon({
   label: string;
   children: React.ReactNode;
 }) {
-  const isEmail = href && !href.startsWith("http") && !href.startsWith("#");
-  const finalHref = isEmail ? `mailto:${href}` : href;
+  const raw = (href || "").replace(/^mailto:/i, "").trim();
+  const isEmail = raw !== "" && !raw.startsWith("http") && !raw.startsWith("#") && raw.includes("@");
+  const finalHref = isEmail ? `mailto:${raw}` : href;
 
   return (
     <a
@@ -185,11 +186,12 @@ export function ProfileCard({ settings = {} }: ProfileCardProps) {
     .map((w) => w[0]!.toUpperCase())
     .join("");
 
+  // Card dibatasi tinggi 1 layar di desktop — tidak pernah melebihi viewport
   return (
-    <div className="w-full rounded-2xl bg-card overflow-hidden">
+    <div className="w-full rounded-2xl bg-card overflow-hidden lg:max-h-[calc(100dvh-6rem)]">
       {/* Profile Image (falls back to initials when no avatar is configured) */}
       <div className="flex justify-center pt-6 px-6">
-        <div className="w-[150px] h-[150px] sm:w-[220px] sm:h-[220px] rounded-2xl overflow-hidden">
+        <div className="w-[150px] h-[150px] sm:w-[220px] sm:h-[220px] lg:w-[clamp(150px,24vh,220px)] lg:h-[clamp(150px,24vh,220px)] rounded-2xl overflow-hidden">
           {avatar ? (
             <img
               src={avatar}

@@ -186,12 +186,12 @@ export function ProfileCard({ settings = {} }: ProfileCardProps) {
     .map((w) => w[0]!.toUpperCase())
     .join("");
 
-  // Card dibatasi tinggi 1 layar di desktop — tidak pernah melebihi viewport
+  // Card 1-layar: avatar & spacing mengecil di layar pendek (clamp berbasis vh), tanpa max-h pembunuh (anti kepotong)
   return (
-    <div className="w-full rounded-2xl bg-card overflow-hidden lg:max-h-[calc(100dvh-6rem)]">
+    <div className="w-full rounded-2xl bg-card ring-1 ring-border/70 overflow-hidden">
       {/* Profile Image (falls back to initials when no avatar is configured) */}
-      <div className="flex justify-center pt-6 px-6">
-        <div className="w-[150px] h-[150px] sm:w-[220px] sm:h-[220px] lg:w-[clamp(150px,24vh,220px)] lg:h-[clamp(150px,24vh,220px)] rounded-2xl overflow-hidden">
+      <div className="flex justify-center px-6 pt-6 lg:pt-5">
+        <div className="w-[150px] h-[150px] sm:w-[220px] sm:h-[220px] lg:w-[clamp(130px,22vh,220px)] lg:h-[clamp(130px,22vh,220px)] rounded-2xl overflow-hidden">
           {avatar ? (
             <img
               src={avatar}
@@ -207,25 +207,25 @@ export function ProfileCard({ settings = {} }: ProfileCardProps) {
       </div>
 
       {/* Bio Section */}
-      <div className="px-6 pt-6 pb-8 text-center">
+      <div className="px-6 pt-6 pb-8 lg:pt-5 lg:pb-6 text-center">
         <h2 className="text-2xl font-bold tracking-tight text-foreground font-heading text-center">
           {name}
         </h2>
 
         {/* Rotating role pill */}
-        <div className="h-6 my-4 text-center">
+        <div className="h-6 my-4 lg:my-3 text-center">
           <RotatingText roles={roles} />
         </div>
 
-        <Separator className="mb-5" />
+        <Separator className="mb-5 lg:mb-4" />
 
         {bio && (
-          <p className="text-sm leading-relaxed mb-5 text-muted-foreground">
+          <p className="text-sm leading-relaxed mb-5 lg:mb-4 text-muted-foreground">
             {bio}
           </p>
         )}
 
-        <Separator className="mb-5" />
+        <Separator className="mb-5 lg:mb-4" />
 
         {/* Social Icons (rendered only when at least one link is configured) */}
         {socialLinks.length > 0 && (

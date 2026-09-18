@@ -24,7 +24,7 @@ DROP TABLE IF EXISTS navigation_links CASCADE;
 DROP TABLE IF EXISTS site_settings    CASCADE;
 DROP TABLE IF EXISTS blog_posts       CASCADE;
 DROP TABLE IF EXISTS tools            CASCADE;
-DROP TABLE IF EXISTS experiences      CASCADE;
+DROP TABLE IF EXISTS journey      CASCADE;
 DROP TABLE IF EXISTS projects         CASCADE;
 DROP TABLE IF EXISTS users            CASCADE;
 
@@ -194,7 +194,7 @@ CREATE TABLE projects (
 );
 
 -- 5b. Experiences
-CREATE TABLE experiences (
+CREATE TABLE journey (
   id          UUID    DEFAULT gen_random_uuid() PRIMARY KEY,
   company     TEXT    NOT NULL,
   description TEXT    DEFAULT '',
@@ -295,8 +295,8 @@ CREATE TRIGGER on_projects_updated_at
   BEFORE UPDATE ON projects
   FOR EACH ROW EXECUTE FUNCTION public.handle_updated_at();
 
-CREATE TRIGGER on_experiences_updated_at
-  BEFORE UPDATE ON experiences
+CREATE TRIGGER on_journey_updated_at
+  BEFORE UPDATE ON journey
   FOR EACH ROW EXECUTE FUNCTION public.handle_updated_at();
 
 CREATE TRIGGER on_tools_updated_at

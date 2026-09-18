@@ -5,7 +5,7 @@
 
 -- Drop tables lama
 DROP TABLE IF EXISTS projects CASCADE;
-DROP TABLE IF EXISTS experiences CASCADE;
+DROP TABLE IF EXISTS journey CASCADE;
 DROP TABLE IF EXISTS tools CASCADE;
 DROP TABLE IF EXISTS blog_posts CASCADE;
 DROP TABLE IF EXISTS site_settings CASCADE;
@@ -27,7 +27,7 @@ CREATE TABLE projects (
 -- ============================================================
 -- 2. EXPERIENCES
 -- ============================================================
-CREATE TABLE experiences (
+CREATE TABLE journey (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   company TEXT NOT NULL,
   description TEXT DEFAULT '',
@@ -109,14 +109,14 @@ END;
 $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER on_projects_updated_at BEFORE UPDATE ON projects FOR EACH ROW EXECUTE FUNCTION handle_updated_at();
-CREATE TRIGGER on_experiences_updated_at BEFORE UPDATE ON experiences FOR EACH ROW EXECUTE FUNCTION handle_updated_at();
+CREATE TRIGGER on_journey_updated_at BEFORE UPDATE ON journey FOR EACH ROW EXECUTE FUNCTION handle_updated_at();
 CREATE TRIGGER on_tools_updated_at BEFORE UPDATE ON tools FOR EACH ROW EXECUTE FUNCTION handle_updated_at();
 CREATE TRIGGER on_blog_posts_updated_at BEFORE UPDATE ON blog_posts FOR EACH ROW EXECUTE FUNCTION handle_updated_at();
 CREATE TRIGGER on_site_settings_updated_at BEFORE UPDATE ON site_settings FOR EACH ROW EXECUTE FUNCTION handle_updated_at();
 
 -- ============================================================
 -- INSERT DEFAULT DATA
--- No seed rows for projects/experiences/blog: those must be real
+-- No seed rows for projects/journey/blog: those must be real
 -- content managed via the admin CMS. The Framer template demo
 -- projects (NajmAI, Damas, Majd), fictional companies (PixelForge
 -- Studios, BlueWave Innovators, TrendCraft Solutions) and stock

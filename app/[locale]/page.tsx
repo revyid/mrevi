@@ -51,7 +51,7 @@ async function getData() {
   const db = getDb();
   const [projectsRes, experiencesRes, toolsRes, blogRes, bizProducts] = await Promise.all([
     db.from("projects").select("*").order("sort_order"),
-    db.from("experiences").select("*").order("sort_order"),
+    db.from("journey").select("*").order("sort_order"),
     db.from("tools").select("*").order("sort_order"),
     db.from("blog_posts").select("*").order("sort_order"),
     getBizProducts(),

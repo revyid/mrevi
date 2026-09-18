@@ -357,7 +357,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
           {credits.length > 0
             ? credits.map((c, i) => (
                 <span key={c.href}>
-                  {i > 0 && <span className="mx-2 opacity-40">—</span>}
+                  {i > 0 && <span className="mx-2 opacity-40">|</span>}
                   <a href={c.href} target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">
                     {c.label}
                   </a>

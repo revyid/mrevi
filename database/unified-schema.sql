@@ -378,10 +378,10 @@ INSERT INTO site_settings (key, value) VALUES
 
   -- Footer (empty = falls back to "© <year> revy.my.id")
   ('footer_text',      ''),
-  ('footer_credit_1_label', ''),
-  ('footer_credit_1_href',  ''),
-  ('footer_credit_2_label', ''),
-  ('footer_credit_2_href',  ''),
+  ('footer_credit_1_label', 'Made by Templyo'),
+  ('footer_credit_1_href',  'https://templyo.com'),
+  ('footer_credit_2_label', 'Powered by Framer'),
+  ('footer_credit_2_href',  'https://www.framer.com'),
 
   -- Contact / Email
   ('contact_email', '')

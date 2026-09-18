@@ -151,8 +151,26 @@ export async function getShowcaseDemos(): Promise<ShowcaseDemo[]> {
   if (!data?.value) return [];
   try {
     const parsed = JSON.parse(data.value);
-    return Array.isArray(parsed) ? (parsed as ShowcaseDemo[]) : [];
+    if (!Array.isArray(parsed)) return [];
+    // Demo pages (e.g. /umkm/kopi-seni.html) live on the BISNIS site, not on
+    // this portfolio domain — resolve site-relative paths against the bisnis
+    // base URL so the SHOWCASE links don't 404 on revy.my.id. Absolute URLs
+    // (https://...) and anchors/hash/protocol-relative are left untouched.
+    return (parsed as ShowcaseDemo[]).map((d) => ({
+      ...d,
+      href: absolutizeBizUrl(d.href),
+      image: absolutizeBizUrl(d.image),
+    }));
   } catch {
     return [];
   }
+}
+
+/** Prefix a site-relative path ("/umkm/x.html") with the bisnis site base URL. */
+function absolutizeBizUrl(url?: string): string | undefined {
+  const value = url?.trim();
+  if (!value) return url;
+  if (/^(https?:)?\/\//i.test(value) || value.startsWith("#") || value.startsWith("mailto:")) return value;
+  const base = process.env.NEXT_PUBLIC_BISNIS_URL || "https://revy.biz.id";
+  return `${base.replace(/\/+$/, "")}${value.startsWith("/") ? "" : "/"}${value}`;
 }

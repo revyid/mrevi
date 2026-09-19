@@ -39,9 +39,12 @@ export function AppShell({ children, profileSettings = {}, locale }: AppShellPro
   return (
     <div className="min-h-screen pt-24 px-5 md:px-10 lg:px-16">
       <div className="max-w-[1200px] mx-auto p-6 grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-8">
-        {/* Sidecard 1-layar: sticky, center vertikal eksak (margin atas=bawah 6rem), tanpa scroll internal */}
-        <div className="max-w-sm mx-auto w-full lg:max-w-none lg:mx-0 lg:sticky lg:top-24 lg:h-[calc(100dvh-12rem)] lg:flex lg:flex-col lg:justify-center">
-          <ProfileCard settings={profileSettings} />
+        {/* Single ProfileCard — di mobile dibates width-nya biar gak lebar, di desktop sidebar penuh.
+            Sticky + tinggi viewport - header/footer (simetris 6rem), konten dicenter; kalau layar pendek, scroll dari atas (gak ada yang kepotong). */}
+        <div className="max-w-sm mx-auto w-full lg:max-w-none lg:mx-0 lg:sticky lg:top-24 lg:h-[calc(100dvh-12rem)] lg:overflow-y-auto scrollbar-none">
+          <div className="lg:flex lg:flex-col lg:justify-center lg:min-h-full">
+            <ProfileCard settings={profileSettings} />
+          </div>
         </div>
         <main className="min-w-0 pb-12">{children}</main>
       </div>

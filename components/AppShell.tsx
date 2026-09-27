@@ -39,8 +39,8 @@ export function AppShell({ children, profileSettings = {}, locale }: AppShellPro
   return (
     <div className="min-h-screen pt-24 px-5 md:px-10 lg:px-16">
       <div className="max-w-[1200px] mx-auto p-6 grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-8">
-        {/* ProfileCard: sticky di desktop, full-width di mobile. Tidak pakai fixed height atau overflow — biar konten ikut tumbuh dan tidak terpotong. */}
-        <div className="w-full lg:w-[280px] lg:sticky lg:top-24">
+        {/* ProfileCard: sticky di desktop, fixed height sesuai viewport, internal scroll jika konten lebih tinggi. Tidak ada wrapper extra — ProfileCard sendiri sudah di-center secara horizontal melalui grid. */}
+        <div className="w-full lg:w-[280px] lg:sticky lg:top-24 lg:h-[calc(100dvh-6rem)] lg:overflow-y-auto lg:overflow-x-hidden">
           <ProfileCard settings={profileSettings} />
         </div>
         <main className="min-w-0 pb-12">{children}</main>

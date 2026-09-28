@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { ContactForm } from "@/components/contact-form";
+import { SoftSkillsAccordion, type SoftSkill } from "@/components/soft-skills-accordion";
 import { getDb } from "@/lib/db";
 import { getSettings } from "@/app/actions/content";
 import { getShowcaseDemos } from "@/app/actions/biz";
@@ -77,7 +78,7 @@ function ArrowIcon() {
 
 function SectionTitle({ lines }: { lines: [string, string] | [string] }) {
   return (
-    <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-[90px] font-bold uppercase leading-[0.95] tracking-tight font-heading text-center lg:text-left">
+    <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-[90px] font-bold uppercase leading-[0.95] tracking-tight font-heading text-center lg:text-left">
       {lines[0]}
       {lines[1] && (
         <>
@@ -128,6 +129,17 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
     },
   ].filter((card) => card.text.trim());
 
+  // Soft skills: same rule — only render what the admin configured. A skill
+  // without a title has nothing to label the accordion row with, so it is
+  // skipped entirely.
+  const softSkills: SoftSkill[] = [1, 2, 3, 4, 5, 6]
+    .map((n) => ({
+      title: settings[`soft_skill_${n}_title`] || "",
+      short: settings[`soft_skill_${n}_short`] || "",
+      long: settings[`soft_skill_${n}_long`] || "",
+    }))
+    .filter((s) => s.title.trim());
+
   // JSON-LD: Person schema for rich search results
   const personSchema = {
     "@context": "https://schema.org",
@@ -161,7 +173,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
     <div className="space-y-16 lg:space-y-24 w-full">
       {/* Hero */}
       <section className="pt-8 pb-4 flex flex-col justify-center text-center lg:text-left">
-        <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-[90px] font-bold uppercase leading-[0.95] tracking-tight mb-6 font-heading text-center lg:text-left">
+        <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-[90px] font-bold uppercase leading-[0.95] tracking-tight mb-6 font-heading text-center lg:text-left">
           <span className="block">{settings.hero_title_1 || "DEVELOPER"}</span>
           {settings.hero_title_2 && (
             <span className="block" style={{ color: "rgba(182, 180, 189, 0.2)" }}>{settings.hero_title_2}</span>
@@ -215,14 +227,22 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
       </section>
       )}
 
+      {/* Soft Skills — collapsible trust signals, configured in admin -> Settings */}
+      {softSkills.length > 0 && (
+      <section className="space-y-6 sm:space-y-8">
+        <SectionTitle lines={[settings.section_softskills_line1 || t("softSkillsTitle"), settings.section_softskills_line2 || t("softSkillsSub")]} />
+        <SoftSkillsAccordion skills={softSkills} />
+      </section>
+      )}
+
       {/* Projects */}
       <section className="space-y-8">
         <SectionTitle lines={[settings.section_projects_line1 || t("recentProjects"), settings.section_projects_line2 || t("recentProjectsSub")]} />
         <div className="divide-y divide-border">
           {projects.map((p: Record<string, unknown>) => (
-            <a key={p.id as string} href={p.href as string} target="_blank" rel="noopener noreferrer" className="group flex items-center gap-6 py-5 first:pt-0 last:pb-0 transition-all hover:bg-white/[0.02] rounded-lg">
+            <a key={p.id as string} href={p.href as string} target="_blank" rel="noopener noreferrer" className="group flex items-center gap-3 sm:gap-6 py-5 first:pt-0 last:pb-0 transition-all hover:bg-white/[0.02] rounded-lg">
               <div className="shrink-0 opacity-40 group-hover:opacity-100 transition-opacity"><ArrowIcon /></div>
-              <div className="shrink-0 w-[110px] h-[80px] sm:w-[130px] sm:h-[90px] rounded-xl overflow-hidden bg-muted border border-border">
+              <div className="shrink-0 w-[90px] h-[68px] sm:w-[110px] sm:h-[80px] md:w-[130px] md:h-[90px] rounded-xl overflow-hidden bg-muted border border-border">
                 <img src={p.image as string} alt={p.title as string} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
               </div>
               <div className="flex-1 min-w-0">
@@ -306,7 +326,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
                 {p.href ? (
                   <div className="shrink-0 opacity-40 group-hover:opacity-100 transition-opacity"><ArrowIcon /></div>
                 ) : null}
-                <div className="shrink-0 w-[110px] h-[80px] sm:w-[130px] sm:h-[90px] rounded-xl overflow-hidden bg-muted border border-border">
+                <div className="shrink-0 w-[90px] h-[68px] sm:w-[110px] sm:h-[80px] md:w-[130px] md:h-[90px] rounded-xl overflow-hidden bg-muted border border-border">
                   {p.image ? (
                     <img src={p.image} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
                   ) : p.emoji ? (
@@ -328,7 +348,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
                 </div>
               </>
             );
-            const rowClass = "group flex items-center gap-4 sm:gap-6 py-5 first:pt-0 last:pb-0 transition-all hover:bg-white/[0.02] rounded-lg -mx-2 px-2";
+            const rowClass = "group flex items-center gap-3 sm:gap-6 py-5 first:pt-0 last:pb-0 transition-all hover:bg-white/[0.02] rounded-lg -mx-2 px-2";
             return p.href ? (
               <a key={p.id} href={p.href} target="_blank" rel="noopener noreferrer" className={rowClass}>
                 {inner}

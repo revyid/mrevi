@@ -4,6 +4,7 @@
 -- Edit later from admin -> Settings -> Soft Skills; this file is only the seed.
 
 INSERT INTO site_settings (key, value) VALUES
+  ('soft_skills_count', '5'),
   ('section_softskills_line1', 'KECERDASIAN'),
   ('section_softskills_line2', 'LUNAK'),
 

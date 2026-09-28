@@ -131,8 +131,13 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
 
   // Soft skills: same rule — only render what the admin configured. A skill
   // without a title has nothing to label the accordion row with, so it is
-  // skipped entirely.
-  const softSkills: SoftSkill[] = [1, 2, 3, 4, 5, 6]
+  // skipped. The slot count comes from admin (soft_skills_count) so entries
+  // can be added and removed without a deploy.
+  const softSkillCount = Math.min(
+    Math.max(Number.parseInt(settings.soft_skills_count || "5", 10) || 0, 0),
+    12,
+  );
+  const softSkills: SoftSkill[] = Array.from({ length: softSkillCount }, (_, i) => i + 1)
     .map((n) => ({
       title: settings[`soft_skill_${n}_title`] || "",
       short: settings[`soft_skill_${n}_short`] || "",

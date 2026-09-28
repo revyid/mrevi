@@ -4,12 +4,6 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* Height-driven compaction. A sticky sidebar card is pinned at a fixed offset
-   from the top, so a short window leaves it less room than the page has — and
-   CSS cannot ask "how much room is left". Step the card down instead. */
-@custom-variant h-short (@media (max-height: 820px));
-@custom-variant h-shorter (@media (max-height: 700px));
-
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);

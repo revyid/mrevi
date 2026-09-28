@@ -108,7 +108,7 @@ function SocialIcon({
       aria-label={label}
       target={finalHref.startsWith("http") ? "_blank" : undefined}
       rel={finalHref.startsWith("http") ? "noopener noreferrer" : undefined}
-      className="size-8 sm:size-9 lg:h-short:size-8 rounded-lg flex items-center justify-center hover:bg-muted transition-colors text-foreground"
+      className="size-8 sm:size-9 rounded-lg flex items-center justify-center hover:bg-muted transition-colors text-foreground"
     >
       <svg viewBox="0 0 24 24" className="size-4 sm:size-5" fill="currentColor">
         {children}
@@ -153,8 +153,8 @@ export function ProfileCard({ settings = {} }: ProfileCardProps) {
   return (
     <div className="w-full rounded-2xl bg-card overflow-hidden">
       {/* Profile Image */}
-      <div className="flex justify-center pt-4 sm:pt-5 md:pt-6 lg:pt-6 h-short:pt-3 px-4 sm:px-5 md:px-6 lg:px-6">
-        <div className="w-[120px] h-[120px] sm:w-[150px] sm:h-[150px] md:w-[180px] md:h-[180px] lg:w-[220px] lg:h-[220px] lg:h-short:w-[180px] lg:h-short:h-[180px] lg:h-shorter:w-[140px] lg:h-shorter:h-[140px] rounded-2xl overflow-hidden">
+      <div className="flex justify-center pt-4 sm:pt-5 md:pt-6 lg:pt-6 px-4 sm:px-5 md:px-6 lg:px-6">
+        <div className="w-[120px] h-[120px] sm:w-[150px] sm:h-[150px] md:w-[180px] md:h-[180px] lg:w-[220px] lg:h-[220px] rounded-2xl overflow-hidden">
           <img
             src={avatar}
             alt={name}
@@ -164,23 +164,23 @@ export function ProfileCard({ settings = {} }: ProfileCardProps) {
       </div>
 
       {/* Bio Section */}
-      <div className="px-4 sm:px-5 md:px-6 pt-4 sm:pt-5 md:pt-6 pb-5 sm:pb-6 md:pb-8 lg:h-short:pt-3 lg:h-short:pb-4 lg:h-shorter:pt-2 lg:h-shorter:pb-3 text-center">
-        <h2 className="text-2xl lg:h-short:text-xl lg:h-shorter:text-lg font-bold tracking-tight text-foreground font-heading text-center">
+      <div className="px-4 sm:px-5 md:px-6 pt-4 sm:pt-5 md:pt-6 pb-5 sm:pb-6 md:pb-8 text-center">
+        <h2 className="text-2xl font-bold tracking-tight text-foreground font-heading text-center">
           {name}
         </h2>
 
         {/* Rotating role pill */}
-        <div className="h-6 my-4 lg:h-short:my-3 lg:h-shorter:my-2 text-center">
+        <div className="h-6 my-4 text-center">
           <RotatingText roles={roles} />
         </div>
 
-        <Separator className="mb-5 lg:h-short:mb-3 lg:h-shorter:mb-2" />
+        <Separator className="mb-5" />
 
-        <p className="text-sm leading-relaxed mb-5 lg:h-short:mb-3 lg:h-shorter:mb-2 lg:h-shorter:line-clamp-2 text-muted-foreground">
+        <p className="text-sm leading-relaxed mb-5 text-muted-foreground">
           {bio}
         </p>
 
-        <Separator className="mb-5 lg:h-short:mb-3 lg:h-shorter:mb-2" />
+        <Separator className="mb-5" />
 
         {/* Social Icons */}
         <div className="flex items-center justify-center gap-1.5 sm:gap-2 md:gap-2.5">

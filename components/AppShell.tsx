@@ -37,15 +37,14 @@ export function AppShell({ children, profileSettings = {}, locale }: AppShellPro
   }
 
   return (
-    <div className="min-h-screen pt-20 sm:pt-24 px-4 sm:px-5 md:px-10 lg:px-16">
-      <div className="max-w-[1200px] mx-auto p-4 sm:p-5 md:p-6 lg:p-6 grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-6 lg:gap-8">
-        <div className="max-w-sm mx-auto w-full lg:max-w-none lg:mx-0 lg:sticky lg:top-24 lg:self-start lg:max-h-[calc(100dvh-12rem)] lg:overflow-y-auto scrollbar-none">
-          {/* 582px = the card's natural height. Scale it so it fits the
-              max-h box above at any window height; below the 0.6 floor the
-              box's own overflow-y-auto takes over. */}
-          <div className="lg:flex lg:flex-col lg:justify-center lg:min-h-full lg:[zoom:clamp(0.6,calc((100dvh-12rem)/582px),1)]">
-            <ProfileCard settings={profileSettings} />
-          </div>
+    <div className="min-h-screen pt-24 px-5 md:px-10 lg:px-16">
+      <div className="max-w-[1200px] mx-auto p-6 grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-8">
+        {/* Single ProfileCard — di mobile dibates width-nya biar gak lebar, di desktop sidebar penuh.
+            Sticky tanpa kotak fixed-height: card ikut scroll sama page-nya, jadi
+            ukurannya tetap natural dan gak pernah kepotong. self-start wajib,
+            tanpa itu grid nge-stretch item setinggi kolom dan sticky-nya mati. */}
+        <div className="max-w-sm mx-auto w-full lg:max-w-none lg:mx-0 lg:sticky lg:top-24 lg:self-start">
+          <ProfileCard settings={profileSettings} />
         </div>
         <main className="min-w-0 pb-12">{children}</main>
       </div>

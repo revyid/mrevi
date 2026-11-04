@@ -14,7 +14,7 @@ Portfolio + CMS untuk M. Revi Ramadhan (revy.my.id). Next.js App Router, Supabas
 
 - **Framework**: Next.js (App Router, `app/[locale]/` untuk i18n)
 - **Database**: Supabase (PostgreSQL) — akses via `lib/db.ts` (service_role, bypass RLS) & `lib/supabase-client.ts` (browser)
-- **Auth**: Custom auth (tabel `users` + `sessions` + `passkeys` WebAuthn) — BUKAN Supabase Auth
+- **Auth**: SSO terpusat via `api.revy.my.id` — app ini hanya memverifikasi shared JWT (`session` cookie) dan memeriksa row `sessions` agar revoke efektif. BUKAN Supabase Auth
 - **Styling**: Tailwind v4 — konfigurasi di `app/globals.css` (`@theme inline`), TIDAK ada tailwind.config.js
 - **UI**: shadcn/ui (`components/ui/`), `components.json`
 - **i18n**: next-intl (`i18n/`, `messages/en.json`, `messages/id.json`)

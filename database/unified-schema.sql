@@ -116,7 +116,6 @@ CREATE INDEX idx_api_keys_user_id ON api_keys(user_id);
 CREATE INDEX idx_api_keys_hash ON api_keys(key_hash);
 
 ALTER TABLE api_keys ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "allow_all_service_role" ON api_keys FOR ALL USING (true) WITH CHECK (true);
 
 -- 5f. API Key Usage
 CREATE TABLE api_key_usage (
@@ -128,12 +127,10 @@ CREATE TABLE api_key_usage (
 CREATE INDEX idx_api_key_usage_user_time ON api_key_usage(user_id, used_at DESC);
 
 ALTER TABLE api_key_usage ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "allow_all_service_role" ON api_key_usage FOR ALL USING (true) WITH CHECK (true);
 
 CREATE INDEX idx_users_email ON users(email);
 
 ALTER TABLE users ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "allow_all_service_role" ON users FOR ALL USING (true) WITH CHECK (true);
 
 -- ============================================================
 -- SECTION 3: SESSIONS
@@ -153,7 +150,6 @@ CREATE INDEX idx_sessions_token   ON sessions(token);
 CREATE INDEX idx_sessions_user_id ON sessions(user_id);
 
 ALTER TABLE sessions ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "allow_all_service_role" ON sessions FOR ALL USING (true) WITH CHECK (true);
 
 -- ============================================================
 -- SECTION 4: PASSKEYS (WebAuthn)
@@ -175,7 +171,6 @@ CREATE INDEX idx_passkeys_user_id       ON passkeys(user_id);
 CREATE INDEX idx_passkeys_credential_id ON passkeys(credential_id);
 
 ALTER TABLE passkeys ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "allow_all_service_role" ON passkeys FOR ALL USING (true) WITH CHECK (true);
 
 -- ============================================================
 -- SECTION 5: CONTENT TABLES
@@ -443,3 +438,17 @@ ALTER TABLE sessions ADD COLUMN IF NOT EXISTS ip_address  TEXT DEFAULT '';
 -- Optional: set your first admin (replace email below)
 -- UPDATE users SET role = 'admin' WHERE email = 'you@example.com';
 -- ============================================================
+
+-- Server-side service role bypasses RLS. Anon/authenticated roles get no policies.
+ALTER TABLE api_keys ENABLE ROW LEVEL SECURITY;
+ALTER TABLE api_key_usage ENABLE ROW LEVEL SECURITY;
+ALTER TABLE users ENABLE ROW LEVEL SECURITY;
+ALTER TABLE sessions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE passkeys ENABLE ROW LEVEL SECURITY;
+ALTER TABLE projects ENABLE ROW LEVEL SECURITY;
+ALTER TABLE journey ENABLE ROW LEVEL SECURITY;
+ALTER TABLE tools ENABLE ROW LEVEL SECURITY;
+ALTER TABLE blog_posts ENABLE ROW LEVEL SECURITY;
+ALTER TABLE site_settings ENABLE ROW LEVEL SECURITY;
+ALTER TABLE navigation_links ENABLE ROW LEVEL SECURITY;
+ALTER TABLE contacts ENABLE ROW LEVEL SECURITY;

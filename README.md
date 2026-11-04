@@ -6,7 +6,7 @@ Portfolio pribadi + CMS untuk [revy.my.id](https://revy.my.id). Dibangun dengan 
 
 - **Framework**: Next.js (App Router, `app/[locale]/` untuk i18n)
 - **Database**: Supabase (PostgreSQL) — `lib/db.ts` (service_role) & `lib/supabase-client.ts` (browser)
-- **Auth**: Custom auth — tabel `users` + `sessions` + `passkeys` (WebAuthn), bukan Supabase Auth
+- **Auth**: Central SSO di `api.revy.my.id`; flow lokal hanya verify shared JWT + revocable `sessions` row. Bukan Supabase Auth
 - **Styling**: Tailwind v4 (konfigurasi di `app/globals.css`, tanpa tailwind.config.js)
 - **UI**: shadcn/ui (`components/ui/`)
 - **i18n**: next-intl (`i18n/`, `messages/en.json`, `messages/id.json`)
@@ -36,7 +36,7 @@ Buka [http://localhost:3000](http://localhost:3000).
 
 1. Buat project di [Supabase](https://supabase.com)
 2. Jalankan `database/unified-schema.sql` di SQL Editor (schema lengkap, aman di-re-run)
-3. Untuk perubahan inkremental, jalankan file di `database/migrations/`
+3. Untuk perubahan inkremental, jalankan file di `database/migrations/` (wajib setelah schema lama: `006_rls_hardening.sql` menutup policy anon yang terlalu lebar)
 4. Copy `.env.example` ke `.env.local` lalu isi nilai aslinya (daftar env vars ada di file itu): `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `JWT_SECRET`
 
 ## Dokumentasi

@@ -436,6 +436,7 @@ export interface PageSetting {
 }
 
 export async function getPageSettings(): Promise<PageSetting[]> {
+  await requireAdmin();
   const db = getDb();
   const { data } = await db.from("page_settings").select("*").order("path");
   return (data || []) as PageSetting[];

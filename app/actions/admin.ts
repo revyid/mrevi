@@ -124,6 +124,9 @@ export async function deleteUser(userId: string): Promise<{ success: boolean; er
 // Get stats — all counts run in parallel (no N+1)
 export async function getAdminStats() {
   try {
+    const currentUser = await getSession();
+    if (!currentUser || currentUser.role !== "admin") return null;
+
     const db = getDb();
     const today = new Date();
     today.setHours(0, 0, 0, 0);

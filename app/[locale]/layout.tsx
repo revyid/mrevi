@@ -14,6 +14,9 @@ import { getSettings, getNavigationLinks, getTheme } from "@/app/actions/content
 import type { ProfileCardSettings } from "@/components/profile-card";
 import "../globals.css";
 
+// The shared layout reads cookies and Supabase on every request; prerendering it without env fails.
+export const dynamic = "force-dynamic";
+
 const inter = Inter({ variable: "--font-inter", subsets: ["latin"] });
 const poppins = Poppins({
   variable: "--font-poppins",

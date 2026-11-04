@@ -215,7 +215,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
 
   async function handleSaveProfile() {
     setSaving(true);
-    const result = await updateProfile(profile.id, { name, avatarUrl, bio, website, dob, username });
+    const result = await updateProfile({ name, avatarUrl, bio, website, dob, username });
     if (result.success) {
       toast.success("Profile saved");
     } else {

@@ -72,12 +72,10 @@ ALTER TABLE users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE sessions ENABLE ROW LEVEL SECURITY;
 
 -- Policy: Allow all operations via service_role
-CREATE POLICY "Allow all for service_role" ON users
   FOR ALL
   USING (true)
   WITH CHECK (true);
 
-CREATE POLICY "Allow all for service_role" ON sessions
   FOR ALL
   USING (true)
   WITH CHECK (true);

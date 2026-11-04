@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { parseCurlCommand, type CurlOptions } from '@/lib/curl-parser';
+import { getSession } from '@/lib/auth';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -30,6 +31,11 @@ export async function POST(req: NextRequest) {
   const start = performance.now();
 
   try {
+    const admin = await getSession();
+    if (!admin || admin.role !== 'admin') {
+      return NextResponse.json({ error: 'Admin session required' }, { status: 401 });
+    }
+
     const body = await req.json();
     const options: CurlOptions = body.url ? body : parseCurlCommand(body.curlCommand || '');
 

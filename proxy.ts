@@ -6,8 +6,6 @@ import { jwtVerify } from "jose";
 
 const intlMiddleware = createMiddleware(routing);
 
-const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
-
 // Paths that bypass page-settings checks entirely
 const BYPASS_PREFIXES = [
   "/api/",
@@ -21,9 +19,14 @@ const BYPASS_PREFIXES = [
 
 async function getUserFromRequest(request: NextRequest): Promise<{ role: string } | null> {
   try {
+    const secret = process.env.JWT_SECRET;
+    if (!secret) {
+      console.error("[proxy] JWT_SECRET is not set — rejecting session");
+      return null;
+    }
     const session = request.cookies.get("session")?.value;
     if (!session) return null;
-    const { payload } = await jwtVerify(session, JWT_SECRET);
+    const { payload } = await jwtVerify(session, new TextEncoder().encode(secret));
     return { role: (payload.role as string) || "user" };
   } catch {
     return null;

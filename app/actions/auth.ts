@@ -4,8 +4,6 @@ import crypto from "crypto";
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import {
-  register as authRegister,
-  login as authLogin,
   deleteSession,
   deleteAccount as authDeleteAccount,
   hashPassword,
@@ -24,58 +22,6 @@ function serverAuthError(label: string, err: unknown) {
   if (DEBUG && err instanceof Error) {
     console.error("  message:", err.message);
     console.error("  stack:", err.stack);
-  }
-}
-
-async function getMetaFromHeaders(clientMeta?: { userAgent?: string }) {
-  const h = await headers();
-  const ip = h.get("x-forwarded-for")?.split(",")[0]?.trim() || h.get("x-real-ip") || "";
-  const ua = h.get("user-agent") || clientMeta?.userAgent || "";
-  return { userAgent: ua, ipAddress: ip };
-}
-
-export async function registerAction(
-  name: string,
-  email: string,
-  password: string,
-  locale: string = "en",
-  clientMeta?: { userAgent?: string }
-): Promise<{ success: boolean; error?: string }> {
-  serverAuthLog("registerAction called", { name, email });
-  try {
-    const meta = await getMetaFromHeaders(clientMeta);
-    const result = await authRegister(name, email, password, meta);
-    if (result.error) {
-      serverAuthError("registerAction failed", result.error);
-      return { success: false, error: result.error };
-    }
-    serverAuthLog("registerAction success");
-    return { success: true };
-  } catch (e) {
-    serverAuthError("registerAction exception", e);
-    return { success: false, error: e instanceof Error ? e.message : "Registration failed" };
-  }
-}
-
-export async function loginAction(
-  email: string,
-  password: string,
-  clientMeta?: { userAgent?: string },
-  locale: string = "en"
-): Promise<{ success: boolean; error?: string; role?: string }> {
-  serverAuthLog("loginAction called", { email });
-  try {
-    const meta = await getMetaFromHeaders(clientMeta);
-    const result = await authLogin(email, password, meta);
-    if (result.error) {
-      serverAuthError("loginAction failed", result.error);
-      return { success: false, error: result.error };
-    }
-    serverAuthLog("loginAction success", { role: result.user?.role });
-    return { success: true, role: result.user?.role };
-  } catch (e) {
-    serverAuthError("loginAction exception", e);
-    return { success: false, error: e instanceof Error ? e.message : "Login failed" };
   }
 }
 
@@ -123,10 +69,13 @@ export async function clearSessionCookie(): Promise<{ success: boolean }> {
 }
 
 export async function updateProfile(
-  userId: string,
   data: { name?: string; avatarUrl?: string; bio?: string; website?: string; dob?: string; username?: string }
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    const { getSession } = await import("@/lib/auth");
+    const currentUser = await getSession();
+    if (!currentUser) return { success: false, error: "Not authenticated" };
+    const userId = currentUser.id;
     const db = getDb();
     const updateData: Record<string, string> = {};
     if (data.name !== undefined) updateData.name = data.name;

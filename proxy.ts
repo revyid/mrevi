@@ -67,6 +67,14 @@ export async function proxy(request: NextRequest) {
   const basePath = localeMatch ? (localeMatch[2] || "/") : pathname;
   const locale = localeMatch?.[1] || "en";
 
+  // Sandbox is an admin-only tool; it must never be reachable anonymously.
+  if (basePath === "/sandbox") {
+    const user = await getUserFromRequest(request);
+    if (user?.role !== "admin") {
+      return NextResponse.rewrite(new URL(`/${locale}/not-found`, request.url));
+    }
+  }
+
   // Skip login/register from access checks
   const authPaths = ["/login", "/register"];
   if (!authPaths.includes(basePath)) {

@@ -17,11 +17,11 @@ import { useRouter } from "@/i18n/navigation";
 import { useAuth } from "@/components/auth/AuthProvider";
 
 const defaultNavLinks = [
-  { href: "/", label: "Home", icon: "M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z M9 22V12h6v10", is_visible: true },
-  { href: "/projects", label: "Projects", icon: "M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z", is_visible: true },
-  { href: "/journey", label: "Journey", icon: "M2 7h20v14H2z M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16", is_visible: true },
-  { href: "/tools", label: "Tools", icon: "M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z", is_visible: true },
-  { href: "/blog", label: "Thoughts", icon: "M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7 M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z", is_visible: true },
+  { href: "/", label: "Home", tkey: "home", icon: "M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z M9 22V12h6v10", is_visible: true },
+  { href: "/projects", label: "Projects", tkey: "projects", icon: "M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z", is_visible: true },
+  { href: "/journey", label: "Journey", tkey: "experience", icon: "M2 7h20v14H2z M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16", is_visible: true },
+  { href: "/tools", label: "Tools", tkey: "tools", icon: "M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z", is_visible: true },
+  { href: "/blog", label: "Thoughts", tkey: "thoughts", icon: "M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7 M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z", is_visible: true },
 ];
 
 interface User {
@@ -34,6 +34,8 @@ interface User {
 interface NavLinkItem {
   href: string;
   label: string;
+  /** next-intl key under "nav" for known hrefs; admin-created links fall back to `label`. */
+  tkey?: string;
   icon: string;
   is_visible?: boolean;
 }
@@ -70,29 +72,31 @@ export function Navigation({ user, locale, navLinks }: { user?: User | null; loc
   }
 
   return (
-    <nav className="flex items-center gap-2 p-2 rounded-2xl backdrop-blur-md bg-white/5">
+    <nav className="flex items-center gap-1.5 p-2 rounded-2xl backdrop-blur-md bg-white/5">
         {links.map((link) => {
           const isActive = !isExternalUrl(link.href) && pathname === link.href;
+          // Known routes are translated; admin-managed links keep their label.
+          const label = link.tkey ? t(link.tkey) : link.label;
           const button = (
             <Button
               variant="ghost"
-              size="icon"
               className={cn(
-                "size-9 rounded-full",
+                "h-11 min-w-11 gap-2 rounded-full px-3",
                 isActive ? "bg-white/10 text-white" : "text-white/50 hover:text-white hover:bg-white/5"
               )}
             >
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="size-4">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className="size-4 shrink-0">
                 <path d={link.icon} />
               </svg>
+              <span className="hidden lg:inline text-sm whitespace-nowrap">{label}</span>
             </Button>
           );
           // Render plain <a> for absolute URLs so the browser handles them
           // natively; <Link> for internal routes so next-intl can locale-prefix.
           return isExternalUrl(link.href) ? (
-            <a key={link.href} href={link.href} target="_blank" rel="noopener noreferrer">{button}</a>
+            <a key={link.href} href={link.href} target="_blank" rel="noopener noreferrer" aria-label={label}>{button}</a>
           ) : (
-            <Link key={link.href} href={link.href as any}>{button}</Link>
+            <Link key={link.href} href={link.href as any} aria-current={isActive ? "page" : undefined} aria-label={label}>{button}</Link>
           );
         })}
 
@@ -100,14 +104,14 @@ export function Navigation({ user, locale, navLinks }: { user?: User | null; loc
 
         {user ? (
           <DropdownMenu>
-            <DropdownMenuTrigger className="flex items-center gap-2 p-2 rounded-2xl hover:bg-white/5 transition-colors outline-none">
+            <DropdownMenuTrigger aria-label={user.name} className="flex items-center gap-2 p-2 rounded-2xl hover:bg-white/5 transition-colors outline-none">
               <Avatar className="size-8">
                 <AvatarImage src={user.avatar_url} alt={user.name} />
                 <AvatarFallback className="bg-white/10 text-white text-xs font-medium">
                   {getInitials(user.name)}
                 </AvatarFallback>
               </Avatar>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="size-4 text-white/50">
+              <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="size-4 text-white/50">
                 <polyline points="6 9 12 15 18 9" />
               </svg>
             </DropdownMenuTrigger>
@@ -149,9 +153,9 @@ export function Navigation({ user, locale, navLinks }: { user?: User | null; loc
             </DropdownMenuContent>
           </DropdownMenu>
         ) : (
-          <Link href="/login">
-            <Button variant="ghost" className="flex items-center gap-2 text-white/70 hover:text-white hover:bg-white/5">
-              <svg className="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <Link href="/login" aria-label={t("login")}>
+            <Button variant="ghost" className="h-11 min-w-11 rounded-full px-3 flex items-center gap-2 whitespace-nowrap text-white/70 hover:text-white hover:bg-white/5">
+              <svg aria-hidden="true" className="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
                 <polyline points="10 17 15 12 10 7" />
                 <line x1="15" y1="12" x2="3" y2="12" />

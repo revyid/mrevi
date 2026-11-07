@@ -92,6 +92,7 @@ function SectionTitle({ lines }: { lines: [string, string] | [string] }) {
 export default async function Home({ params }: { params: Promise<{ locale: string }> }) {
   await params;
   const t = await getTranslations("home");
+  const tLegal = await getTranslations("legal");
   const { projects, experiences, tools, blogPosts, showcaseDemos, settings } = await getData();
 
   // Footer credit links (Credit 1 / Credit 2 — label + URL, set in the
@@ -376,8 +377,15 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
         </div>
       </section>
 
-      {/* Footer — credit links (Credit 1 / Credit 2) with plain-text fallback */}
-      <footer className="py-8 text-center border-t border-border">
+      {/* Footer — legal links + credit links (Credit 1 / Credit 2) with plain-text fallback */}
+      <footer className="py-8 text-center border-t border-border space-y-3">
+        <nav aria-label="Legal" className="flex flex-wrap items-center justify-center gap-x-2 text-sm text-muted-foreground">
+          <FooterLegalLink href="/privasi" label={tLegal("privasiLabel")} />
+          <span className="opacity-40" aria-hidden="true">|</span>
+          <FooterLegalLink href="/syarat" label={tLegal("syaratLabel")} />
+          <span className="opacity-40" aria-hidden="true">|</span>
+          <FooterLegalLink href="/tentang" label={tLegal("tentangLabel")} />
+        </nav>
         <p className="text-muted-foreground text-[16px]">
           {credits.length > 0
             ? credits.map((c, i) => (
@@ -395,3 +403,9 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
     </>
   );
 }
+
+// Legal pages all carry the drafting-review banner; kept in one small helper.
+function FooterLegalLink({ href, label }: { href: string; label: string }) {
+  return <Link href={href as any} className="min-h-11 min-w-11 px-1 inline-flex items-center justify-center hover:text-foreground transition-colors">{label}</Link>;
+}
+

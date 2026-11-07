@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Poppins } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
-import { getMessages, setRequestLocale } from "next-intl/server";
+import { getMessages, getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
 import { Navigation } from "@/components/navigation";
@@ -45,7 +45,7 @@ export async function generateMetadata({
     metadataBase: new URL("https://www.revy.my.id"),
     alternates: {
       canonical: "https://www.revy.my.id",
-      languages: { "x-default": "https://www.revy.my.id" },
+      languages: { "en": "https://www.revy.my.id", "x-default": "https://www.revy.my.id" },
     },
     openGraph: {
       type: "website",
@@ -72,7 +72,7 @@ export async function generateMetadata({
   };
 }
 
-export default async function LocaleLayout({
+export async function LocaleLayout({
   children,
   params,
 }: {
@@ -118,6 +118,7 @@ export default async function LocaleLayout({
           <Providers>
             <ThemeProvider theme={savedTheme} />
             <ViewportLogger />
+            <SkipLink locale={locale} />
             <div className="fixed top-0 left-0 right-0 z-50 flex justify-center p-5">
               <Navigation
                 user={user ? { id: user.id, name: user.name, role: user.role, avatar_url: user.avatar_url } : null}
@@ -134,3 +135,15 @@ export default async function LocaleLayout({
     </html>
   );
 }
+
+// First focusable element on the page: jumps to the main landmark (#content in AppShell).
+async function SkipLink({ locale }: { locale: string }) {
+  const t = await getTranslations("skip");
+  return (
+    <a href="#content" className="skip-link">
+      {t("toContent")}
+    </a>
+  );
+}
+
+export default LocaleLayout;

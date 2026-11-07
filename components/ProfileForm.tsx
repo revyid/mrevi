@@ -394,12 +394,12 @@ export function ProfileForm({ profile }: ProfileFormProps) {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium">Full Name</label>
-              <Input value={name} onChange={(e) => setName(e.target.value)} />
+              <label className="text-sm font-medium" htmlFor="profile-name">Full Name</label>
+              <Input id="profile-name" autoComplete="name" value={name} onChange={(e) => setName(e.target.value)} />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium">Email</label>
-              <Input value={profile.email} disabled className="opacity-60" />
+              <label className="text-sm font-medium" htmlFor="profile-email">Email</label>
+              <Input id="profile-email" autoComplete="email" value={profile.email} disabled className="opacity-60" />
             </div>
           </div>
 
@@ -426,14 +426,14 @@ export function ProfileForm({ profile }: ProfileFormProps) {
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium">Bio</label>
-            <Textarea value={bio} onChange={(e) => setBio(e.target.value)} placeholder="Tell us about yourself..." rows={3} />
+            <label className="text-sm font-medium" htmlFor="profile-bio">Bio</label>
+            <Textarea id="profile-bio" value={bio} onChange={(e) => setBio(e.target.value)} placeholder="Tell us about yourself..." rows={3} />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium flex items-center gap-1"><GlobeIcon className="size-3" /> Website</label>
-              <Input value={website} onChange={(e) => setWebsite(e.target.value)} placeholder="https://..." />
+              <label className="text-sm font-medium flex items-center gap-1" htmlFor="profile-website"><GlobeIcon aria-hidden="true" className="size-3" /> Website</label>
+              <Input id="profile-website" type="url" autoComplete="url" value={website} onChange={(e) => setWebsite(e.target.value)} placeholder="https://..." />
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium flex items-center gap-1"><CalendarIcon className="size-3" /> Date of Birth</label>
@@ -686,17 +686,17 @@ export function ProfileForm({ profile }: ProfileFormProps) {
           <div className="flex flex-col gap-4">
             {profile.provider === "credentials" && (
               <div className="space-y-2">
-                <label className="text-sm font-medium">Current Password</label>
-                <Input type="password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} />
+                <label className="text-sm font-medium" htmlFor="profile-current-password">Current Password</label>
+                <Input id="profile-current-password" type="password" autoComplete="current-password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} />
               </div>
             )}
             <div className="space-y-2">
-              <label className="text-sm font-medium">New Password</label>
-              <Input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="Minimum 6 characters" />
+              <label className="text-sm font-medium" htmlFor="profile-new-password">New Password</label>
+              <Input id="profile-new-password" type="password" autoComplete="new-password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="Minimum 6 characters" />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium">Confirm New Password</label>
-              <Input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
+              <label className="text-sm font-medium" htmlFor="profile-confirm-password">Confirm New Password</label>
+              <Input id="profile-confirm-password" type="password" autoComplete="new-password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
             </div>
           </div>
           <DialogFooter>

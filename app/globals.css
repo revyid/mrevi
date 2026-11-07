@@ -201,3 +201,46 @@
   0%, 100% { opacity: 0.08; }
   50%       { opacity: 0.88; }
 }
+
+/* Skip-to-content: off-screen until keyboard focus */
+.skip-link {
+  position: fixed;
+  top: -100%;
+  left: 1rem;
+  z-index: 100;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius);
+  background: var(--primary);
+  color: var(--primary-foreground);
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.skip-link:focus-visible {
+  top: 1rem;
+  background: #f46c38;
+  color: #ffffff;
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+.skip-link:focus {
+  top: 1rem;
+  background: #f46c38;
+  color: #ffffff;
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+/* Honor reduced-motion: instant durations, no infinite loops */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

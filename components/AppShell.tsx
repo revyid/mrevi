@@ -31,7 +31,7 @@ export function AppShell({ children, profileSettings = {}, locale }: AppShellPro
   if (!showSidebar) {
     return (
       <div className="min-h-screen pt-24 px-5 md:px-10 lg:px-16">
-        <main className="max-w-6xl mx-auto pb-12">{children}</main>
+        <main id="content" className="max-w-6xl mx-auto pb-12">{children}</main>
       </div>
     );
   }
@@ -47,7 +47,7 @@ export function AppShell({ children, profileSettings = {}, locale }: AppShellPro
         <div className="max-w-sm mx-auto w-full lg:w-[280px] lg:sticky lg:top-24 lg:self-start lg:[zoom:clamp(0.7,calc((100dvh-9rem)/566px),1)]">
           <ProfileCard settings={profileSettings} />
         </div>
-        <main className="min-w-0 pb-12">{children}</main>
+        <main id="content" className="min-w-0 pb-12">{children}</main>
       </div>
     </div>
   );

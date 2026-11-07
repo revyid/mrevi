@@ -179,7 +179,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
       />
     <div className="space-y-16 lg:space-y-24 w-full">
       {/* Hero */}
-      <section className="pt-8 pb-4 flex flex-col justify-center text-center lg:text-left">
+      <section id="section-hero" className="section-hero pt-8 pb-4 flex flex-col justify-center text-center lg:text-left">
         <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-[90px] font-bold uppercase leading-[0.95] tracking-tight mb-6 font-heading text-center lg:text-left">
           <span className="block">{settings.hero_title_1 || "DEVELOPER"}</span>
           {settings.hero_title_2 && (
@@ -205,7 +205,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
 
       {/* Skill Cards */}
       {skillCards.length > 0 && (
-      <section className="grid sm:grid-cols-2 gap-4">
+      <section id="section-skill-cards" className="section-skill-cards grid sm:grid-cols-2 gap-4">
         {skillCards.map((card) => {
           const isAccent = card.type === "accent";
           return (
@@ -236,14 +236,14 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
 
       {/* Soft Skills — collapsible trust signals, configured in admin -> Settings */}
       {softSkills.length > 0 && (
-      <section className="space-y-6 sm:space-y-8">
+      <section id="section-soft-skills" className="section-soft-skills space-y-6 sm:space-y-8">
         <SectionTitle lines={[settings.section_softskills_line1 || t("softSkillsTitle"), settings.section_softskills_line2 || t("softSkillsSub")]} />
         <SoftSkillsAccordion skills={softSkills} />
       </section>
       )}
 
       {/* Projects */}
-      <section className="space-y-8">
+      <section id="section-projects" className="section-projects space-y-8">
         <SectionTitle lines={[settings.section_projects_line1 || t("recentProjects"), settings.section_projects_line2 || t("recentProjectsSub")]} />
         <div className="divide-y divide-border">
           {projects.map((p: Record<string, unknown>) => (
@@ -262,7 +262,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
       </section>
 
       {/* Experience */}
-      <section className="space-y-8">
+      <section id="section-experience" className="section-experience space-y-8">
         <SectionTitle lines={[settings.section_experience_line1 || t("experienceTitle"), settings.section_experience_line2 || t("experienceSub")]} />
         <div className="divide-y divide-border">
           {experiences.map((e: Record<string, unknown>) => (
@@ -278,7 +278,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
       </section>
 
       {/* Tools */}
-      <section className="space-y-8">
+      <section id="section-tools" className="section-tools space-y-8">
         <SectionTitle lines={[settings.section_tools_line1 || t("premiumTools"), settings.section_tools_line2 || t("premiumToolsSub")]} />
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {tools.map((tool: Record<string, unknown>) => (
@@ -296,7 +296,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
       </section>
 
       {/* Blog */}
-      <section className="space-y-8">
+      <section id="section-blog" className="section-blog space-y-8">
         <SectionTitle lines={[settings.section_blog_line1 || t("designThoughts"), settings.section_blog_line2 || t("designThoughtsSub")]} />
         <div className="divide-y divide-border">
           {blogPosts.length === 0 ? (
@@ -324,7 +324,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
           the same "demo bisnis" data that powers the bisnis showcase
           landing). Section is hidden entirely when no demos exist. */}
       {showcaseDemos.length > 0 && (
-      <section className="space-y-8">
+      <section id="section-showcase" className="section-showcase space-y-8">
         <SectionTitle lines={["SHOWCASE"]} />
         <div className="divide-y divide-border">
           {showcaseDemos.map((p) => {
@@ -371,7 +371,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
       )}
 
       {/* Contact */}
-      <section className="space-y-8">
+      <section id="section-contact" className="section-contact space-y-8">
         <SectionTitle lines={[settings.section_contact_line1 || t("letsWork"), settings.section_contact_line2 || t("letsWorkSub")]} />
         <div className="max-w-xl mx-auto lg:mx-0">
           <ContactForm />
@@ -381,11 +381,11 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
       {/* Footer — legal links + credit links (Credit 1 / Credit 2) with plain-text fallback */}
       <footer className="py-8 text-center border-t border-border space-y-3">
         <nav aria-label="Legal" className="flex flex-wrap items-center justify-center gap-x-2 text-sm text-muted-foreground">
-          <FooterLegalLink href="/privasi" label={tLegal("privasiLabel")} />
+          <FooterLegalLink href="/privacy" label={tLegal("privacyLabel")} />
           <span className="opacity-40" aria-hidden="true">|</span>
-          <FooterLegalLink href="/syarat" label={tLegal("syaratLabel")} />
+          <FooterLegalLink href="/terms" label={tLegal("termsLabel")} />
           <span className="opacity-40" aria-hidden="true">|</span>
-          <FooterLegalLink href="/tentang" label={tLegal("tentangLabel")} />
+          <FooterLegalLink href="/about" label={tLegal("aboutLabel")} />
           <span className="opacity-40" aria-hidden="true">|</span>
           <ConsentReopen />
         </nav>

@@ -60,7 +60,7 @@ export function ConsentBanner() {
             <p className="text-sm text-muted-foreground">
               <span className="font-heading font-semibold text-foreground">{t("title")}. </span>
               {t("description")}{" "}
-              <a href={`/${locale}/privasi`} className="underline underline-offset-2 hover:text-foreground">
+              <a href={`/${locale}/privacy`} className="underline underline-offset-2 hover:text-foreground">
                 {t("privacyLink")}
               </a>
               .

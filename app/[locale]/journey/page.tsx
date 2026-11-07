@@ -32,14 +32,14 @@ export default async function JourneyPage() {
 
   return (
     <div className="space-y-16 lg:space-y-24 w-full">
-      <section className="pt-8 pb-4">
+      <section id="section-journey-intro" className="section-journey-intro pt-8 pb-4">
         <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-[90px] font-bold uppercase leading-[0.95] tracking-tight font-heading text-center lg:text-left">
           <span className="block">{t("title")}</span>
           <span className="block text-muted-foreground/20">{t("titleSub")}</span>
         </h1>
       </section>
 
-      <section className="divide-y divide-border">
+      <section id="section-journey-list" className="section-journey-list divide-y divide-border">
         {experiences.map((e: Record<string, unknown>) => (
           <div key={e.id as string} className="group flex flex-col gap-3 py-6 first:pt-0 last:pb-0 transition-all hover:bg-white/[0.02] rounded-lg">
             <div className="flex items-start gap-4">

@@ -8,7 +8,7 @@ export default function NotFound() {
     // Visually override the inherited AppShell sidebar: full-screen overlay on top of sidebar.
     <div className="fixed inset-0 z-50 flex flex-col items-center justify-center p-8 bg-background overflow-y-auto">
       <div className="w-full max-w-3xl mx-auto py-12 space-y-12">
-        <section className="pt-8 pb-4">
+        <section id="section-not-found-intro" className="section-not-found-intro pt-8 pb-4">
           <DotmHex5 size={42} bloom className="mb-6" />
           <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-[90px] font-bold uppercase leading-[0.95] tracking-tight font-heading">
             <span className="block">404</span>
@@ -16,7 +16,7 @@ export default function NotFound() {
           </h1>
         </section>
 
-        <section className="space-y-6 max-w-md">
+        <section id="section-not-found-actions" className="section-not-found-actions space-y-6 max-w-md">
           <p className="text-muted-foreground text-[16px] leading-relaxed">
             The page you&apos;re looking for doesn&apos;t exist, has been moved, or you don&apos;t have permission to access it.
           </p>

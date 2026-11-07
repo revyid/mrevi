@@ -63,6 +63,25 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "revy.biz.id" },
     ],
   },
+  async redirects() {
+    return [
+      {
+        source: "/en/privasi",
+        destination: "/en/privacy",
+        permanent: true,
+      },
+      {
+        source: "/en/syarat",
+        destination: "/en/terms",
+        permanent: true,
+      },
+      {
+        source: "/en/tentang",
+        destination: "/en/about",
+        permanent: true,
+      },
+    ];
+  },
   async headers() {
     return [
       {

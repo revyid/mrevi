@@ -24,7 +24,7 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://api.revy.my.id"
 export default async function ApiDocsPage() {
   return (
     <div className="max-w-4xl mx-auto py-8 space-y-12">
-      <section>
+      <section id="section-api-docs-intro" className="section-api-docs-intro">
         <Link href="/blog">
           <button className="text-sm text-muted-foreground hover:text-foreground mb-6 flex items-center gap-2">
             <svg className="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -43,7 +43,7 @@ export default async function ApiDocsPage() {
       </section>
 
       {/* Auth */}
-      <section className="space-y-4">
+      <section id="section-authentication" className="section-authentication space-y-4">
         <h2 className="text-3xl font-bold font-heading">Authentication</h2>
         <p className="text-muted-foreground">
           All endpoints require an API key. Include it in the request header:
@@ -65,7 +65,7 @@ export default async function ApiDocsPage() {
       </section>
 
       {/* Base URL */}
-      <section className="space-y-4">
+      <section id="section-base-url" className="section-base-url space-y-4">
         <h2 className="text-3xl font-bold font-heading">Base URL</h2>
         <div className="bg-secondary/50 rounded-lg p-4 font-mono text-sm">
           <pre>{API_BASE_URL}</pre>
@@ -73,7 +73,7 @@ export default async function ApiDocsPage() {
       </section>
 
       {/* GitHub API Proxy */}
-      <section className="space-y-6">
+      <section id="section-github-api-proxy" className="section-github-api-proxy space-y-6">
         <h2 className="text-3xl font-bold font-heading">GitHub API Proxy</h2>
         <p className="text-muted-foreground">
           Access GitHub API for free using the proxy. Supports user info, repos, search, orgs, gists, and rate limit.
@@ -239,7 +239,7 @@ curl -H "x-api-key: YOUR_KEY" \\
       </section>
 
       {/* Playground */}
-      <section className="space-y-6">
+      <section id="section-code-playground" className="section-code-playground space-y-6">
         <h2 className="text-3xl font-bold font-heading">Code Playground</h2>
         <p className="text-muted-foreground">
           Execute code in Go, Rust, or PHP via sandboxed containers. No outbound network from sandbox.
@@ -299,7 +299,7 @@ curl -H "x-api-key: YOUR_KEY" \\
       </section>
 
       {/* Sandbox Features */}
-      <section className="space-y-4">
+      <section id="section-sandbox-features" className="section-sandbox-features space-y-4">
         <h2 className="text-3xl font-bold font-heading">Sandbox Features</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="border border-border rounded-lg p-4">
@@ -330,7 +330,7 @@ curl -H "x-api-key: YOUR_KEY" \\
       </section>
 
       {/* Errors */}
-      <section className="space-y-4">
+      <section id="section-error-responses" className="section-error-responses space-y-4">
         <h2 className="text-3xl font-bold font-heading">Error Responses</h2>
         <div className="space-y-3">
           <div className="border border-border rounded-lg p-4">
@@ -354,7 +354,7 @@ curl -H "x-api-key: YOUR_KEY" \\
       </section>
 
       {/* Rate Limits */}
-      <section className="space-y-4">
+      <section id="section-rate-limits" className="section-rate-limits space-y-4">
         <h2 className="text-3xl font-bold font-heading">Rate Limits</h2>
         <p className="text-muted-foreground">
           Rate limits are enforced per API key on an hourly basis. The response includes GitHub&apos;s rate limit info in <code className="bg-secondary px-1.5 py-0.5 rounded">meta.rateLimit</code>.
@@ -362,7 +362,7 @@ curl -H "x-api-key: YOUR_KEY" \\
       </section>
 
       {/* Support */}
-      <section className="space-y-4">
+      <section id="section-support" className="section-support space-y-4">
         <h2 className="text-3xl font-bold font-heading">Support</h2>
         <p className="text-muted-foreground">
           Questions? Contact me through the{" "}

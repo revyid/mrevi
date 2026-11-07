@@ -12,9 +12,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE_URL}/en/tools`,      lastModified: new Date(), changeFrequency: "monthly", priority: 0.7 },
     { url: `${BASE_URL}/en/blog`,       lastModified: new Date(), changeFrequency: "weekly",  priority: 0.8 },
     { url: `${BASE_URL}/en/contact`,    lastModified: new Date(), changeFrequency: "yearly",  priority: 0.5 },
-    { url: `${BASE_URL}/en/privasi`,    lastModified: new Date(), changeFrequency: "yearly",  priority: 0.3 },
-    { url: `${BASE_URL}/en/syarat`,     lastModified: new Date(), changeFrequency: "yearly",  priority: 0.3 },
-    { url: `${BASE_URL}/en/tentang`,    lastModified: new Date(), changeFrequency: "yearly",  priority: 0.4 },
+    { url: `${BASE_URL}/en/privacy`,    lastModified: new Date(), changeFrequency: "yearly",  priority: 0.3 },
+    { url: `${BASE_URL}/en/terms`,     lastModified: new Date(), changeFrequency: "yearly",  priority: 0.3 },
+    { url: `${BASE_URL}/en/about`,    lastModified: new Date(), changeFrequency: "yearly",  priority: 0.4 },
   ];
 
   // Dynamic blog posts

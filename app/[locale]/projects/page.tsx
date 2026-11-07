@@ -32,14 +32,14 @@ export default async function ProjectsPage() {
 
   return (
     <div className="space-y-16 lg:space-y-24 w-full">
-      <section className="pt-8 pb-4">
+      <section id="section-projects-intro" className="section-projects-intro pt-8 pb-4">
         <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-[90px] font-bold uppercase leading-[0.95] tracking-tight font-heading text-center lg:text-left">
           <span className="block">{t("title")}</span>
           <span className="block text-muted-foreground/20">{t("titleSub")}</span>
         </h1>
       </section>
 
-      <section className="divide-y divide-border">
+      <section id="section-projects-list" className="section-projects-list divide-y divide-border">
         {projects.map((p: Record<string, unknown>) => (
           <a key={p.id as string} href={p.href as string} target="_blank" rel="noopener noreferrer"
             className="group flex items-center gap-4 sm:gap-6 py-5 first:pt-0 last:pb-0 transition-all hover:bg-white/[0.02] rounded-lg">

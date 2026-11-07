@@ -33,14 +33,14 @@ export default async function BlogPage() {
 
   return (
     <div className="space-y-16 lg:space-y-24 w-full">
-      <section className="pt-8 pb-4">
+      <section id="section-blog-intro" className="section-blog-intro pt-8 pb-4">
         <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-[90px] font-bold uppercase leading-[0.95] tracking-tight font-heading text-center lg:text-left">
           <span className="block">{t("title")}</span>
           <span className="block text-muted-foreground/20">{t("titleSub")}</span>
         </h1>
       </section>
 
-      <section className="divide-y divide-border">
+      <section id="section-blog-list" className="section-blog-list divide-y divide-border">
         {posts.length === 0 ? (
           <p className="text-muted-foreground text-center py-12">{t("noPosts")}</p>
         ) : (

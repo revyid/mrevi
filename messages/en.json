@@ -182,6 +182,14 @@
   "skip": {
     "toContent": "Skip to content"
   },
+  "consent": {
+    "title": "Analytics",
+    "description": "We use Vercel Analytics to understand which pages are most useful. Data is sent only if you accept — nothing is tracked before that. See the",
+    "privacyLink": "Privacy Policy",
+    "accept": "Accept",
+    "decline": "Decline",
+    "changeChoice": "Change analytics choice"
+  },
   "legal": {
     "privasiLabel": "Privacy Policy",
     "syaratLabel": "Terms of Service",

@@ -182,6 +182,14 @@
   "skip": {
     "toContent": "Lewati ke konten"
   },
+  "consent": {
+    "title": "Analitik",
+    "description": "Kami memakai Vercel Analytics untuk memahami halaman mana yang paling berguna. Data hanya dikirim jika Anda menerima — tidak ada pelacakan sebelum itu. Lihat",
+    "privacyLink": "Kebijakan Privasi",
+    "accept": "Terima",
+    "decline": "Tolak",
+    "changeChoice": "Ubah pilihan analitik"
+  },
   "legal": {
     "privasiLabel": "Kebijakan Privasi",
     "syaratLabel": "Syarat & Ketentuan",

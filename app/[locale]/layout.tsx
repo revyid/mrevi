@@ -9,6 +9,7 @@ import { AppShell } from "@/components/AppShell";
 import { ViewportLogger } from "@/components/viewport-logger";
 import { Providers } from "@/components/providers";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { ConsentBanner, ConsentReopen } from "@/components/consent-banner";
 import { getSession } from "@/lib/auth";
 import { getSettings, getNavigationLinks, getTheme } from "@/app/actions/content";
 import type { ProfileCardSettings } from "@/components/profile-card";
@@ -118,6 +119,7 @@ export async function LocaleLayout({
           <Providers>
             <ThemeProvider theme={savedTheme} />
             <ViewportLogger />
+            <ConsentBanner />
             <SkipLink locale={locale} />
             <div className="fixed top-0 left-0 right-0 z-50 flex justify-center p-5">
               <Navigation

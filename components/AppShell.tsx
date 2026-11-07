@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { ProfileCard, type ProfileCardSettings } from "@/components/profile-card";
 
@@ -23,6 +24,23 @@ interface AppShellProps {
 
 export function AppShell({ children, profileSettings = {}, locale }: AppShellProps) {
   const pathname = usePathname();
+
+  // Next client nav doesn't scroll to hash targets — do it manually, retrying
+  // because DB-backed sections may render after mount.
+  useEffect(() => {
+    const id = window.location.hash.slice(1);
+    if (!id) return;
+    let cancelled = false;
+    const tryScroll = () => {
+      if (!cancelled) document.getElementById(id)?.scrollIntoView({ block: "start" });
+    };
+    requestAnimationFrame(tryScroll);
+    const timers = [50, 150].map((ms) => window.setTimeout(tryScroll, ms));
+    return () => {
+      cancelled = true;
+      timers.forEach(clearTimeout);
+    };
+  }, [pathname]);
 
   // pathname will be like /en/admin or /id/profile — strip the locale prefix for matching
   const withoutLocale = pathname.replace(/^\/(en|id)/, "") || "/";

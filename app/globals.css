@@ -130,6 +130,7 @@
   }
   html {
     @apply font-sans;
+    scroll-behavior: smooth;
   }
 }
 
@@ -233,7 +234,14 @@
   outline-offset: 2px;
 }
 
-/* Honor reduced-motion: instant durations, no infinite loops */
+/* Anchor targets clear the fixed header (pt-24 wrapper) */
+section[id],
+.legal-section[id] {
+  scroll-margin-top: 6rem;
+}
+
+/* Honor reduced-motion: instant durations, no infinite loops — existing block
+   already sets scroll-behavior: auto !important, covering the smooth scroll above. */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

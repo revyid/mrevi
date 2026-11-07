@@ -468,13 +468,38 @@ export async function submitContactForm(data: {
   email: string;
   budget: string;
   message: string;
+  website?: string; // honeypot — hidden from humans, only bots fill it
 }) {
+  // Honeypot: silently accept so bots don't adapt and retry.
+  if (data.website) return { success: true };
+
+  const name = (data.name || "").trim();
+  const email = (data.email || "").trim().toLowerCase();
+  const message = (data.message || "").trim();
+  if (
+    !name || !email || !message ||
+    name.length > 200 || email.length > 200 || message.length > 5000 ||
+    !/^\S+@\S+\.\S+$/.test(email)
+  ) {
+    return { success: false, error: "Invalid submission." };
+  }
+
   const db = getDb();
+  // Per-email throttle: max 2 messages per 10 minutes (contacts.created_at).
+  const { count } = await db
+    .from("contacts")
+    .select("id", { count: "exact", head: true })
+    .eq("email", email)
+    .gte("created_at", new Date(Date.now() - 10 * 60 * 1000).toISOString());
+  if ((count ?? 0) >= 2) {
+    return { success: false, error: "Too many messages. Please try again later." };
+  }
+
   const { error } = await db.from("contacts").insert({
-    name: data.name,
-    email: data.email,
-    budget: data.budget,
-    message: data.message,
+    name,
+    email,
+    budget: (data.budget || "").slice(0, 50),
+    message,
   });
   if (error) return { success: false, error: error.message };
   return { success: true };

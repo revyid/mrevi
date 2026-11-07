@@ -3,6 +3,32 @@ import createNextIntlPlugin from "next-intl/plugin";
 
 const withNextIntl = createNextIntlPlugin();
 
+const isDev = process.env.NODE_ENV !== "production";
+
+// CSP notes:
+// - script-src keeps 'unsafe-inline': the App Router streams the RSC payload via
+//   inline <script>self.__next_f.push(...)</script>; removing it requires nonce
+//   middleware, which is too risky to add without runtime verification.
+// - style-src keeps 'unsafe-inline': Next injects inline styles for fonts/CSS.
+// - 'unsafe-eval' is dev-only (React refresh); prod builds don't need it.
+// - cdn.jsdelivr.net is only used by /en/sandbox (pyodide + typescript), so it
+//   is scoped to that route below instead of being allowed site-wide.
+function buildCsp({ allowJsdelivr = false, allowWasm = false }: { allowJsdelivr?: boolean; allowWasm?: boolean } = {}) {
+  const jsdelivr = allowJsdelivr ? " https://cdn.jsdelivr.net" : "";
+  const wasm = allowWasm ? " 'wasm-unsafe-eval'" : "";
+  return [
+    "default-src 'self'",
+    `script-src 'self' 'unsafe-inline'${wasm}${isDev ? " 'unsafe-eval'" : ""}${jsdelivr}`,
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+    "font-src 'self' https://fonts.gstatic.com",
+    "img-src 'self' data: blob: https://res.cloudinary.com https://framerusercontent.com https://lh3.googleusercontent.com https://avatars.githubusercontent.com https://cdn.jsdelivr.net https://images.unsplash.com https://revy.biz.id",
+    `connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.revy.my.id${isDev ? " http://localhost:3001" : ""}${jsdelivr}`,
+    "object-src 'none'",
+    "base-uri 'self'",
+    "frame-ancestors 'none'",
+  ].join("; ");
+}
+
 const securityHeaders = [
   // Prevent clickjacking
   { key: "X-Frame-Options", value: "SAMEORIGIN" },
@@ -19,19 +45,9 @@ const securityHeaders = [
     key: "Permissions-Policy",
     value: "camera=(), microphone=(), geolocation=(), interest-cohort=()",
   },
-  // Content Security Policy
-  // unsafe-inline needed for Tailwind inline styles; tighten further if removing them
   {
     key: "Content-Security-Policy",
-    value: [
-      "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net",
-      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-      "font-src 'self' https://fonts.gstatic.com",
-      "img-src 'self' data: blob: https://res.cloudinary.com https://framerusercontent.com https://lh3.googleusercontent.com https://avatars.githubusercontent.com https://cdn.jsdelivr.net https://images.unsplash.com https://revy.biz.id",
-      "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.revy.my.id http://localhost:3001 https://cdn.jsdelivr.net",
-      "frame-ancestors 'none'",
-    ].join("; "),
+    value: buildCsp(),
   },
 ];
 
@@ -52,6 +68,18 @@ const nextConfig: NextConfig = {
       {
         source: "/(.*)",
         headers: securityHeaders,
+      },
+      // Sandbox loads pyodide/typescript from cdn.jsdelivr.net and compiles wasm.
+      // Last matching rule wins per key (Next headers docs), so this overrides
+      // the strict CSP on that route only.
+      {
+        source: "/en/sandbox",
+        headers: [
+          {
+            key: "Content-Security-Policy",
+            value: buildCsp({ allowJsdelivr: true, allowWasm: true }),
+          },
+        ],
       },
     ];
   },

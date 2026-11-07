@@ -23,14 +23,15 @@ export function ContactForm() {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!name.trim() || !email.trim() || !message.trim()) {
       toast.error("Please fill in all required fields");
       return;
     }
+    const honeypot = new FormData(e.currentTarget).get("website");
     setSubmitting(true);
-    const result = await submitContactForm({ name, email, budget, message });
+    const result = await submitContactForm({ name, email, budget, message, website: String(honeypot ?? "") });
     setSubmitting(false);
     if (result.success) {
       setSubmitted(true);
@@ -59,9 +60,12 @@ export function ContactForm() {
   }
 
   return (
-    <form className="space-y-5" onSubmit={handleSubmit}>
+    <form className="space-y-5" onSubmit={handleSubmit} noValidate>
       <div>
+        <label className="sr-only" htmlFor="contact-name">Name</label>
         <Input
+          id="contact-name"
+          autoComplete="name"
           placeholder="Name *"
           value={name}
           onChange={e => setName(e.target.value)}
@@ -70,8 +74,11 @@ export function ContactForm() {
         />
       </div>
       <div>
+        <label className="sr-only" htmlFor="contact-email">Email</label>
         <Input
+          id="contact-email"
           type="email"
+          autoComplete="email"
           placeholder="Email *"
           value={email}
           onChange={e => setEmail(e.target.value)}
@@ -93,7 +100,9 @@ export function ContactForm() {
         </Select>
       </div>
       <div>
-        <Textarea
+        <label className="sr-only" htmlFor="contact-message">Message</label>
+          <Textarea
+          id="contact-message"
           placeholder="Message *"
           value={message}
           onChange={e => setMessage(e.target.value)}
@@ -101,6 +110,11 @@ export function ContactForm() {
           rows={5}
           className="rounded-lg bg-white/[0.03] border-white/[0.06] text-white placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 resize-none"
         />
+      </div>
+      {/* Honeypot: hidden from humans, bots fill it */}
+      <div aria-hidden="true" className="hidden">
+        <label htmlFor="contact-website">Website</label>
+        <input id="contact-website" name="website" type="text" tabIndex={-1} autoComplete="off" />
       </div>
       <Button
         type="submit"

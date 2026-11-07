@@ -14,7 +14,6 @@ export async function generateMetadata(): Promise<Metadata> {
   const name = settings.profile_name || "M. Revi Ramadhan";
   const title = settings.profile_title || "Software Engineer";
   const bio = settings.profile_bio || "Self-taught developer and student at SMAN 1 Bungo, Indonesia.";
-  const avatar = settings.profile_avatar || "";
 
   return {
     title: `${name} — ${title}`,
@@ -91,7 +90,7 @@ function SectionTitle({ lines }: { lines: [string, string] | [string] }) {
 }
 
 export default async function Home({ params }: { params: Promise<{ locale: string }> }) {
-  const { locale } = await params;
+  await params;
   const t = await getTranslations("home");
   const { projects, experiences, tools, blogPosts, showcaseDemos, settings } = await getData();
 
@@ -173,7 +172,8 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(personSchema) }}
+        // Escape '<' so DB-sourced schema strings cannot break out of the script tag.
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(personSchema).replace(/</g, "\\u003c") }}
       />
     <div className="space-y-16 lg:space-y-24 w-full">
       {/* Hero */}

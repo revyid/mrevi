@@ -3,11 +3,31 @@ import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { getDb } from "@/lib/db";
+import sanitizeHtml from "sanitize-html";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 
 const BASE_URL = "https://www.revy.my.id";
+
+// blog_posts.content is written via service-role (mrevi admin app, admin
+// backoffice, seed scripts), so it is untrusted at render time: drop
+// interactive/form elements and all attributes except a safe allowlist.
+// sanitize-html never allows on* event handlers unless explicitly listed.
+const allowedTags = sanitizeHtml.defaults.allowedTags.filter(
+  (t) => !["form", "input", "button", "textarea", "select", "option", "style", "template"].includes(t)
+);
+const SANITIZE_OPTIONS: sanitizeHtml.IOptions = {
+  allowedTags,
+  allowedAttributes: {
+    ...sanitizeHtml.defaults.allowedAttributes,
+    "*": ["class", "id"],
+    a: [...(sanitizeHtml.defaults.allowedAttributes.a || []), "rel"],
+  },
+  transformTags: {
+    a: sanitizeHtml.simpleTransform("a", { rel: "noopener noreferrer" }),
+  },
+};
 
 interface BlogPost {
   id: string; title: string; excerpt: string;
@@ -94,7 +114,7 @@ export default async function BlogPostPage({
 
       <div className="prose prose-invert max-w-none prose-sm sm:prose-base">
         {post.content ? (
-          <div dangerouslySetInnerHTML={{ __html: post.content }} />
+          <div dangerouslySetInnerHTML={{ __html: sanitizeHtml(post.content, SANITIZE_OPTIONS) }} />
         ) : (
           <p className="text-muted-foreground text-lg leading-relaxed">{post.excerpt}</p>
         )}

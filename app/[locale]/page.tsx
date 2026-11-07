@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { ContactForm } from "@/components/contact-form";
-import { ConsentReopen } from "@/components/consent-banner";
 import { SoftSkillsAccordion, type SoftSkill } from "@/components/soft-skills-accordion";
 import { getDb } from "@/lib/db";
 import { getSettings } from "@/app/actions/content";
@@ -384,10 +383,6 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
           <FooterLegalLink href="/privacy" label={tLegal("privacyLabel")} />
           <span className="opacity-40" aria-hidden="true">|</span>
           <FooterLegalLink href="/terms" label={tLegal("termsLabel")} />
-          <span className="opacity-40" aria-hidden="true">|</span>
-          <FooterLegalLink href="/about" label={tLegal("aboutLabel")} />
-          <span className="opacity-40" aria-hidden="true">|</span>
-          <ConsentReopen />
         </nav>
         <p className="text-muted-foreground text-[16px]">
           {credits.length > 0

@@ -187,13 +187,11 @@
     "description": "Kami memakai Vercel Analytics untuk melihat halaman mana yang paling membantu Anda. Kami mengirim data hanya jika Anda menerima. Kami tidak melacak apa pun sebelum itu. Lihat",
     "privacyLink": "Kebijakan Privasi",
     "accept": "Terima",
-    "decline": "Tolak",
-    "changeChoice": "Ubah pilihan analitik"
+    "decline": "Tolak"
   },
   "legal": {
     "privacyLabel": "Kebijakan Privasi",
     "termsLabel": "Syarat & Ketentuan",
-    "aboutLabel": "Tentang",
     "contactIntro": "Jika Anda punya pertanyaan soal halaman ini, hubungi M. Revi Ramadhan di revy8k@gmail.com.",
     "privacy": {
       "title": "Kebijakan Privasi",

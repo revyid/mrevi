@@ -9,7 +9,7 @@ import { AppShell } from "@/components/AppShell";
 import { ViewportLogger } from "@/components/viewport-logger";
 import { Providers } from "@/components/providers";
 import { ThemeProvider } from "@/components/ThemeProvider";
-import { ConsentBanner, ConsentReopen } from "@/components/consent-banner";
+import { ConsentBanner } from "@/components/consent-banner";
 import { getSession } from "@/lib/auth";
 import { getSettings, getNavigationLinks, getTheme } from "@/app/actions/content";
 import type { ProfileCardSettings } from "@/components/profile-card";

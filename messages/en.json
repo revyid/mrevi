@@ -187,13 +187,11 @@
     "description": "We use Vercel Analytics to see which pages help you most. We send data only if you accept. We do not track anything before that. See the",
     "privacyLink": "Privacy Policy",
     "accept": "Accept",
-    "decline": "Decline",
-    "changeChoice": "Change analytics choice"
+    "decline": "Decline"
   },
   "legal": {
     "privacyLabel": "Privacy Policy",
     "termsLabel": "Terms of Service",
-    "aboutLabel": "About",
     "contactIntro": "If you have questions about this page, contact M. Revi Ramadhan at revy8k@gmail.com.",
     "privacy": {
       "title": "Privacy Policy",

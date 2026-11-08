@@ -26,7 +26,7 @@ export async function updateSettings(settings: Record<string, string>) {
   const db = getDb();
   const rows = Object.entries(settings).map(([key, value]) => ({ key, value }));
   const { error } = await db.from("site_settings").upsert(rows, { onConflict: "key" });
-  if (!error) revalidatePath("/");
+  if (!error) revalidatePath("/", "layout");
   return { success: !error, error: error?.message };
 }
 
@@ -93,7 +93,7 @@ export async function updateNavigationLink(href: string, label: string, newHref?
   const update: Record<string, string> = { label };
   if (newHref && newHref !== href) update.href = newHref;
   const { error } = await db.from("navigation_links").update(update).eq("href", href);
-  if (!error) revalidatePath("/");
+  if (!error) revalidatePath("/", "layout");
   return { success: !error, error: error?.message };
 }
 
@@ -101,7 +101,7 @@ export async function updateNavigationLinkVisibility(href: string, is_visible: b
   await requireAdmin();
   const db = getDb();
   const { error } = await db.from("navigation_links").update({ is_visible }).eq("href", href);
-  if (!error) revalidatePath("/");
+  if (!error) revalidatePath("/", "layout");
   return { success: !error, error: error?.message };
 }
 
@@ -114,7 +114,7 @@ export async function createNavigationLink(data: {
   await requireAdmin();
   const db = getDb();
   const { error } = await db.from("navigation_links").insert({ ...data, is_visible: true });
-  if (!error) revalidatePath("/");
+  if (!error) revalidatePath("/", "layout");
   return { success: !error, error: error?.message };
 }
 
@@ -122,7 +122,7 @@ export async function deleteNavigationLink(href: string) {
   await requireAdmin();
   const db = getDb();
   const { error } = await db.from("navigation_links").delete().eq("href", href);
-  if (!error) revalidatePath("/");
+  if (!error) revalidatePath("/", "layout");
   return { success: !error, error: error?.message };
 }
 
@@ -134,7 +134,7 @@ export async function reorderNavigationLinks(items: { href: string; sort_order: 
       db.from("navigation_links").update({ sort_order }).eq("href", href)
     )
   );
-  revalidatePath("/");
+  revalidatePath("/", "layout");
   return { success: true };
 }
 
@@ -169,7 +169,7 @@ export async function updateTheme(theme: Record<string, string>) {
   const db = getDb();
   const rows = Object.entries(theme).map(([key, value]) => ({ key, value }));
   const { error } = await db.from("site_settings").upsert(rows, { onConflict: "key" });
-  if (!error) { revalidatePath("/"); revalidatePath("/en"); }
+  if (!error) { revalidatePath("/", "layout"); revalidatePath("/en"); }
   return { success: !error, error: error?.message };
 }
 
@@ -196,7 +196,7 @@ export async function createCustomPage(data: {
     .insert({ ...data, sort_order: Date.now() })
     .select()
     .single();
-  if (!error) revalidatePath("/");
+  if (!error) revalidatePath("/", "layout");
   return { success: !error, error: error?.message, page };
 }
 
@@ -207,7 +207,7 @@ export async function updateCustomPage(
   await requireAdmin();
   const db = getDb();
   const { error } = await db.from("custom_pages").update(data).eq("id", id);
-  if (!error) revalidatePath("/");
+  if (!error) revalidatePath("/", "layout");
   return { success: !error, error: error?.message };
 }
 
@@ -215,7 +215,7 @@ export async function deleteCustomPage(id: string) {
   await requireAdmin();
   const db = getDb();
   const { error } = await db.from("custom_pages").delete().eq("id", id);
-  if (!error) revalidatePath("/");
+  if (!error) revalidatePath("/", "layout");
   return { success: !error, error: error?.message };
 }
 
@@ -242,7 +242,7 @@ export async function createProject(data: {
     .insert(data)
     .select()
     .single();
-  if (!error) revalidatePath("/");
+  if (!error) revalidatePath("/", "layout");
   return { success: !error, error: error?.message, project };
 }
 
@@ -253,7 +253,7 @@ export async function updateProject(id: string, field: string, value: string) {
     .from("projects")
     .update({ [field]: value })
     .eq("id", id);
-  if (!error) revalidatePath("/");
+  if (!error) revalidatePath("/", "layout");
   return { success: !error, error: error?.message };
 }
 
@@ -261,7 +261,7 @@ export async function deleteProject(id: string) {
   await requireAdmin();
   const db = getDb();
   const { error } = await db.from("projects").delete().eq("id", id);
-  if (!error) revalidatePath("/");
+  if (!error) revalidatePath("/", "layout");
   return { success: !error, error: error?.message };
 }
 
@@ -287,7 +287,7 @@ export async function createExperience(data: {
     .insert(data)
     .select()
     .single();
-  if (!error) revalidatePath("/");
+  if (!error) revalidatePath("/", "layout");
   return { success: !error, error: error?.message, experience: exp };
 }
 
@@ -298,7 +298,7 @@ export async function updateExperience(id: string, field: string, value: string)
     .from("journey")
     .update({ [field]: value })
     .eq("id", id);
-  if (!error) revalidatePath("/");
+  if (!error) revalidatePath("/", "layout");
   return { success: !error, error: error?.message };
 }
 
@@ -306,7 +306,7 @@ export async function deleteExperience(id: string) {
   await requireAdmin();
   const db = getDb();
   const { error } = await db.from("journey").delete().eq("id", id);
-  if (!error) revalidatePath("/");
+  if (!error) revalidatePath("/", "layout");
   return { success: !error, error: error?.message };
 }
 
@@ -333,7 +333,7 @@ export async function createTool(data: {
     .insert(data)
     .select()
     .single();
-  if (!error) revalidatePath("/");
+  if (!error) revalidatePath("/", "layout");
   return { success: !error, error: error?.message, tool };
 }
 
@@ -344,7 +344,7 @@ export async function updateTool(id: string, field: string, value: string) {
     .from("tools")
     .update({ [field]: value })
     .eq("id", id);
-  if (!error) revalidatePath("/");
+  if (!error) revalidatePath("/", "layout");
   return { success: !error, error: error?.message };
 }
 
@@ -352,7 +352,7 @@ export async function deleteTool(id: string) {
   await requireAdmin();
   const db = getDb();
   const { error } = await db.from("tools").delete().eq("id", id);
-  if (!error) revalidatePath("/");
+  if (!error) revalidatePath("/", "layout");
   return { success: !error, error: error?.message };
 }
 
@@ -391,8 +391,8 @@ export async function createBlogPost(data: {
     .select()
     .single();
   if (!error) {
-    revalidatePath("/");
-    revalidatePath("/blog");
+    revalidatePath("/", "layout");
+    revalidatePath("/blog", "layout");
   }
   return { success: !error, error: error?.message, post };
 }
@@ -405,8 +405,8 @@ export async function updateBlogPost(id: string, field: string, value: string) {
     .update({ [field]: value })
     .eq("id", id);
   if (!error) {
-    revalidatePath("/");
-    revalidatePath("/blog");
+    revalidatePath("/", "layout");
+    revalidatePath("/blog", "layout");
   }
   return { success: !error, error: error?.message };
 }
@@ -416,8 +416,8 @@ export async function deleteBlogPost(id: string) {
   const db = getDb();
   const { error } = await db.from("blog_posts").delete().eq("id", id);
   if (!error) {
-    revalidatePath("/");
-    revalidatePath("/blog");
+    revalidatePath("/", "layout");
+    revalidatePath("/blog", "layout");
   }
   return { success: !error, error: error?.message };
 }

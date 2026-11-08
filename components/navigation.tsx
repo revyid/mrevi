@@ -9,12 +9,14 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { useRouter } from "@/i18n/navigation";
 import { useAuth } from "@/components/auth/AuthProvider";
+import { LocaleDropdown, LocaleMenuItems } from "@/components/locale-switcher";
 
 const defaultNavLinks = [
   { href: "/", label: "Home", tkey: "home", icon: "M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z M9 22V12h6v10", is_visible: true },
@@ -72,7 +74,7 @@ export function Navigation({ user, locale, navLinks }: { user?: User | null; loc
   }
 
   return (
-    <nav className="flex items-center gap-1.5 p-2 rounded-2xl backdrop-blur-md bg-white/5">
+    <nav className="flex items-center gap-1.5 p-2 rounded-2xl backdrop-blur-md bg-white/5 max-w-[calc(100vw-2.5rem)] overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {links.map((link) => {
           const isActive = !isExternalUrl(link.href) && pathname === link.href;
           // Known routes are translated; admin-managed links keep their label.
@@ -123,6 +125,9 @@ export function Navigation({ user, locale, navLinks }: { user?: User | null; loc
                 </p>
               </div>
               <DropdownMenuSeparator />
+              <DropdownMenuLabel>{t("language")}</DropdownMenuLabel>
+              <LocaleMenuItems />
+              <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => router.push("/profile")}>
                 <svg className="size-4 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
@@ -153,6 +158,7 @@ export function Navigation({ user, locale, navLinks }: { user?: User | null; loc
             </DropdownMenuContent>
           </DropdownMenu>
         ) : (
+          <>
           <Link href="/login" aria-label={t("login")}>
             <Button variant="ghost" className="h-11 min-w-11 rounded-full px-3 flex items-center gap-2 whitespace-nowrap text-white/70 hover:text-white hover:bg-white/5">
               <svg aria-hidden="true" className="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -163,6 +169,8 @@ export function Navigation({ user, locale, navLinks }: { user?: User | null; loc
               {t("login")}
             </Button>
           </Link>
+          <LocaleDropdown />
+          </>
         )}
       </nav>
   );

@@ -17,6 +17,7 @@ import { BlogTab } from "./tabs/BlogTab";
 import { AssetsTab } from "./tabs/AssetsTab";
 import { SidebarTab } from "./tabs/SidebarTab";
 import { NavigationTab } from "./tabs/NavigationTab";
+import { TranslationsTab } from "./tabs/TranslationsTab";
 import { BizTab } from "./tabs/BizTab";
 
 interface Stats {
@@ -95,6 +96,7 @@ export function AdminDashboard({ users, currentUserId, stats }: AdminDashboardPr
           <TabsTrigger value="pages">Pages</TabsTrigger>
           <TabsTrigger value="sidebar">Sidebar</TabsTrigger>
           <TabsTrigger value="navigation">Navigation</TabsTrigger>
+          <TabsTrigger value="translations">Translations</TabsTrigger>
           <TabsTrigger value="projects">Projects</TabsTrigger>
           <TabsTrigger value="experiences">Journey</TabsTrigger>
           <TabsTrigger value="tools">Tools</TabsTrigger>
@@ -157,6 +159,14 @@ export function AdminDashboard({ users, currentUserId, stats }: AdminDashboardPr
           <Card>
             <CardContent className="pt-6">
               <NavigationTab />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="translations">
+          <Card>
+            <CardContent className="pt-6">
+              <TranslationsTab />
             </CardContent>
           </Card>
         </TabsContent>

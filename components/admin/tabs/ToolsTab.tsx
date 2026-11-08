@@ -119,7 +119,7 @@ export function ToolsTab() {
         <DialogContent>
           <DialogHeader><DialogTitle>Edit Tool</DialogTitle></DialogHeader>
           <div className="space-y-4">
-            <div className="space-y-2"><label className="text-sm font-medium">Name</label><Input value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} /></div>
+            <div className="space-y-2"><label className="text-sm font-medium">Name</label><Input value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} disabled={locale !== "en"} /></div>
             <div className="space-y-2"><label className="text-sm font-medium">Category</label><Input value={form.category} onChange={e => setForm(p => ({ ...p, category: e.target.value }))} placeholder="e.g. Design Tool" /></div>
             <div className="space-y-2"><label className="text-sm font-medium">Link URL</label><Input value={form.href} onChange={e => setForm(p => ({ ...p, href: e.target.value }))} placeholder="https://..." disabled={locale !== "en"} /></div>
             <div className="space-y-2"><label className="text-sm font-medium">Icon URL</label><Input value={form.icon} onChange={e => setForm(p => ({ ...p, icon: e.target.value }))} placeholder="https://..." disabled={locale !== "en"} /></div>

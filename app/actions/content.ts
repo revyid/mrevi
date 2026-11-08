@@ -21,7 +21,8 @@ import {
 const CONTENT_FIELDS: Record<string, string[]> = {
   projects: ["title", "subtitle"],
   journey: ["company", "description", "period"],
-  tools: ["name", "category"],
+  // Tool names are proper nouns (React, PostgreSQL) - never translated.
+  tools: ["category"],
   blog_posts: ["title", "excerpt", "content"],
   navigation_links: ["label"],
 };

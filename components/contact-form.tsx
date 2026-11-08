@@ -13,12 +13,30 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { submitContactForm } from "@/app/actions/content";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
 type FieldErrors = Partial<Record<"name" | "email" | "message" | "server", string>>;
 
+// Budget buckets are stored as codes (backend ignores the amount), so the
+// SAME numbers (3000/5000/10000) are just formatted in the locale currency.
+// No exchange-rate conversion — amounts are indicative buckets, not quotes.
+const LOCALE_CURRENCY: Record<string, string> = {
+  en: "USD",
+  id: "IDR",
+  fr: "EUR",
+  es: "EUR",
+  de: "EUR",
+};
+
 export function ContactForm() {
   const t = useTranslations("contact");
+  const locale = useLocale();
+  const fmt = new Intl.NumberFormat(locale, {
+    style: "currency",
+    currency: LOCALE_CURRENCY[locale] || "USD",
+    maximumFractionDigits: 0,
+  });
+  const money = (n: number) => fmt.format(n);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [budget, setBudget] = useState("");
@@ -119,10 +137,10 @@ export function ContactForm() {
             <SelectValue placeholder={t("budget")} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="under-3k">{"< $3,000"}</SelectItem>
-            <SelectItem value="3k-5k">$3,000 - $5,000</SelectItem>
-            <SelectItem value="5k-10k">$5,000 - $10,000</SelectItem>
-            <SelectItem value="over-10k">{"> $10,000"}</SelectItem>
+            <SelectItem value="under-3k">{`< ${money(3000)}`}</SelectItem>
+            <SelectItem value="3k-5k">{`${money(3000)} - ${money(5000)}`}</SelectItem>
+            <SelectItem value="5k-10k">{`${money(5000)} - ${money(10000)}`}</SelectItem>
+            <SelectItem value="over-10k">{`> ${money(10000)}`}</SelectItem>
           </SelectContent>
         </Select>
       </div>

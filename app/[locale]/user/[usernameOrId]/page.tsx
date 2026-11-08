@@ -5,6 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { CalendarIcon, GlobeIcon } from "lucide-react";
 import { formatDate, getInitials } from "@/lib/utils";
+import { renderMarkdown } from "@/lib/markdown";
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -85,7 +86,12 @@ export default async function PublicUserPage({
           </span>
         </div>
 
-        {profile.bio && <p className="text-sm text-muted-foreground text-center leading-relaxed">{profile.bio}</p>}
+        {profile.bio && (
+          <div
+            className="text-sm text-muted-foreground text-center leading-relaxed space-y-2 [&_h1]:text-lg [&_h2]:text-base [&_h3]:text-sm [&_h1]:font-bold [&_h2]:font-bold [&_h3]:font-bold [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:text-left [&_blockquote]:border-l-2 [&_blockquote]:border-border [&_blockquote]:pl-3 [&_blockquote]:text-left [&_a]:text-primary [&_a]:underline [&_code]:font-mono [&_code]:text-xs [&_p]:whitespace-normal"
+            dangerouslySetInnerHTML={{ __html: renderMarkdown(profile.bio) }}
+          />
+        )}
 
         {profile.website && (
           <a

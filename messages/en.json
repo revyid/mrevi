@@ -59,6 +59,7 @@
     "displayName": "Display Name",
     "bio": "Bio",
     "bioPlaceholder": "Tell us about yourself...",
+    "bioMarkdownHint": "Supports GitHub-style markdown",
     "website": "Website",
     "websitePlaceholder": "https://yourwebsite.com",
     "dateOfBirth": "Date of Birth",

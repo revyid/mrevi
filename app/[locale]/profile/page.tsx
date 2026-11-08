@@ -11,6 +11,7 @@ export default async function ProfilePage() {
     role: user.role, avatar_url: user.avatar_url || "",
     provider: user.provider, created_at: user.created_at,
     username: user.username || "",
+    bio: user.bio || "", website: user.website || "", dob: user.dob ? user.dob.slice(0, 10) : "",
   };
 
   return <ProfileForm profile={profileData} />;

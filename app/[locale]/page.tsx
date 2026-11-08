@@ -85,14 +85,35 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
   const { locale } = await params;
   const t = await getTranslations("home");
   const tLegal = await getTranslations("legal");
+  const tCommon = await getTranslations("common");
   const { projects, experiences, tools, blogPosts, showcaseDemos, settings } = await getData(locale);
 
   // Footer credit links (Credit 1 / Credit 2 — label + URL, set in the
-  // admin Settings tab). Falls back to plain footer text when unset.
+  // admin Settings tab). Labels are stored WITH a prefix by admin
+  // ("Made by Revy", "Dibuat oleh Revy", "Powered by Next.js", ...);
+  // strip any known prefix and re-render with the localized one.
+  const stripPrefix = (label: string, prefixes: string[]) => {
+    let s = label.trim();
+    for (const p of prefixes) {
+      if (s.toLowerCase().startsWith(p.toLowerCase())) {
+        s = s.slice(p.length).replace(/^[:\s]+/, "");
+        break;
+      }
+    }
+    return s.trim();
+  };
   const credits = [
-    { label: settings.footer_credit_1_label || "", href: settings.footer_credit_1_href || "" },
-    { label: settings.footer_credit_2_label || "", href: settings.footer_credit_2_href || "" },
-  ].filter((c) => c.label && c.href);
+    {
+      name: stripPrefix(settings.footer_credit_1_label || "", ["Made by", "Dibuat oleh"]),
+      href: settings.footer_credit_1_href || "",
+      prefix: tCommon("madeBy"),
+    },
+    {
+      name: stripPrefix(settings.footer_credit_2_label || "", ["Powered by", "Didukung oleh"]),
+      href: settings.footer_credit_2_href || "",
+      prefix: tCommon("poweredBy"),
+    },
+  ].filter((c) => c.name && c.href);
 
   const name    = settings.profile_name   || "M. Revi Ramadhan";
   const title   = settings.profile_title  || "Software Engineer";
@@ -382,7 +403,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
                 <span key={c.href}>
                   {i > 0 && <span className="mx-2 opacity-40">|</span>}
                   <a href={c.href} target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">
-                    {c.label}
+                    {c.prefix} {c.name}
                   </a>
                 </span>
               ))

@@ -24,6 +24,9 @@ export interface User {
   avatar_url: string;
   provider: string;
   username?: string;
+  bio?: string;
+  website?: string;
+  dob?: string;
   created_at: string;
   updated_at: string;
 }

@@ -16,6 +16,8 @@ import { Separator } from "@/components/ui/separator";
 import { Spinner } from "@/components/ui/spinner";
 import { ImageUpload } from "@/components/admin/ImageUpload";
 import { formatDate, getInitials } from "@/lib/utils";
+import { renderMarkdown } from "@/lib/markdown";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import {
   Dialog,
@@ -123,6 +125,7 @@ function DeviceIcon({ device }: { device: string }) {
 export function ProfileForm({ profile }: ProfileFormProps) {
   const router = useRouter();
   const { logout } = useAuth();
+  const t = useTranslations("profile");
 
   // Profile state
   const [name, setName] = useState(profile.name || "");
@@ -427,7 +430,15 @@ export function ProfileForm({ profile }: ProfileFormProps) {
 
           <div className="space-y-2">
             <label className="text-sm font-medium" htmlFor="profile-bio">Bio</label>
-            <Textarea id="profile-bio" value={bio} onChange={(e) => setBio(e.target.value)} placeholder="Tell us about yourself..." rows={3} />
+            <Textarea id="profile-bio" value={bio} onChange={(e) => setBio(e.target.value)} placeholder="Tell us about yourself..." rows={3} aria-describedby="profile-bio-hint" />
+            <p id="profile-bio-hint" className="text-xs text-muted-foreground">{t("bioMarkdownHint")}</p>
+            {bio.trim() && (
+              <div
+                aria-hidden="true"
+                className="rounded-lg border border-border bg-muted/40 p-3 text-sm text-muted-foreground leading-relaxed space-y-2 [&_h1]:text-lg [&_h2]:text-base [&_h3]:text-sm [&_h1]:font-bold [&_h2]:font-bold [&_h3]:font-bold [&_ul]:list-disc [&_ul]:pl-5 [&_blockquote]:border-l-2 [&_blockquote]:border-border [&_blockquote]:pl-3 [&_a]:text-primary [&_a]:underline [&_code]:font-mono [&_code]:text-xs"
+                dangerouslySetInnerHTML={{ __html: renderMarkdown(bio) }}
+              />
+            )}
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

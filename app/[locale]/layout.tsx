@@ -93,8 +93,8 @@ export async function LocaleLayout({
   const [messages, user, rawSettings, navLinks, savedTheme] = await Promise.all([
     getMessages(),
     getSession(),
-    getSettings(),
-    getNavigationLinks(),
+    getSettings(locale),
+    getNavigationLinks(locale),
     getTheme(),
   ]);
 

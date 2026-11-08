@@ -15,6 +15,7 @@ import {
   SheetDescription,
   SheetFooter,
 } from "@/components/ui/sheet";
+import { LocaleToggle } from "@/components/admin/locale-toggle";
 import {
   Dialog,
   DialogContent,
@@ -36,6 +37,7 @@ interface BlogPost {
 }
 
 export function BlogTab() {
+  const [locale, setLocale] = useState("en");
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingPost, setEditingPost] = useState<BlogPost | null>(null);
@@ -55,13 +57,14 @@ export function BlogTab() {
 
 
   async function loadPosts() {
-    const data = await getBlogPosts();
+    setLoading(true);
+    const data = await getBlogPosts(locale);
     setPosts(data as BlogPost[]);
     setLoading(false);
   }
   useEffect(() => {
     loadPosts();
-  }, []);
+  }, [locale]);
 
   function openEdit(post: BlogPost) {
     setEditingPost(post);
@@ -77,12 +80,12 @@ export function BlogTab() {
   async function handleSave() {
     if (!editingPost) return;
     setSaving(true);
-    await updateBlogPost(editingPost.id, "title", editTitle);
-    await updateBlogPost(editingPost.id, "excerpt", editExcerpt);
-    await updateBlogPost(editingPost.id, "content", editContent);
-    await updateBlogPost(editingPost.id, "slug", editSlug);
-    await updateBlogPost(editingPost.id, "date", editDate);
-    await updateBlogPost(editingPost.id, "read_time", editReadTime);
+    await updateBlogPost(editingPost.id, "title", editTitle, locale);
+    await updateBlogPost(editingPost.id, "excerpt", editExcerpt, locale);
+    await updateBlogPost(editingPost.id, "content", editContent, locale);
+    await updateBlogPost(editingPost.id, "slug", editSlug, locale);
+    await updateBlogPost(editingPost.id, "date", editDate, locale);
+    await updateBlogPost(editingPost.id, "read_time", editReadTime, locale);
 
     setPosts((prev) =>
       prev.map((p) =>
@@ -112,14 +115,18 @@ export function BlogTab() {
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-bold font-heading">Blog Posts ({posts.length})</h3>
-          <Button onClick={() => setShowAdd(true)}>
+          <div className="flex items-center gap-3">
+            <LocaleToggle locale={locale} onChange={setLocale} />
+          <Button onClick={() => setShowAdd(true)} disabled={locale !== "en"}>
             <svg className="size-4 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <line x1="12" y1="5" x2="12" y2="19" />
               <line x1="5" y1="12" x2="19" y2="12" />
             </svg>
             Add Post
           </Button>
+          </div>
         </div>
+        {locale !== "en" && <p className="text-xs text-muted-foreground">Editing {locale} translations — Slug, Date and Read Time are English-only and disabled.</p>}
 
         <div className="space-y-3">
           {posts.map((post) => (
@@ -171,7 +178,7 @@ export function BlogTab() {
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium">Slug</label>
-              <Input value={editSlug} onChange={(e) => setEditSlug(e.target.value)} />
+              <Input value={editSlug} onChange={(e) => setEditSlug(e.target.value)} disabled={locale !== "en"} />
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium">Excerpt</label>
@@ -184,11 +191,11 @@ export function BlogTab() {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <label className="text-sm font-medium">Date</label>
-                <Input value={editDate} onChange={(e) => setEditDate(e.target.value)} />
+                <Input value={editDate} onChange={(e) => setEditDate(e.target.value)} disabled={locale !== "en"} />
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium">Read Time</label>
-                <Input value={editReadTime} onChange={(e) => setEditReadTime(e.target.value)} />
+                <Input value={editReadTime} onChange={(e) => setEditReadTime(e.target.value)} disabled={locale !== "en"} />
               </div>
             </div>
           </div>

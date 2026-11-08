@@ -3,14 +3,14 @@ import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { ContactForm } from "@/components/contact-form";
 import { SoftSkillsAccordion, type SoftSkill } from "@/components/soft-skills-accordion";
-import { getDb } from "@/lib/db";
-import { getSettings } from "@/app/actions/content";
+import { getSettings, getProjects, getExperiences, getTools, getBlogPosts } from "@/app/actions/content";
 import { getShowcaseDemos } from "@/app/actions/biz";
 
 const BASE_URL = "https://www.revy.my.id";
 
-export async function generateMetadata(): Promise<Metadata> {
-  const settings = await getSettings();
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const settings = await getSettings(locale);
   const name = settings.profile_name || "M. Revi Ramadhan";
   const title = settings.profile_title || "Software Engineer";
   const bio = settings.profile_bio || "Self-taught developer and student at SMAN 1 Bungo, Indonesia.";
@@ -47,24 +47,16 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-async function getData() {
-  const db = getDb();
-  const [projectsRes, experiencesRes, toolsRes, blogRes, showcaseDemos] = await Promise.all([
-    db.from("projects").select("*").order("sort_order"),
-    db.from("journey").select("*").order("sort_order"),
-    db.from("tools").select("*").order("sort_order"),
-    db.from("blog_posts").select("*").order("sort_order"),
+async function getData(locale: string) {
+  const [projects, experiences, tools, blogPosts, showcaseDemos, settings] = await Promise.all([
+    getProjects(locale),
+    getExperiences(locale),
+    getTools(locale),
+    getBlogPosts(locale),
     getShowcaseDemos(),
+    getSettings(locale),
   ]);
-  const settings = await getSettings();
-  return {
-    projects: projectsRes.data || [],
-    experiences: experiencesRes.data || [],
-    tools: toolsRes.data || [],
-    blogPosts: blogRes.data || [],
-    showcaseDemos,
-    settings,
-  };
+  return { projects, experiences, tools, blogPosts, showcaseDemos, settings };
 }
 
 function ArrowIcon() {
@@ -90,10 +82,10 @@ function SectionTitle({ lines }: { lines: [string, string] | [string] }) {
 }
 
 export default async function Home({ params }: { params: Promise<{ locale: string }> }) {
-  await params;
+  const { locale } = await params;
   const t = await getTranslations("home");
   const tLegal = await getTranslations("legal");
-  const { projects, experiences, tools, blogPosts, showcaseDemos, settings } = await getData();
+  const { projects, experiences, tools, blogPosts, showcaseDemos, settings } = await getData(locale);
 
   // Footer credit links (Credit 1 / Credit 2 — label + URL, set in the
   // admin Settings tab). Falls back to plain footer text when unset.

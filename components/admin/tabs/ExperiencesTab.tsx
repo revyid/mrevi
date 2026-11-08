@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import { PlusIcon, TrashIcon, PencilIcon } from "lucide-react";
+import { LocaleToggle } from "@/components/admin/locale-toggle";
 
 interface Experience {
   id: string;
@@ -20,6 +21,7 @@ interface Experience {
 }
 
 export function ExperiencesTab() {
+  const [locale, setLocale] = useState("en");
   const [experiences, setExperiences] = useState<Experience[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -30,11 +32,12 @@ export function ExperiencesTab() {
 
 
   async function load() {
-    const data = await getExperiences();
+    setLoading(true);
+    const data = await getExperiences(locale);
     setExperiences(data as Experience[]);
     setLoading(false);
   }
-  useEffect(() => { load(); }, []);
+  useEffect(() => { load(); }, [locale]);
 
   function openEdit(e: Experience) {
     setEditModal(e);
@@ -47,7 +50,7 @@ export function ExperiencesTab() {
     const fields = ["company", "description", "period"] as const;
     for (const f of fields) {
       if (form[f] !== (editModal as unknown as Record<string, string>)[f]) {
-        const r = await updateExperience(editModal.id, f, form[f]);
+        const r = await updateExperience(editModal.id, f, form[f], locale);
         if (!r.success) { toast.error(r.error || `Failed to update ${f}`); setSaving(false); return; }
       }
     }
@@ -77,9 +80,12 @@ export function ExperiencesTab() {
     <div className="p-6 space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-bold font-heading">Journey ({experiences.length})</h3>
-        <Button onClick={() => setShowAdd(true)} size="sm">
+        <div className="flex items-center gap-3">
+          <LocaleToggle locale={locale} onChange={setLocale} />
+        <Button onClick={() => setShowAdd(true)} size="sm" disabled={locale !== "en"}>
           <PlusIcon data-icon="inline-start" /> Add Entry
         </Button>
+        </div>
       </div>
 
       <div className="space-y-3">

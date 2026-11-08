@@ -1,5 +1,5 @@
 import { ImageResponse } from "next/og";
-import { getDb } from "@/lib/db";
+import { getBlogPost } from "@/app/actions/content";
 import { OgCard } from "@/components/og/og-card";
 import { poppinsFonts } from "@/components/og/fonts";
 
@@ -12,17 +12,12 @@ export default async function Image({
 }: {
   params: Promise<{ locale: string; slug: string }>;
 }) {
-  const { slug } = await params;
+  const { slug, locale } = await params;
 
   let title = "";
   let excerpt = "";
   try {
-    const db = getDb();
-    const { data } = await db
-      .from("blog_posts")
-      .select("title, excerpt")
-      .eq("slug", slug)
-      .single();
+    const data = await getBlogPost(slug, locale);
     if (data) {
       title = String(data.title || "");
       excerpt = String(data.excerpt || "").slice(0, 140);

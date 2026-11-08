@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import { PlusIcon, TrashIcon, PencilIcon } from "lucide-react";
+import { LocaleToggle } from "@/components/admin/locale-toggle";
 
 interface Project {
   id: string;
@@ -20,6 +21,7 @@ interface Project {
 }
 
 export function ProjectsTab() {
+  const [locale, setLocale] = useState("en");
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -30,11 +32,12 @@ export function ProjectsTab() {
 
 
   async function load() {
-    const data = await getProjects();
+    setLoading(true);
+    const data = await getProjects(locale);
     setProjects(data as Project[]);
     setLoading(false);
   }
-  useEffect(() => { load(); }, []);
+  useEffect(() => { load(); }, [locale]);
 
   function openEdit(p: Project) {
     setEditModal(p);
@@ -47,7 +50,7 @@ export function ProjectsTab() {
     const fields = ["title", "subtitle", "href", "image"] as const;
     for (const f of fields) {
       if (form[f] !== (editModal as unknown as Record<string, string>)[f]) {
-        const r = await updateProject(editModal.id, f, form[f]);
+        const r = await updateProject(editModal.id, f, form[f], locale);
         if (!r.success) { toast.error(r.error || `Failed to update ${f}`); setSaving(false); return; }
       }
     }
@@ -77,10 +80,14 @@ export function ProjectsTab() {
     <div className="p-6 space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-bold font-heading">Projects ({projects.length})</h3>
-        <Button onClick={() => setShowAdd(true)} size="sm">
+        <div className="flex items-center gap-3">
+          <LocaleToggle locale={locale} onChange={setLocale} />
+        <Button onClick={() => setShowAdd(true)} size="sm" disabled={locale !== "en"}>
           <PlusIcon data-icon="inline-start" /> Add Project
         </Button>
+        </div>
       </div>
+      {locale !== "en" && <p className="text-xs text-muted-foreground">Editing {locale} translations — Link URL and Image URL are English-only and disabled.</p>}
 
       <div className="space-y-3">
         {projects.map((p) => (
@@ -112,8 +119,8 @@ export function ProjectsTab() {
           <div className="space-y-4">
             <div className="space-y-2"><label className="text-sm font-medium">Title</label><Input value={form.title} onChange={e => setForm(p => ({ ...p, title: e.target.value }))} /></div>
             <div className="space-y-2"><label className="text-sm font-medium">Subtitle</label><Input value={form.subtitle} onChange={e => setForm(p => ({ ...p, subtitle: e.target.value }))} /></div>
-            <div className="space-y-2"><label className="text-sm font-medium">Link URL</label><Input value={form.href} onChange={e => setForm(p => ({ ...p, href: e.target.value }))} placeholder="https://..." /></div>
-            <div className="space-y-2"><label className="text-sm font-medium">Image URL</label><Input value={form.image} onChange={e => setForm(p => ({ ...p, image: e.target.value }))} placeholder="https://..." /></div>
+            <div className="space-y-2"><label className="text-sm font-medium">Link URL</label><Input value={form.href} onChange={e => setForm(p => ({ ...p, href: e.target.value }))} placeholder="https://..." disabled={locale !== "en"} /></div>
+            <div className="space-y-2"><label className="text-sm font-medium">Image URL</label><Input value={form.image} onChange={e => setForm(p => ({ ...p, image: e.target.value }))} placeholder="https://..." disabled={locale !== "en"} /></div>
             {form.image && <img src={form.image} alt="Preview" className="w-full h-32 object-cover rounded-lg" />}
           </div>
           <DialogFooter>

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
-import { getDb } from "@/lib/db";
+import { getTools } from "@/app/actions/content";
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://www.revy.my.id";
 
@@ -20,15 +20,10 @@ export const metadata: Metadata = {
   alternates: { canonical: `${BASE_URL}/en/tools` },
 };
 
-async function getTools() {
-  const db = getDb();
-  const { data } = await db.from("tools").select("*").order("sort_order");
-  return data || [];
-}
-
-export default async function ToolsPage() {
+export default async function ToolsPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
   const t = await getTranslations("tools");
-  const tools = await getTools();
+  const tools = await getTools(locale);
 
   return (
     <div className="space-y-16 lg:space-y-24 w-full">

@@ -17,6 +17,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { PencilIcon, EyeIcon, EyeOffIcon, TrashIcon, PlusIcon, GripVerticalIcon } from "lucide-react";
+import { LocaleToggle } from "@/components/admin/locale-toggle";
 
 interface NavLink {
   href: string;
@@ -27,6 +28,7 @@ interface NavLink {
 }
 
 export function NavigationTab() {
+  const [locale, setLocale] = useState("en");
   const [links, setLinks] = useState<NavLink[]>([]);
   const [loading, setLoading] = useState(true);
   const [editModal, setEditModal] = useState<NavLink | null>(null);
@@ -41,11 +43,12 @@ export function NavigationTab() {
 
 
   async function load() {
-    const data = await getNavigationLinks();
+    setLoading(true);
+    const data = await getNavigationLinks(locale);
     setLinks(data as NavLink[]);
     setLoading(false);
   }
-  useEffect(() => { load(); }, []);
+  useEffect(() => { load(); }, [locale]);
 
   function openEdit(link: NavLink) {
     setEditModal(link);
@@ -56,7 +59,7 @@ export function NavigationTab() {
   async function handleSaveLabel() {
     if (!editModal) return;
     setSaving(true);
-    const result = await updateNavigationLink(editModal.href, editLabel, editHref);
+    const result = await updateNavigationLink(editModal.href, editLabel, editHref, locale);
     if (result.success) {
       setLinks(prev => prev.map(l => l.href === editModal.href ? { ...l, label: editLabel, href: editHref } : l));
       toast.success("Navigation updated");
@@ -141,10 +144,14 @@ export function NavigationTab() {
           <h3 className="text-lg font-bold font-heading">Navigation</h3>
           <p className="text-sm text-muted-foreground mt-1">Drag to reorder, toggle visibility, edit labels, or add custom links.</p>
         </div>
-        <Button onClick={() => setCreateModal(true)}>
+        <div className="flex items-center gap-3">
+          <LocaleToggle locale={locale} onChange={setLocale} />
+        <Button onClick={() => setCreateModal(true)} disabled={locale !== "en"}>
           <PlusIcon className="size-4 mr-2" />Add Link
         </Button>
+        </div>
       </div>
+      {locale !== "en" && <p className="text-xs text-muted-foreground">Editing {locale} labels — Path (href) is the row identity and cannot change per locale.</p>}
       <Separator />
 
       {links.length === 0 ? (
@@ -213,7 +220,7 @@ export function NavigationTab() {
           <div className="space-y-4">
             <div className="space-y-2">
               <label className="text-sm font-medium">Path</label>
-              <Input value={editHref} onChange={e => setEditHref(e.target.value)}
+              <Input value={editHref} onChange={e => setEditHref(e.target.value)} disabled={locale !== "en"}
                 onKeyDown={e => e.key === "Enter" && handleSaveLabel()} autoFocus />
             </div>
             <div className="space-y-2">

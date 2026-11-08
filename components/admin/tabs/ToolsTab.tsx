@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import { PlusIcon, TrashIcon, PencilIcon } from "lucide-react";
+import { LocaleToggle } from "@/components/admin/locale-toggle";
 
 interface Tool {
   id: string;
@@ -20,6 +21,7 @@ interface Tool {
 }
 
 export function ToolsTab() {
+  const [locale, setLocale] = useState("en");
   const [tools, setTools] = useState<Tool[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -30,11 +32,12 @@ export function ToolsTab() {
 
 
   async function load() {
-    const data = await getTools();
+    setLoading(true);
+    const data = await getTools(locale);
     setTools(data as Tool[]);
     setLoading(false);
   }
-  useEffect(() => { load(); }, []);
+  useEffect(() => { load(); }, [locale]);
 
   function openEdit(t: Tool) {
     setEditModal(t);
@@ -47,7 +50,7 @@ export function ToolsTab() {
     const fields = ["name", "category", "href", "icon"] as const;
     for (const f of fields) {
       if (form[f] !== (editModal as unknown as Record<string, string>)[f]) {
-        const r = await updateTool(editModal.id, f, form[f]);
+        const r = await updateTool(editModal.id, f, form[f], locale);
         if (!r.success) { toast.error(r.error || `Failed to update ${f}`); setSaving(false); return; }
       }
     }
@@ -77,10 +80,14 @@ export function ToolsTab() {
     <div className="p-6 space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-bold font-heading">Tools ({tools.length})</h3>
-        <Button onClick={() => setShowAdd(true)} size="sm">
+        <div className="flex items-center gap-3">
+          <LocaleToggle locale={locale} onChange={setLocale} />
+        <Button onClick={() => setShowAdd(true)} size="sm" disabled={locale !== "en"}>
           <PlusIcon data-icon="inline-start" /> Add Tool
         </Button>
+        </div>
       </div>
+      {locale !== "en" && <p className="text-xs text-muted-foreground">Editing {locale} translations — Link URL and Icon URL are English-only and disabled.</p>}
 
       <div className="space-y-3">
         {tools.map((tool) => (
@@ -114,8 +121,8 @@ export function ToolsTab() {
           <div className="space-y-4">
             <div className="space-y-2"><label className="text-sm font-medium">Name</label><Input value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} /></div>
             <div className="space-y-2"><label className="text-sm font-medium">Category</label><Input value={form.category} onChange={e => setForm(p => ({ ...p, category: e.target.value }))} placeholder="e.g. Design Tool" /></div>
-            <div className="space-y-2"><label className="text-sm font-medium">Link URL</label><Input value={form.href} onChange={e => setForm(p => ({ ...p, href: e.target.value }))} placeholder="https://..." /></div>
-            <div className="space-y-2"><label className="text-sm font-medium">Icon URL</label><Input value={form.icon} onChange={e => setForm(p => ({ ...p, icon: e.target.value }))} placeholder="https://..." /></div>
+            <div className="space-y-2"><label className="text-sm font-medium">Link URL</label><Input value={form.href} onChange={e => setForm(p => ({ ...p, href: e.target.value }))} placeholder="https://..." disabled={locale !== "en"} /></div>
+            <div className="space-y-2"><label className="text-sm font-medium">Icon URL</label><Input value={form.icon} onChange={e => setForm(p => ({ ...p, icon: e.target.value }))} placeholder="https://..." disabled={locale !== "en"} /></div>
             {form.icon && (
               <div className="flex items-center gap-3 p-3 rounded-lg border">
                 <img src={form.icon} alt="Preview" className="w-10 h-10 object-contain rounded" />

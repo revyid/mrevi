@@ -8,22 +8,25 @@ import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import { Spinner } from "@/components/ui/spinner";
 import { toast } from "sonner";
+import { LocaleToggle } from "@/components/admin/locale-toggle";
 
 export function SettingsTab() {
+  const [locale, setLocale] = useState("en");
   const [settings, setSettings] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    getSettings().then((data) => {
+    setLoading(true);
+    getSettings(locale).then((data) => {
       setSettings(data);
       setLoading(false);
     });
-  }, []);
+  }, [locale]);
 
   async function handleSave() {
     setSaving(true);
-    const result = await updateSettings(settings);
+    const result = await updateSettings(settings, locale);
     if (result.success) toast.success("Settings saved");
     else toast.error(result.error || "Failed to save");
     setSaving(false);
@@ -45,10 +48,16 @@ export function SettingsTab() {
           <h3 className="text-lg font-bold font-heading">Site Settings</h3>
           <p className="text-sm text-muted-foreground mt-1">Hero section, stats, and footer</p>
         </div>
-        <Button onClick={handleSave} disabled={saving}>
+        <div className="flex items-center gap-3">
+          <LocaleToggle locale={locale} onChange={setLocale} />
+          <Button onClick={handleSave} disabled={saving}>
           {saving ? <><Spinner className="size-4 mr-2" />Saving...</> : "Save All"}
-        </Button>
+          </Button>
+        </div>
       </div>
+      {locale !== "en" && (
+        <p className="text-xs text-muted-foreground">Editing {locale} translations — fields show English where no translation exists yet. Saving writes translation rows only; the English source is unchanged.</p>
+      )}
 
       <Separator />
 

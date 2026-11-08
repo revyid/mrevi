@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
-import { getDb } from "@/lib/db";
+import { getBlogPost } from "@/app/actions/content";
 import sanitizeHtml from "sanitize-html";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -34,19 +34,13 @@ interface BlogPost {
   content: string; slug: string; date: string; read_time: string;
 }
 
-async function getBlogPost(slug: string): Promise<BlogPost | null> {
-  const db = getDb();
-  const { data } = await db.from("blog_posts").select("*").eq("slug", slug).single();
-  return data as BlogPost | null;
-}
-
 export async function generateMetadata({
   params,
 }: {
   params: Promise<{ locale: string; slug: string }>;
 }): Promise<Metadata> {
-  const { slug } = await params;
-  const post = await getBlogPost(slug);
+  const { slug, locale } = await params;
+  const post = (await getBlogPost(slug, locale)) as BlogPost | null;
   if (!post) return { title: "Post Not Found" };
 
   const url = `${BASE_URL}/en/blog/${slug}`;
@@ -85,9 +79,9 @@ export default async function BlogPostPage({
 }: {
   params: Promise<{ locale: string; slug: string }>;
 }) {
-  const { slug } = await params;
+  const { slug, locale } = await params;
   const t = await getTranslations("blog");
-  const post = await getBlogPost(slug);
+  const post = (await getBlogPost(slug, locale)) as BlogPost | null;
   if (!post) notFound();
 
   return (

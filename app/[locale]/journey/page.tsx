@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
-import { getDb } from "@/lib/db";
+import { getExperiences } from "@/app/actions/content";
 
 const BASE_URL = "https://www.revy.my.id";
 
@@ -20,15 +20,10 @@ export const metadata: Metadata = {
   alternates: { canonical: `${BASE_URL}/en/journey` },
 };
 
-async function getExperiences() {
-  const db = getDb();
-  const { data } = await db.from("journey").select("*").order("sort_order");
-  return data || [];
-}
-
-export default async function JourneyPage() {
+export default async function JourneyPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
   const t = await getTranslations("journey");
-  const experiences = await getExperiences();
+  const experiences = await getExperiences(locale);
 
   return (
     <div className="space-y-16 lg:space-y-24 w-full">

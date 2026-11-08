@@ -1,3 +1,21 @@
+/**
+ * DB-backed translations (table: translations, see database/migrations/007_translations.sql).
+ *
+ * Key schemes:
+ * - UI chrome: dotted keys from messages/en.json (e.g. `home.title`), seeded
+ *   into `translations` as en source rows by scripts/seed-translations.mjs.
+ * - DB content: `content:<table>:<rowId>:<field>` (e.g. content:projects:42:title).
+ *   The en source is the base row in its own table (projects, journey, tools,
+ *   blog_posts, navigation_links, ...); non-en locales live ONLY in
+ *   `translations`. No en rows are seeded for content — stale detection hashes
+ *   the current en base value directly.
+ * - Site settings: `setting:<site_settings.key>` (e.g. setting:profile_name).
+ *   Same rule: site_settings holds the en source, other locales overlay.
+ *
+ * A translation row is stale when source_hash !== hashText(en base text);
+ * missing rows are stale too. Stale/missing content is machine-translated in
+ * the background via after() on read-miss (see scheduleContentAutoTranslate).
+ */
 import "server-only";
 
 import { createHash } from "node:crypto";
@@ -6,6 +24,234 @@ import { getDb } from "@/lib/db";
 
 export function hashText(s: string): string {
   return createHash("sha256").update(s).digest("hex");
+}
+
+export const SUPPORTED_LOCALES = ["en", "id"] as const;
+
+export function normalizeLocale(locale?: string | null): string {
+  return locale && (SUPPORTED_LOCALES as readonly string[]).includes(locale)
+    ? locale
+    : "en";
+}
+
+export function contentKey(table: string, rowId: string, field: string): string {
+  return `content:${table}:${rowId}:${field}`;
+}
+
+export function settingKey(setting: string): string {
+  return `setting:${setting}`;
+}
+
+/** Parse `content:<table>:<rowId>:<field>` rows for one locale into Map<rowId, {field: text}>. */
+export async function getContentTranslations(
+  table: string,
+  locale: string
+): Promise<Map<string, Record<string, string>>> {
+  const map = new Map<string, Record<string, string>>();
+  if (locale === "en") return map;
+  const prefix = `content:${table}:`;
+  for (const r of await fetchRows(locale)) {
+    if (!r.key.startsWith(prefix)) continue;
+    const rest = r.key.slice(prefix.length);
+    const idx = rest.lastIndexOf(":");
+    if (idx <= 0) continue;
+    const rowId = rest.slice(0, idx);
+    const field = rest.slice(idx + 1);
+    const rec = map.get(rowId) ?? {};
+    rec[field] = r.text;
+    map.set(rowId, rec);
+  }
+  return map;
+}
+
+/** Parse `setting:*` rows for one locale into {settingKey: text}. */
+export async function getSettingsTranslations(
+  locale: string
+): Promise<Record<string, string>> {
+  const out: Record<string, string> = {};
+  if (locale === "en") return out;
+  for (const r of await fetchRows(locale)) {
+    if (r.key.startsWith("setting:")) out[r.key.slice("setting:".length)] = r.text;
+  }
+  return out;
+}
+
+/** Stale `setting:*` keys: missing row or source_hash != hashText(en value). */
+export async function getSettingsStale(
+  locale: string,
+  base: Record<string, string>
+): Promise<string[]> {
+  if (locale === "en") return [];
+  const rows = await fetchRows(locale);
+  const byKey = new Map(rows.map((r) => [r.key, r]));
+  return Object.entries(base)
+    .filter(([key, enText]) => {
+      if (!enText) return false;
+      const cur = byKey.get(settingKey(key));
+      return !cur || cur.source_hash !== hashText(enText);
+    })
+    .map(([key]) => key);
+}
+
+export async function ensureSettingsTranslations(
+  locale: string,
+  base: Record<string, string>
+): Promise<number> {
+  if (locale === "en") return 0;
+  const stale = await getSettingsStale(locale, base);
+  const db = getDb();
+  let done = 0;
+  for (const key of stale) {
+    const enText = base[key];
+    if (!enText) continue;
+    const translated = await translateText(enText, "en", locale);
+    if (!translated) continue;
+    const { error } = await db.from("translations").upsert(
+      {
+        key: settingKey(key),
+        locale,
+        text: translated,
+        source_hash: hashText(enText),
+        source_locale: "en",
+        is_machine: true,
+      },
+      { onConflict: "key,locale" }
+    );
+    if (!error) done++;
+  }
+  return done;
+}
+
+export function scheduleSettingsAutoTranslate(
+  locale: string,
+  base: Record<string, string>
+): void {
+  if (locale === "en") return;
+  getSettingsStale(locale, base)
+    .then((stale) => {
+      if (stale.length === 0) return;
+      try {
+        after(async () => {
+          await ensureSettingsTranslations(locale, base);
+        });
+      } catch {
+        // after() unavailable outside request scope — skip.
+      }
+    })
+    .catch(() => {});
+}
+
+type BaseRow = Record<string, unknown> & { id?: unknown; href?: unknown };
+
+/**
+ * Stale content keys for `table`/`locale`: a field is stale when the stored
+ * row is missing or its source_hash differs from hashText(current en base).
+ * `idKey` is the row identity field ("id", or "href" for navigation_links).
+ */
+export async function getContentStale(
+  table: string,
+  locale: string,
+  baseRows: BaseRow[],
+  fields: string[],
+  idKey: string = "id"
+): Promise<string[]> {
+  if (locale === "en") return [];
+  const rows = await fetchRows(locale);
+  const byKey = new Map(rows.map((r) => [r.key, r]));
+  const stale: string[] = [];
+  for (const row of baseRows) {
+    const rowId = String(row[idKey] ?? "");
+    for (const field of fields) {
+      const enText = String(row[field] ?? "");
+      if (!enText) continue;
+      const key = contentKey(table, rowId, field);
+      const cur = byKey.get(key);
+      if (!cur || cur.source_hash !== hashText(enText)) stale.push(key);
+    }
+  }
+  return stale;
+}
+
+export async function ensureContentTranslations(
+  table: string,
+  locale: string,
+  baseRows: BaseRow[],
+  fields: string[],
+  idKey: string = "id"
+): Promise<number> {
+  if (locale === "en") return 0;
+  const stale = await getContentStale(table, locale, baseRows, fields, idKey);
+  if (stale.length === 0) return 0;
+  const enByKey = new Map<string, string>();
+  for (const row of baseRows) {
+    const rowId = String(row[idKey] ?? "");
+    for (const field of fields) {
+      enByKey.set(contentKey(table, rowId, field), String(row[field] ?? ""));
+    }
+  }
+  const db = getDb();
+  let done = 0;
+  for (const key of stale) {
+    const enText = enByKey.get(key);
+    if (!enText) continue;
+    const translated = await translateText(enText, "en", locale);
+    if (!translated) continue;
+    const { error } = await db.from("translations").upsert(
+      {
+        key,
+        locale,
+        text: translated,
+        source_hash: hashText(enText),
+        source_locale: "en",
+        is_machine: true,
+      },
+      { onConflict: "key,locale" }
+    );
+    if (!error) done++;
+  }
+  return done;
+}
+
+/** Queue background auto-translate for stale content (no-op for en / fresh). */
+export function scheduleContentAutoTranslate(
+  table: string,
+  locale: string,
+  baseRows: BaseRow[],
+  fields: string[],
+  idKey: string = "id"
+): void {
+  if (locale === "en") return;
+  getContentStale(table, locale, baseRows, fields, idKey)
+    .then((stale) => {
+      if (stale.length === 0) return;
+      try {
+        after(async () => {
+          await ensureContentTranslations(table, locale, baseRows, fields, idKey);
+        });
+      } catch {
+        // after() unavailable outside request scope — skip.
+      }
+    })
+    .catch(() => {});
+}
+
+/** Overlay translated fields onto en base rows (returns new array). */
+export async function overlayContent<T extends BaseRow>(
+  table: string,
+  locale: string,
+  baseRows: T[],
+  fields: string[],
+  idKey: string = "id"
+): Promise<T[]> {
+  if (locale === "en") return baseRows;
+  const map = await getContentTranslations(table, locale);
+  return baseRows.map((row) => {
+    const tr = map.get(String(row[idKey] ?? ""));
+    if (!tr) return row;
+    const out = { ...row } as Record<string, unknown>;
+    for (const f of fields) if (tr[f] != null) out[f] = tr[f];
+    return out as T;
+  });
 }
 
 type Row = {

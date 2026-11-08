@@ -3,6 +3,58 @@
 import { revalidatePath } from "next/cache";
 import { getDb } from "@/lib/db";
 import { getSession } from "@/lib/auth";
+import {
+  normalizeLocale,
+  hashText,
+  contentKey,
+  settingKey,
+  getSettingsTranslations,
+  overlayContent,
+  scheduleContentAutoTranslate,
+  scheduleSettingsAutoTranslate,
+} from "@/lib/translations";
+
+// Translatable (free-text) fields per base table. Non-text fields (href,
+// image, icon, slug, dates) are never translated: for a non-en locale they
+// are ignored on write and never overlaid on read.
+const CONTENT_FIELDS: Record<string, string[]> = {
+  projects: ["title", "subtitle"],
+  journey: ["company", "description", "period"],
+  tools: ["name", "category"],
+  blog_posts: ["title", "excerpt", "content"],
+  navigation_links: ["label"],
+};
+
+/** Write one translation row; source_hash pins the current en base value. */
+async function upsertContentTranslation(
+  table: string,
+  rowId: string,
+  field: string,
+  value: string,
+  locale: string,
+  idKey: string = "id",
+  idValue?: string
+) {
+  const db = getDb();
+  const { data: base } = await db
+    .from(table)
+    .select(field)
+    .eq(idKey, idValue ?? rowId)
+    .maybeSingle();
+  const enText = String((base as Record<string, unknown> | null)?.[field] ?? "");
+  const { error } = await db.from("translations").upsert(
+    {
+      key: contentKey(table, rowId, field),
+      locale,
+      text: value,
+      source_hash: hashText(enText),
+      source_locale: "en",
+      is_machine: false,
+    },
+    { onConflict: "key,locale" }
+  );
+  return error;
+}
 
 async function requireAdmin() {
   const user = await getSession();
@@ -14,16 +66,47 @@ async function requireAdmin() {
 // SITE SETTINGS
 // ============================================================
 
-export async function getSettings(): Promise<Record<string, string>> {
+export async function getSettings(locale: string = "en"): Promise<Record<string, string>> {
+  const loc = normalizeLocale(locale);
   const db = getDb();
   const { data } = await db.from("site_settings").select("*");
   if (!data) return {};
-  return Object.fromEntries(data.map((s: { key: string; value: string }) => [s.key, s.value]));
+  const base = Object.fromEntries(data.map((s: { key: string; value: string }) => [s.key, s.value]));
+  if (loc === "en") return base;
+  const overlay = await getSettingsTranslations(loc);
+  const merged = { ...base, ...overlay };
+  scheduleSettingsAutoTranslate(loc, base);
+  return merged;
 }
 
-export async function updateSettings(settings: Record<string, string>) {
+export async function updateSettings(settings: Record<string, string>, locale: string = "en") {
   await requireAdmin();
+  const loc = normalizeLocale(locale);
   const db = getDb();
+  if (loc !== "en") {
+    // Non-en: write only translation rows, pinning source_hash to the en base.
+    const keys = Object.keys(settings);
+    const { data: baseRows } = await db.from("site_settings").select("key, value").in("key", keys);
+    const enByKey = new Map(
+      (baseRows || []).map((r: { key: string; value: string }) => [r.key, r.value])
+    );
+    for (const [key, value] of Object.entries(settings)) {
+      const { error } = await db.from("translations").upsert(
+        {
+          key: settingKey(key),
+          locale: loc,
+          text: value,
+          source_hash: hashText(String(enByKey.get(key) ?? "")),
+          source_locale: "en",
+          is_machine: false,
+        },
+        { onConflict: "key,locale" }
+      );
+      if (error) return { success: false, error: error.message };
+    }
+    revalidatePath("/", "layout");
+    return { success: true, error: undefined as string | undefined };
+  }
   const rows = Object.entries(settings).map(([key, value]) => ({ key, value }));
   const { error } = await db.from("site_settings").upsert(rows, { onConflict: "key" });
   if (!error) revalidatePath("/", "layout");
@@ -35,7 +118,7 @@ export async function updateSettings(settings: Record<string, string>) {
 // ============================================================
 
 /** Returns social link hrefs keyed by platform name. */
-export async function getSocialLinks(): Promise<{
+export async function getSocialLinks(locale: string = "en"): Promise<{
   facebook: string;
   twitter: string;
   instagram: string;
@@ -43,7 +126,7 @@ export async function getSocialLinks(): Promise<{
   github: string;
   linkedin: string;
 }> {
-  const s = await getSettings();
+  const s = await getSettings(locale);
   return {
     facebook:  s.social_facebook  || "#",
     twitter:   s.social_twitter   || "#",
@@ -55,12 +138,12 @@ export async function getSocialLinks(): Promise<{
 }
 
 /** Returns the two skill-card objects shown below the hero (only configured ones). */
-export async function getSkillCards(): Promise<Array<{
+export async function getSkillCards(locale: string = "en"): Promise<Array<{
   text: string;
   href: string;
   type: "accent" | "primary";
 }>> {
-  const s = await getSettings();
+  const s = await getSettings(locale);
   return [
     {
       text: s.skill_card_1_text || "",
@@ -76,19 +159,30 @@ export async function getSkillCards(): Promise<Array<{
 }
 
 /** Returns the navigation link labels from the navigation_links table. */
-export async function getNavigationLinks(): Promise<
+export async function getNavigationLinks(locale: string = "en"): Promise<
   Array<{ href: string; label: string; icon: string; sort_order: number; is_visible: boolean }>
 > {
+  const loc = normalizeLocale(locale);
   const db = getDb();
   const { data } = await db
     .from("navigation_links")
     .select("*")
     .order("sort_order");
-  return data || [];
+  const base = data || [];
+  if (loc === "en") return base;
+  scheduleContentAutoTranslate("navigation_links", loc, base, CONTENT_FIELDS.navigation_links, "href");
+  return overlayContent("navigation_links", loc, base, CONTENT_FIELDS.navigation_links, "href");
 }
 
-export async function updateNavigationLink(href: string, label: string, newHref?: string) {
+export async function updateNavigationLink(href: string, label: string, newHref?: string, locale: string = "en") {
   await requireAdmin();
+  const loc = normalizeLocale(locale);
+  if (loc !== "en") {
+    // href is the row identity — only the label is translatable.
+    const error = await upsertContentTranslation("navigation_links", href, "label", label, loc, "href", href);
+    if (!error) revalidatePath("/", "layout");
+    return { success: !error, error: error?.message };
+  }
   const db = getDb();
   const update: Record<string, string> = { label };
   if (newHref && newHref !== href) update.href = newHref;
@@ -223,10 +317,14 @@ export async function deleteCustomPage(id: string) {
 // PROJECTS
 // ============================================================
 
-export async function getProjects() {
+export async function getProjects(locale: string = "en") {
+  const loc = normalizeLocale(locale);
   const db = getDb();
   const { data } = await db.from("projects").select("*").order("sort_order");
-  return data || [];
+  const base = data || [];
+  if (loc === "en") return base;
+  scheduleContentAutoTranslate("projects", loc, base, CONTENT_FIELDS.projects);
+  return overlayContent("projects", loc, base, CONTENT_FIELDS.projects);
 }
 
 export async function createProject(data: {
@@ -246,8 +344,15 @@ export async function createProject(data: {
   return { success: !error, error: error?.message, project };
 }
 
-export async function updateProject(id: string, field: string, value: string) {
+export async function updateProject(id: string, field: string, value: string, locale: string = "en") {
   await requireAdmin();
+  const loc = normalizeLocale(locale);
+  if (loc !== "en") {
+    if (!CONTENT_FIELDS.projects.includes(field)) return { success: true, error: undefined as string | undefined };
+    const error = await upsertContentTranslation("projects", id, field, value, loc);
+    if (!error) revalidatePath("/", "layout");
+    return { success: !error, error: error?.message };
+  }
   const db = getDb();
   const { error } = await db
     .from("projects")
@@ -269,10 +374,14 @@ export async function deleteProject(id: string) {
 // EXPERIENCES
 // ============================================================
 
-export async function getExperiences() {
+export async function getExperiences(locale: string = "en") {
+  const loc = normalizeLocale(locale);
   const db = getDb();
   const { data } = await db.from("journey").select("*").order("sort_order");
-  return data || [];
+  const base = data || [];
+  if (loc === "en") return base;
+  scheduleContentAutoTranslate("journey", loc, base, CONTENT_FIELDS.journey);
+  return overlayContent("journey", loc, base, CONTENT_FIELDS.journey);
 }
 
 export async function createExperience(data: {
@@ -291,8 +400,15 @@ export async function createExperience(data: {
   return { success: !error, error: error?.message, experience: exp };
 }
 
-export async function updateExperience(id: string, field: string, value: string) {
+export async function updateExperience(id: string, field: string, value: string, locale: string = "en") {
   await requireAdmin();
+  const loc = normalizeLocale(locale);
+  if (loc !== "en") {
+    if (!CONTENT_FIELDS.journey.includes(field)) return { success: true, error: undefined as string | undefined };
+    const error = await upsertContentTranslation("journey", id, field, value, loc);
+    if (!error) revalidatePath("/", "layout");
+    return { success: !error, error: error?.message };
+  }
   const db = getDb();
   const { error } = await db
     .from("journey")
@@ -314,10 +430,14 @@ export async function deleteExperience(id: string) {
 // TOOLS
 // ============================================================
 
-export async function getTools() {
+export async function getTools(locale: string = "en") {
+  const loc = normalizeLocale(locale);
   const db = getDb();
   const { data } = await db.from("tools").select("*").order("sort_order");
-  return data || [];
+  const base = data || [];
+  if (loc === "en") return base;
+  scheduleContentAutoTranslate("tools", loc, base, CONTENT_FIELDS.tools);
+  return overlayContent("tools", loc, base, CONTENT_FIELDS.tools);
 }
 
 export async function createTool(data: {
@@ -337,8 +457,15 @@ export async function createTool(data: {
   return { success: !error, error: error?.message, tool };
 }
 
-export async function updateTool(id: string, field: string, value: string) {
+export async function updateTool(id: string, field: string, value: string, locale: string = "en") {
   await requireAdmin();
+  const loc = normalizeLocale(locale);
+  if (loc !== "en") {
+    if (!CONTENT_FIELDS.tools.includes(field)) return { success: true, error: undefined as string | undefined };
+    const error = await upsertContentTranslation("tools", id, field, value, loc);
+    if (!error) revalidatePath("/", "layout");
+    return { success: !error, error: error?.message };
+  }
   const db = getDb();
   const { error } = await db
     .from("tools")
@@ -360,20 +487,28 @@ export async function deleteTool(id: string) {
 // BLOG POSTS
 // ============================================================
 
-export async function getBlogPosts() {
+export async function getBlogPosts(locale: string = "en") {
+  const loc = normalizeLocale(locale);
   const db = getDb();
   const { data } = await db.from("blog_posts").select("*").order("sort_order");
-  return data || [];
+  const base = data || [];
+  if (loc === "en") return base;
+  scheduleContentAutoTranslate("blog_posts", loc, base, CONTENT_FIELDS.blog_posts);
+  return overlayContent("blog_posts", loc, base, CONTENT_FIELDS.blog_posts);
 }
 
-export async function getBlogPost(slug: string) {
+export async function getBlogPost(slug: string, locale: string = "en") {
+  const loc = normalizeLocale(locale);
   const db = getDb();
   const { data } = await db
     .from("blog_posts")
     .select("*")
     .eq("slug", slug)
     .single();
-  return data;
+  if (!data || loc === "en") return data;
+  scheduleContentAutoTranslate("blog_posts", loc, [data], CONTENT_FIELDS.blog_posts);
+  const [overlaid] = await overlayContent("blog_posts", loc, [data], CONTENT_FIELDS.blog_posts);
+  return overlaid;
 }
 
 export async function createBlogPost(data: {
@@ -397,8 +532,18 @@ export async function createBlogPost(data: {
   return { success: !error, error: error?.message, post };
 }
 
-export async function updateBlogPost(id: string, field: string, value: string) {
+export async function updateBlogPost(id: string, field: string, value: string, locale: string = "en") {
   await requireAdmin();
+  const loc = normalizeLocale(locale);
+  if (loc !== "en") {
+    if (!CONTENT_FIELDS.blog_posts.includes(field)) return { success: true, error: undefined as string | undefined };
+    const error = await upsertContentTranslation("blog_posts", id, field, value, loc);
+    if (!error) {
+      revalidatePath("/", "layout");
+      revalidatePath("/blog", "layout");
+    }
+    return { success: !error, error: error?.message };
+  }
   const db = getDb();
   const { error } = await db
     .from("blog_posts")

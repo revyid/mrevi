@@ -116,8 +116,11 @@ export default async function PublicUserPage({
       </div>
 
       {readmeHtml && (
+        // GitHub-like README canvas: transparent/inherited background (the
+        // README's own assets carry their card styling), inline images so
+        // width="49%" rows flow side-by-side, <p> rhythm like github.com.
         <div
-          className="mt-8 w-full overflow-hidden rounded-2xl border border-border bg-card p-6 md:p-10 space-y-6 [&_h1]:text-2xl [&_h2]:text-xl [&_h3]:text-lg [&_h1]:font-bold [&_h2]:font-bold [&_h3]:font-bold [&_ul]:list-disc [&_ul]:pl-5 [&_blockquote]:border-l-2 [&_blockquote]:border-border [&_blockquote]:pl-3 [&_a]:text-primary [&_a]:underline [&_code]:font-mono [&_code]:text-xs [&_img]:max-w-full [&_img]:h-auto"
+          className="mt-8 w-full [&_h1]:text-2xl [&_h2]:text-xl [&_h3]:text-lg [&_h1]:font-bold [&_h2]:font-bold [&_h3]:font-bold [&_ul]:list-disc [&_ul]:pl-5 [&_blockquote]:border-l-2 [&_blockquote]:border-border [&_blockquote]:pl-3 [&_a]:text-primary [&_code]:font-mono [&_code]:text-xs [&_img]:max-w-full [&_img]:h-auto [&_img]:inline [&_img]:align-middle [&_p]:mt-0 [&_p]:mb-4"
           dangerouslySetInnerHTML={{ __html: readmeHtml }}
         />
       )}

@@ -94,7 +94,12 @@ export function renderMarkdown(src: string, opts?: MarkdownOptions): string {
     if (!line.trim()) { i++; continue; }
     // Pure HTML line (e.g. a <picture> block): emit untouched, no <p> wrapper.
     if (/^(\u0002\d+\u0002\s*)+$/.test(line.trim())) {
-      out.push(restore(line.trim()));
+      const raw = restore(line.trim());
+      // GitHub wraps blank-line-separated inline HTML rows (picture/a/img) in a
+      // <p> — that's what gives README rows inline flow and 16px rhythm.
+      const names = [...raw.matchAll(/<\/?([a-zA-Z][a-zA-Z0-9]*)/g)].map((m) => m[1].toLowerCase());
+      const INLINE = new Set(["picture", "source", "img", "a", "br", "span", "em", "strong", "b", "i", "s", "code", "sub", "sup"]);
+      out.push(names.length > 0 && names.every((t) => INLINE.has(t)) ? `<p>${raw}</p>` : raw);
       i++;
       continue;
     }

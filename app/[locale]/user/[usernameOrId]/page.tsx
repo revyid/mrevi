@@ -75,8 +75,8 @@ export default async function PublicUserPage({
     : null;
 
   return (
-    <div className="max-w-md mx-auto py-12">
-      <div className="rounded-2xl border border-border bg-card p-8 flex flex-col items-center gap-4">
+    <div className="max-w-5xl mx-auto py-12 px-4">
+      <div className="max-w-md mx-auto rounded-2xl border border-border bg-card p-8 flex flex-col items-center gap-4">
         <Avatar className="size-24">
           <AvatarImage src={profile.avatar_url || ""} alt={profile.name} />
           <AvatarFallback className="text-3xl font-bold">{getInitials(profile.name)}</AvatarFallback>
@@ -117,7 +117,7 @@ export default async function PublicUserPage({
 
       {readmeHtml && (
         <div
-          className="mt-4 space-y-2 [&_h1]:text-lg [&_h2]:text-base [&_h3]:text-sm [&_h1]:font-bold [&_h2]:font-bold [&_h3]:font-bold [&_ul]:list-disc [&_ul]:pl-5 [&_blockquote]:border-l-2 [&_blockquote]:border-border [&_blockquote]:pl-3 [&_a]:text-primary [&_a]:underline [&_code]:font-mono [&_code]:text-xs [&_img]:max-w-full [&_img]:h-auto"
+          className="mt-8 w-full overflow-hidden rounded-2xl border border-border bg-card p-6 md:p-10 space-y-6 [&_h1]:text-2xl [&_h2]:text-xl [&_h3]:text-lg [&_h1]:font-bold [&_h2]:font-bold [&_h3]:font-bold [&_ul]:list-disc [&_ul]:pl-5 [&_blockquote]:border-l-2 [&_blockquote]:border-border [&_blockquote]:pl-3 [&_a]:text-primary [&_a]:underline [&_code]:font-mono [&_code]:text-xs [&_img]:max-w-full [&_img]:h-auto"
           dangerouslySetInnerHTML={{ __html: readmeHtml }}
         />
       )}

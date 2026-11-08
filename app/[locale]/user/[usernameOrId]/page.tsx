@@ -16,6 +16,7 @@ interface PublicProfile {
   username: string;
   bio: string | null;
   website: string | null;
+  github_readme_url: string | null;
   avatar_url: string | null;
   provider: string;
   created_at: string;
@@ -25,7 +26,9 @@ async function getPublicProfile(usernameOrId: string): Promise<PublicProfile | n
   const db = getDb();
   const query = db
     .from("users")
-    .select("id, name, username, bio, website, avatar_url, provider, created_at")
+    // select("*"): tolerates the optional github_readme_url column (migration 008)
+    // not being run yet — missing column reads as null, never a hard error.
+    .select("*")
     .eq(UUID_RE.test(usernameOrId) ? "id" : "username", usernameOrId)
     .maybeSingle();
   const { data } = await query;
@@ -65,9 +68,10 @@ export default async function PublicUserPage({
   const { usernameOrId } = await params;
   const profile = await getPublicProfile(usernameOrId);
   if (!profile) notFound();
-  // Website = GitHub repo link -> auto-import its README.md (no paste needed).
-  const readmeHtml = profile.website
-    ? await fetchGithubReadmeHtml(profile.website).catch(() => null)
+  // Dedicated README link first; fall back to a GitHub repo in Website (legacy).
+  const readmeSource = profile.github_readme_url || profile.website;
+  const readmeHtml = readmeSource
+    ? await fetchGithubReadmeHtml(readmeSource).catch(() => null)
     : null;
 
   return (

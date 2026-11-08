@@ -27,6 +27,7 @@ export interface User {
   bio?: string;
   website?: string;
   dob?: string;
+  github_readme_url?: string;
   created_at: string;
   updated_at: string;
 }

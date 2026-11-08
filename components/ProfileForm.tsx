@@ -68,6 +68,7 @@ interface ProfileFormProps {
     website?: string;
     dob?: string;
     username?: string;
+    github_readme_url?: string;
   };
 }
 
@@ -135,6 +136,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
   const [website, setWebsite] = useState(profile.website || "");
   const [dob, setDob] = useState(profile.dob || "");
   const [username, setUsername] = useState(profile.username || "");
+  const [githubReadmeUrl, setGithubReadmeUrl] = useState(profile.github_readme_url || "");
   const [saving, setSaving] = useState(false);
 
   const tLocale = useLocale();
@@ -220,7 +222,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
 
   async function handleSaveProfile() {
     setSaving(true);
-    const result = await updateProfile({ name, avatarUrl, bio, website, dob, username });
+    const result = await updateProfile({ name, avatarUrl, bio, website, dob, username, githubReadmeUrl });
     if (result.success) {
       toast.success("Profile saved");
     } else {
@@ -447,10 +449,14 @@ export function ProfileForm({ profile }: ProfileFormProps) {
             <div className="space-y-2">
               <label className="text-sm font-medium flex items-center gap-1" htmlFor="profile-website"><GlobeIcon aria-hidden="true" className="size-3" /> Website</label>
               <Input id="profile-website" type="url" autoComplete="url" value={website} onChange={(e) => setWebsite(e.target.value)} placeholder="https://..." />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium flex items-center gap-1" htmlFor="profile-readme"><GlobeIcon aria-hidden="true" className="size-3" /> README.md</label>
+              <Input id="profile-readme" type="url" autoComplete="url" value={githubReadmeUrl} onChange={(e) => setGithubReadmeUrl(e.target.value)} placeholder="https://github.com/username/repo" />
               <p className="text-xs text-muted-foreground">
                 {locale === "id"
-                  ? "Link repo GitHub otomatis mengimpor README.md ke profil publikmu"
-                  : "A GitHub repo link auto-imports its README.md on your public profile"}
+                  ? "Link repo GitHub - README.md repo itu otomatis muncul di profil publik"
+                  : "GitHub repo link - its README.md auto-shows on your public profile"}
               </p>
             </div>
             <div className="space-y-2">

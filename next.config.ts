@@ -21,7 +21,7 @@ function buildCsp({ allowJsdelivr = false, allowWasm = false }: { allowJsdelivr?
     `script-src 'self' 'unsafe-inline'${wasm}${isDev ? " 'unsafe-eval'" : ""}${jsdelivr}`,
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "font-src 'self' https://fonts.gstatic.com",
-    "img-src 'self' data: blob: https://res.cloudinary.com https://framerusercontent.com https://lh3.googleusercontent.com https://avatars.githubusercontent.com https://cdn.jsdelivr.net https://images.unsplash.com https://revy.biz.id",
+    "img-src 'self' data: blob: https://res.cloudinary.com https://framerusercontent.com https://lh3.googleusercontent.com https://avatars.githubusercontent.com https://raw.githubusercontent.com https://cdn.jsdelivr.net https://images.unsplash.com https://revy.biz.id",
     `connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.revy.my.id${isDev ? " http://localhost:3001" : ""}${jsdelivr}`,
     "object-src 'none'",
     "base-uri 'self'",

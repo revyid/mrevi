@@ -12,6 +12,7 @@ export default async function ProfilePage() {
     provider: user.provider, created_at: user.created_at,
     username: user.username || "",
     bio: user.bio || "", website: user.website || "", dob: user.dob ? user.dob.slice(0, 10) : "",
+    github_readme_url: user.github_readme_url || "",
   };
 
   return <ProfileForm profile={profileData} />;

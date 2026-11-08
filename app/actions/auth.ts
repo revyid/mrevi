@@ -69,7 +69,7 @@ export async function clearSessionCookie(): Promise<{ success: boolean }> {
 }
 
 export async function updateProfile(
-  data: { name?: string; avatarUrl?: string; bio?: string; website?: string; dob?: string; username?: string }
+  data: { name?: string; avatarUrl?: string; bio?: string; website?: string; dob?: string; username?: string; githubReadmeUrl?: string }
 ): Promise<{ success: boolean; error?: string }> {
   try {
     const { getSession } = await import("@/lib/auth");
@@ -83,6 +83,7 @@ export async function updateProfile(
     if (data.bio !== undefined) updateData.bio = data.bio;
     if (data.website !== undefined) updateData.website = data.website;
     if (data.dob !== undefined) updateData.dob = data.dob;
+    if (data.githubReadmeUrl !== undefined) updateData.github_readme_url = data.githubReadmeUrl;
     if (data.username !== undefined) {
       const username = data.username.trim().toLowerCase();
       if (!/^[a-z0-9][a-z0-9_-]{2,29}$/.test(username)) {
@@ -98,7 +99,13 @@ export async function updateProfile(
       updateData.username = username;
     }
 
-    const { error } = await db.from("users").update(updateData).eq("id", userId);
+    let { error } = await db.from("users").update(updateData).eq("id", userId);
+    if (error && /github_readme_url/.test(error.message)) {
+      // Column migration (008) not run yet: save everything else, drop README URL.
+      delete updateData.github_readme_url;
+      ({ error } = await db.from("users").update(updateData).eq("id", userId));
+      if (!error) return { success: true };
+    }
     if (error) return { success: false, error: error.message };
 
     // Only the "en" locale exists in routing — revalidating /id/* paths is a no-op.

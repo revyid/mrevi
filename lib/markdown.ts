@@ -21,7 +21,7 @@ const BIO_SANITIZE_OPTIONS: sanitizeHtml.IOptions = {
   allowedAttributes: {
     "*": ["align", "class", "id"],
     a: ["href", "rel", "title"],
-    img: ["src", "alt", "width", "height"],
+    img: ["src", "srcset", "alt", "width", "height"],
     source: ["src", "srcset", "media", "type"],
   },
   allowedSchemes: ["http", "https", "mailto"],
@@ -51,10 +51,33 @@ function inline(text: string): string {
   return t;
 }
 
-export function renderMarkdown(src: string): string {
+export interface MarkdownOptions {
+  /** Base URL for relative images (e.g. GitHub raw base). */
+  imgBase?: string;
+  /** Base URL for relative links. Falls back to imgBase. */
+  linkBase?: string;
+}
+
+export function renderMarkdown(src: string, opts?: MarkdownOptions): string {
   // 1) Sanitize raw input (HTML passthrough, dangerous bits removed).
   const clean = sanitizeHtml(src ?? "", BIO_SANITIZE_OPTIONS);
-  // 2) Protect tags from markdown transforms; markdown rules run on text only.
+  // 2) Resolve relative asset URLs (GitHub READMEs link images as "assets/x.svg").
+  const resolveBase = (html: string, opts?: MarkdownOptions): string => {
+    if (!opts?.imgBase && !opts?.linkBase) return html;
+    const abs = (v: string, base?: string) => {
+      if (!base || /^(https?:|mailto:|\/|#)/.test(v)) return v;
+      return base.replace(/\/?$/, "/") + v.replace(/^\.\//, "");
+    };
+    let out = html.replace(/(src|href)="([^"]+)"/g, (_m, a, v) =>
+      `${a}="${abs(v, a === "src" ? opts?.imgBase : opts?.linkBase || opts?.imgBase)}"`);
+    out = out.replace(/srcset="([^"]+)"/g, (_m, v) =>
+      `srcset="${v.split(",").map((part: string) => {
+        const [u, ...rest] = part.trim().split(/\s+/);
+        return [abs(u, opts?.imgBase), ...rest].join(" ");
+      }).join(", ")}"`);
+    return out;
+  };
+  // 3) Protect tags from markdown transforms; markdown rules run on text only.
   const tags: string[] = [];
   const protectedSrc = clean.replace(/<[^>]*>/g, (tag) => {
     tags.push(tag);
@@ -95,5 +118,5 @@ export function renderMarkdown(src: string): string {
     }
     if (p.length) out.push(`<p>${p.join("<br>")}</p>`);
   }
-  return restore(out.join("\n"));
+  return resolveBase(restore(out.join("\n")), opts);
 }

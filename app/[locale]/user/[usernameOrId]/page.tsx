@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { CalendarIcon, GlobeIcon } from "lucide-react";
 import { formatDate, getInitials } from "@/lib/utils";
 import { renderMarkdown } from "@/lib/markdown";
+import { fetchGithubReadmeHtml } from "@/lib/github-readme";
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -64,6 +65,10 @@ export default async function PublicUserPage({
   const { usernameOrId } = await params;
   const profile = await getPublicProfile(usernameOrId);
   if (!profile) notFound();
+  // Website = GitHub repo link -> auto-import its README.md (no paste needed).
+  const readmeHtml = profile.website
+    ? await fetchGithubReadmeHtml(profile.website).catch(() => null)
+    : null;
 
   return (
     <div className="max-w-md mx-auto py-12">
@@ -105,6 +110,13 @@ export default async function PublicUserPage({
           </a>
         )}
       </div>
+
+      {readmeHtml && (
+        <div
+          className="mt-4 space-y-2 [&_h1]:text-lg [&_h2]:text-base [&_h3]:text-sm [&_h1]:font-bold [&_h2]:font-bold [&_h3]:font-bold [&_ul]:list-disc [&_ul]:pl-5 [&_blockquote]:border-l-2 [&_blockquote]:border-border [&_blockquote]:pl-3 [&_a]:text-primary [&_a]:underline [&_code]:font-mono [&_code]:text-xs [&_img]:max-w-full [&_img]:h-auto"
+          dangerouslySetInnerHTML={{ __html: readmeHtml }}
+        />
+      )}
     </div>
   );
 }

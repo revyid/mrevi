@@ -90,7 +90,8 @@
     "passwordMismatch": "Kata sandi tidak cocok",
     "accountProvider": "Akun terhubung melalui",
     "setPassword": "Buat Kata Sandi",
-    "setPasswordNote": "Buat kata sandi untuk masuk dengan email & password"
+    "setPasswordNote": "Buat kata sandi untuk masuk dengan email & password",
+    "githubReadmeHint": "Link repo GitHub otomatis mengimpor README.md ke profil publikmu"
   },
   "admin": {
     "title": "Admin",

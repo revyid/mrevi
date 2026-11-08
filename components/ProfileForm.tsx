@@ -19,6 +19,7 @@ import { formatDate, getInitials } from "@/lib/utils";
 import { renderMarkdown } from "@/lib/markdown";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
+import { useLocale } from "next-intl";
 import {
   Dialog,
   DialogContent,
@@ -136,7 +137,8 @@ export function ProfileForm({ profile }: ProfileFormProps) {
   const [username, setUsername] = useState(profile.username || "");
   const [saving, setSaving] = useState(false);
 
-  const locale = typeof window !== "undefined" && window.location.pathname.startsWith("/id") ? "id" : "en";
+  const tLocale = useLocale();
+  const locale = tLocale || (typeof window !== "undefined" && window.location.pathname.startsWith("/id") ? "id" : "en");
 
   // Password
   const [showPasswordModal, setShowPasswordModal] = useState(false);
@@ -445,6 +447,11 @@ export function ProfileForm({ profile }: ProfileFormProps) {
             <div className="space-y-2">
               <label className="text-sm font-medium flex items-center gap-1" htmlFor="profile-website"><GlobeIcon aria-hidden="true" className="size-3" /> Website</label>
               <Input id="profile-website" type="url" autoComplete="url" value={website} onChange={(e) => setWebsite(e.target.value)} placeholder="https://..." />
+              <p className="text-xs text-muted-foreground">
+                {locale === "id"
+                  ? "Link repo GitHub otomatis mengimpor README.md ke profil publikmu"
+                  : "A GitHub repo link auto-imports its README.md on your public profile"}
+              </p>
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium flex items-center gap-1"><CalendarIcon className="size-3" /> Date of Birth</label>

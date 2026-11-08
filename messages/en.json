@@ -90,7 +90,8 @@
     "passwordMismatch": "Passwords do not match",
     "accountProvider": "Account linked via",
     "setPassword": "Set Password",
-    "setPasswordNote": "Create a password to sign in with email & password"
+    "setPasswordNote": "Create a password to sign in with email & password",
+    "githubReadmeHint": "A GitHub repo link auto-imports its README.md on your public profile"
   },
   "admin": {
     "title": "Admin",

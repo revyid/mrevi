@@ -53,7 +53,7 @@ async function getData(locale: string) {
     getExperiences(locale),
     getTools(locale),
     getBlogPosts(locale),
-    getShowcaseDemos(),
+    getShowcaseDemos(locale),
     getSettings(locale),
   ]);
   return { projects, experiences, tools, blogPosts, showcaseDemos, settings };

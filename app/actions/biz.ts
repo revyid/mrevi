@@ -3,6 +3,11 @@
 import { revalidatePath } from "next/cache";
 import { getDb } from "@/lib/db";
 import { getSession } from "@/lib/auth";
+import {
+  normalizeLocale,
+  overlayContent,
+  scheduleContentAutoTranslate,
+} from "@/lib/translations";
 
 async function requireAdmin() {
   const user = await getSession();
@@ -145,21 +150,30 @@ export interface ShowcaseDemo {
   tag: string;
 }
 
-export async function getShowcaseDemos(): Promise<ShowcaseDemo[]> {
+const SHOWCASE_FIELDS = ["name", "desc", "tag"];
+
+export async function getShowcaseDemos(locale: string = "en"): Promise<ShowcaseDemo[]> {
+  const loc = normalizeLocale(locale);
   const db = getDb();
   const { data } = await db.from("site_settings").select("value").eq("key", "showcase_demos").maybeSingle();
   if (!data?.value) return [];
   try {
     const parsed = JSON.parse(data.value);
     if (!Array.isArray(parsed)) return [];
+    const raw = parsed as Array<Record<string, unknown>>;
+    let rows = raw;
+    if (loc !== "en") {
+      scheduleContentAutoTranslate("showcase_demos", loc, raw, SHOWCASE_FIELDS);
+      rows = await overlayContent("showcase_demos", loc, raw, SHOWCASE_FIELDS);
+    }
     // Demo pages (e.g. /umkm/kopi-seni.html) live on the BISNIS site, not on
     // this portfolio domain — resolve site-relative paths against the bisnis
     // base URL so the SHOWCASE links don't 404 on revy.my.id. Absolute URLs
     // (https://...) and anchors/hash/protocol-relative are left untouched.
-    return (parsed as ShowcaseDemo[]).map((d) => ({
-      ...d,
-      href: absolutizeBizUrl(d.href),
-      image: absolutizeBizUrl(d.image),
+    return rows.map((d) => ({
+      ...(d as unknown as ShowcaseDemo),
+      href: absolutizeBizUrl(d.href as string | undefined),
+      image: absolutizeBizUrl(d.image as string | undefined),
     }));
   } catch {
     return [];

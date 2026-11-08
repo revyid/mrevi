@@ -8,6 +8,7 @@ import {
   hashText,
   contentKey,
   settingKey,
+  isTranslatableSetting,
   getSettingsTranslations,
   overlayContent,
   scheduleContentAutoTranslate,
@@ -74,7 +75,10 @@ export async function getSettings(locale: string = "en"): Promise<Record<string,
   const base = Object.fromEntries(data.map((s: { key: string; value: string }) => [s.key, s.value]));
   if (loc === "en") return base;
   const overlay = await getSettingsTranslations(loc);
-  const merged = { ...base, ...overlay };
+  const merged = { ...base };
+  for (const [k, v] of Object.entries(overlay)) {
+    if (isTranslatableSetting(k, base[k] ?? "")) merged[k] = v;
+  }
   scheduleSettingsAutoTranslate(loc, base);
   return merged;
 }

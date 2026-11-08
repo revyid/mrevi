@@ -42,6 +42,31 @@ export function settingKey(setting: string): string {
   return `setting:${setting}`;
 }
 
+/**
+ * Settings whose base value is not free text: structured JSON blobs
+ * (showcase_demos, biz_products, ...), URLs/anchors, mail/phone, counters,
+ * asset paths. Machine-translating them corrupts the value (MyMemory error
+ * text once got stored as `setting:showcase_demos`), so they never overlay
+ * and never queue for auto-translate.
+ */
+export function isTranslatableSetting(key: string, value: string): boolean {
+  const v = value.trim();
+  if (!v) return false;
+  if (/^(https?:)?\/\//i.test(v) || v.startsWith("#") || v.startsWith("mailto:") || v.startsWith("tel:") || v.startsWith("data:")) return false;
+  if (/^\/[\w.-]+/.test(v) && !/\s/.test(v)) return false;
+  if (/[\w.+-]+@[\w.-]+\.[a-z]{2,}$/i.test(v)) return false;
+  if (/^\+?\d+$/.test(v) || /^[\d\s()+.-]{7,}$/.test(v)) return false;
+  if (/\.(png|jpe?g|webp|svg|gif|avif|css|js|html?)(\?\S*)?$/i.test(v)) return false;
+  if (/_href|_url|_link|_image|_avatar|_email|_number|_count/.test(key)) return false;
+  if (v[0] === "{" || v[0] === "[") {
+    try {
+      const p = JSON.parse(v);
+      if (p && typeof p === "object") return false;
+    } catch { /* not JSON — treat as text */ }
+  }
+  return true;
+}
+
 /** Parse `content:<table>:<rowId>:<field>` rows for one locale into Map<rowId, {field: text}>. */
 export async function getContentTranslations(
   table: string,
@@ -86,7 +111,7 @@ export async function getSettingsStale(
   const byKey = new Map(rows.map((r) => [r.key, r]));
   return Object.entries(base)
     .filter(([key, enText]) => {
-      if (!enText) return false;
+      if (!enText || !isTranslatableSetting(key, enText)) return false;
       const cur = byKey.get(settingKey(key));
       return !cur || cur.source_hash !== hashText(enText);
     })

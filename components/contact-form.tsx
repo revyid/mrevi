@@ -85,7 +85,7 @@ export function ContactForm() {
           id="contact-name"
           name="name"
           autoComplete="name"
-          placeholder="Name *"
+          placeholder={`${t("nameLabel")} *`}
           aria-invalid={!!errors.name}
           aria-describedby={errors.name ? "contact-name-error" : undefined}
           value={name}
@@ -102,7 +102,7 @@ export function ContactForm() {
           name="email"
           type="email"
           autoComplete="email"
-          placeholder="Email *"
+          placeholder={`${t("emailLabel")} *`}
           aria-invalid={!!errors.email}
           aria-describedby={errors.email ? "contact-email-error" : undefined}
           value={email}
@@ -131,7 +131,7 @@ export function ContactForm() {
         <Textarea
           id="contact-message"
           name="message"
-          placeholder="Message *"
+          placeholder={`${t("messageLabel")} *`}
           aria-invalid={!!errors.message}
           aria-describedby={errors.message ? "contact-message-error" : undefined}
           value={message}

@@ -8,6 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -125,8 +126,10 @@ export function Navigation({ user, locale, navLinks }: { user?: User | null; loc
                 </p>
               </div>
               <DropdownMenuSeparator />
-              <DropdownMenuLabel>{t("language")}</DropdownMenuLabel>
-              <LocaleMenuItems />
+              <DropdownMenuGroup>
+                <DropdownMenuLabel>{t("language")}</DropdownMenuLabel>
+                <LocaleMenuItems />
+              </DropdownMenuGroup>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => router.push("/profile")}>
                 <svg className="size-4 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

@@ -34,6 +34,11 @@ const HREF_TKEYS: Record<string, string> = {
   "/journey": "experience",
   "/tools": "tools",
   "/blog": "thoughts",
+  // DB navigation_links point at page sections, not routes
+  "#section-projects": "projects",
+  "#section-journey": "experience",
+  "#section-tools": "tools",
+  "#section-blog": "thoughts",
 };
 
 interface User {

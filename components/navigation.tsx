@@ -8,9 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuGroup,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -26,6 +24,17 @@ const defaultNavLinks = [
   { href: "/tools", label: "Tools", tkey: "tools", icon: "M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z", is_visible: true },
   { href: "/blog", label: "Thoughts", tkey: "thoughts", icon: "M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7 M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z", is_visible: true },
 ];
+
+// DB navigation_links has no tkey column, so derive the next-intl key from
+// the href for known routes — otherwise the English seed label renders in
+// every locale.
+const HREF_TKEYS: Record<string, string> = {
+  "/": "home",
+  "/projects": "projects",
+  "/journey": "experience",
+  "/tools": "tools",
+  "/blog": "thoughts",
+};
 
 interface User {
   id: string;
@@ -79,7 +88,8 @@ export function Navigation({ user, locale, navLinks }: { user?: User | null; loc
         {links.map((link) => {
           const isActive = !isExternalUrl(link.href) && pathname === link.href;
           // Known routes are translated; admin-managed links keep their label.
-          const label = link.tkey ? t(link.tkey) : link.label;
+          const tkey = link.tkey || HREF_TKEYS[link.href];
+          const label = tkey ? t(tkey) : link.label;
           const button = (
             <Button
               variant="ghost"
@@ -106,6 +116,8 @@ export function Navigation({ user, locale, navLinks }: { user?: User | null; loc
         <div className="size-px bg-white/10 mx-1" />
 
         {user ? (
+          <>
+          <LocaleDropdown />
           <DropdownMenu>
             <DropdownMenuTrigger aria-label={user.name} className="flex items-center gap-2 p-2 rounded-2xl hover:bg-white/5 transition-colors outline-none">
               <Avatar className="size-8">
@@ -125,11 +137,6 @@ export function Navigation({ user, locale, navLinks }: { user?: User | null; loc
                   {user.role === "admin" ? t("administrator") : t("user")}
                 </p>
               </div>
-              <DropdownMenuSeparator />
-              <DropdownMenuGroup>
-                <DropdownMenuLabel>{t("language")}</DropdownMenuLabel>
-                <LocaleMenuItems />
-              </DropdownMenuGroup>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => router.push("/profile")}>
                 <svg className="size-4 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -160,6 +167,7 @@ export function Navigation({ user, locale, navLinks }: { user?: User | null; loc
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+          </>
         ) : (
           <>
           <Link href="/login" aria-label={t("login")}>

@@ -1,6 +1,34 @@
-// Minimal GitHub-style markdown -> sanitized HTML (no dependencies).
-// ALL HTML is escaped first, so the only tags in the output are the ones
-// generated below. Links are restricted to http/https.
+// Minimal GitHub-style markdown -> sanitized HTML (no new dependencies).
+// Supports inline HTML blocks like GitHub profile READMEs (div/picture/img/a)
+// via sanitize-html with a README-style allowlist: scripts, event handlers,
+// forms, styles and everything else unsafe is stripped before markdown runs.
+
+import sanitizeHtml from "sanitize-html";
+
+// GitHub README allowlist (subset): layout tags + media + links.
+const BIO_TAGS = [
+  "div", "p", "br", "hr",
+  "h1", "h2", "h3", "h4", "h5", "h6",
+  "picture", "source", "img",
+  "a", "strong", "em", "b", "i", "s", "code", "pre",
+  "blockquote", "ul", "ol", "li",
+  "table", "thead", "tbody", "tr", "th", "td",
+  "sub", "sup",
+];
+
+const BIO_SANITIZE_OPTIONS: sanitizeHtml.IOptions = {
+  allowedTags: BIO_TAGS,
+  allowedAttributes: {
+    "*": ["align", "class", "id"],
+    a: ["href", "rel", "title"],
+    img: ["src", "alt", "width", "height"],
+    source: ["src", "srcset", "media", "type"],
+  },
+  allowedSchemes: ["http", "https", "mailto"],
+  transformTags: {
+    a: sanitizeHtml.simpleTransform("a", { rel: "noopener noreferrer" }),
+  },
+};
 
 function escapeHtml(s: string): string {
   return s
@@ -24,12 +52,29 @@ function inline(text: string): string {
 }
 
 export function renderMarkdown(src: string): string {
-  const lines = escapeHtml(src ?? "").split("\n");
+  // 1) Sanitize raw input (HTML passthrough, dangerous bits removed).
+  const clean = sanitizeHtml(src ?? "", BIO_SANITIZE_OPTIONS);
+  // 2) Protect tags from markdown transforms; markdown rules run on text only.
+  const tags: string[] = [];
+  const protectedSrc = clean.replace(/<[^>]*>/g, (tag) => {
+    tags.push(tag);
+    return `\u0002${tags.length - 1}\u0002`;
+  });
+  const restore = (t: string) =>
+    t.replace(/\u0002(\d+)\u0002/g, (_m, i) => tags[Number(i)]);
+
+  const lines = protectedSrc.split("\n");
   const out: string[] = [];
   let i = 0;
   while (i < lines.length) {
     const line = lines[i];
     if (!line.trim()) { i++; continue; }
+    // Pure HTML line (e.g. a <picture> block): emit untouched, no <p> wrapper.
+    if (/^(\u0002\d+\u0002\s*)+$/.test(line.trim())) {
+      out.push(restore(line.trim()));
+      i++;
+      continue;
+    }
     const h = line.match(/^(#{1,3})\s+(.*)$/);
     if (h) { out.push(`<h${h[1].length}>${inline(h[2])}</h${h[1].length}>`); i++; continue; }
     if (/^&gt;\s?/.test(line)) {
@@ -45,10 +90,10 @@ export function renderMarkdown(src: string): string {
       continue;
     }
     const p: string[] = [];
-    while (i < lines.length && lines[i].trim() && !/^(#{1,3})\s+/.test(lines[i]) && !/^&gt;\s?/.test(lines[i]) && !/^-\s+/.test(lines[i])) {
+    while (i < lines.length && lines[i].trim() && !/^(#{1,3})\s+/.test(lines[i]) && !/^&gt;\s?/.test(lines[i]) && !/^-\s+/.test(lines[i]) && !/^(\u0002\d+\u0002\s*)+$/.test(lines[i].trim())) {
       p.push(inline(lines[i])); i++;
     }
-    out.push(`<p>${p.join("<br>")}</p>`);
+    if (p.length) out.push(`<p>${p.join("<br>")}</p>`);
   }
-  return out.join("\n");
+  return restore(out.join("\n"));
 }

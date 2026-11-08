@@ -59,7 +59,7 @@
     "displayName": "Nama Tampilan",
     "bio": "Bio",
     "bioPlaceholder": "Ceritakan tentang diri Anda...",
-    "bioMarkdownHint": "Mendukung markdown ala GitHub",
+    "bioMarkdownHint": "Mendukung markdown ala GitHub dan HTML, seperti README profil",
     "website": "Website",
     "websitePlaceholder": "https://websiteanda.com",
     "dateOfBirth": "Tanggal Lahir",

@@ -26,7 +26,7 @@ export function hashText(s: string): string {
   return createHash("sha256").update(s).digest("hex");
 }
 
-export const SUPPORTED_LOCALES = ["en", "id"] as const;
+export const SUPPORTED_LOCALES = ["en", "id", "fr", "es", "de"] as const;
 
 export function normalizeLocale(locale?: string | null): string {
   return locale && (SUPPORTED_LOCALES as readonly string[]).includes(locale)

@@ -5,6 +5,9 @@ import { Button } from "@/components/ui/button";
 export const LOCALES = [
   { code: "en", label: "English (EN)" },
   { code: "id", label: "Indonesia (ID)" },
+  { code: "fr", label: "Français (FR)" },
+  { code: "es", label: "Español (ES)" },
+  { code: "de", label: "Deutsch (DE)" },
 ] as const;
 
 /** Minimal locale toggle (same pattern as TranslationsTab). */

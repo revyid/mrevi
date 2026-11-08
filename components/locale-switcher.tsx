@@ -14,6 +14,9 @@ import {
 const LOCALES = [
   { code: "en", label: "EN", name: "English" },
   { code: "id", label: "ID", name: "Bahasa Indonesia" },
+  { code: "fr", label: "FR", name: "Français" },
+  { code: "es", label: "ES", name: "Español" },
+  { code: "de", label: "DE", name: "Deutsch" },
 ] as const;
 
 type LocaleCode = (typeof LOCALES)[number]["code"];

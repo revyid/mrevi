@@ -30,6 +30,9 @@ type Status = "ok" | "missing" | "stale" | "machine-translated";
 const LOCALES = [
   { code: "en", label: "English (EN)" },
   { code: "id", label: "Indonesia (ID)" },
+  { code: "fr", label: "Français (FR)" },
+  { code: "es", label: "Español (ES)" },
+  { code: "de", label: "Deutsch (DE)" },
 ] as const;
 
 const STATUS_VARIANT: Record<Status, "default" | "destructive" | "secondary" | "outline"> = {
